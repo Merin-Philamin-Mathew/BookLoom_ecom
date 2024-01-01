@@ -32,7 +32,7 @@ class NewUser(AbstractUser):
         return self.username
     
 
-
+""" 
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 import uuid
@@ -80,3 +80,4 @@ def send_account_activation_email(email, email_token):
     
 
     send_mail(subject, message, email_from, [email])
+ """

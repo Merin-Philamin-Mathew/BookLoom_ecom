@@ -22,33 +22,30 @@ def user_logout(request):
 
 
 def user_signup(request):
-    if request.user.is_authenticated:    
+    if request.user.is_authenticated:
         return redirect('user_app:home')
-    
+
     if request.method == 'POST':
-       form = UserRegisterForm(request.POST or None)
+        form = UserRegisterForm(request.POST)
+    
+        if form.is_valid():
+            user = form.save()
 
-    #    if form.exists():
-    #        messages.warning(request, 'Email is already taken.')
-    #        return HttpResponseRedirect(request.path_info)
-       if form.is_valid():
-           user = form.save()
-           messages.success(request, 'An email has been sent on your mail.')
-           return HttpResponseRedirect(request.path_info)
+            # Log in the user
+            user = authenticate(username=form.cleaned_data['email'], password=form.cleaned_data['password1'])
+            if user is not None:
+                login(request, user)
+                messages.success(request, f"Hey {user.username}, Your account created successfully")
+                return redirect('user_app:home')
+            else:
+                # Handle authentication failure
+                messages.error(request, 'Authentication failed. Please try again.')
 
-        #    username = form.cleaned_data.get("username")
-        #    messages.success(request, f"Hey {username}, Your account created successfully")
-        #    user = authenticate(username = form.cleaned_data['email'],
-        #                        password = form.cleaned_data['password1']
-        #                        )
-        #    login(request, user)
-        #    return redirect('user_app:home')
+    else:
+        form = UserRegisterForm()
 
-    form = UserRegisterForm()
-    context = {
-        'form':form,
-    }
-    return render(request, "user_template/signup.html",context)
+    context = {'form': form}
+    return render(request, "user_template/signup.html", context)
 
 
 
