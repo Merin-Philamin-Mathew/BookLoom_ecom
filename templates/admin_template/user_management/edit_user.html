@@ -41,7 +41,7 @@ Homeettwe
                                         <label style="float: left; margin: 10px 20px 0 20px" class="fw-bold">Password</label>
                                         <input type="password" class="form-control form-control-lg" name="password" style="font-size: 14px" placeholder='***********'/>
                                     </div>
-                                    {% if user_data.username.is_superuser == 'True' %}
+                                    {% if user_data.is_superuser%}
                                     <div class="form-outline mb-4">
                                         <label style="float: left; margin: 10px 20px 0 20px" class="fw-bold">Status</label>
                                         <select class="form-control form-control-lg" name="status" style="font-size: 14px" required>
