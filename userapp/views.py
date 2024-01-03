@@ -16,7 +16,7 @@ def home(request):
 
 
 def user_logout(request):
-    if request.user.is_authenticated:
+    if request.user.is_authenticated :
         logout(request)
     return redirect('user_app:login')
 

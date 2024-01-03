@@ -5,11 +5,14 @@ from phonenumber_field.modelfields import PhoneNumberField
 #from django_otp.models import TimeBasedOTP
 # Create your models here.
 
+#overriding the abstractuser
 #imported in adminapp.admin homeapp.views
+
 class NewUser(AbstractUser):
     STATUS_CHOICES = [
         ('active', 'Active'),
         ('blocked', 'Blocked'),
+        ('unblocked', 'Unblocked'),
     ]
     user_id = models.BigAutoField(primary_key=True, unique=True,)
     email = models.EmailField(_("Email Address"), unique = True,)
@@ -29,7 +32,7 @@ class NewUser(AbstractUser):
     #     return self.verify_otp_value(otp)
 
     def __str__(self):
-        return self.username
+        return self.email
     
 
 """ 
