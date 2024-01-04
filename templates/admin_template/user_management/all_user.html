@@ -12,11 +12,10 @@ users info
 
 <main class="main-wrap">
     {% include "includes/admin_navbar.html" %}
-    <div
-        class="table-responsive"
-    >
+    
+    <divclass="table-responsive">
         <table
-            class="table table-primary"
+            class="table"
         >
             <thead>
                 <tr>
@@ -36,11 +35,11 @@ users info
                     <td>{{user.email}}</td>
                     <td>{{user.phone_number}}</td>
                     {% if user.status == 'active' %}
-                    <td ><span class='badge rounded-pill alert alert-success'>{{user.status}}</td>
+                    <td ><span class='badge rounded-pill alert-success'>{{user.status}}</td>
                     {% elif user.status == 'blocked' %}
-                    <td ><span class='badge rounded-pill alert alert-danger'>{{user.status}}</span></td>
+                    <td ><span class='badge rounded-pill alert-danger'>{{user.status}}</span></td>
                     {% else %}
-                    <td ><span class='badge rounded-pill alert alert-warning'>{{user.status}}</td>
+                    <td ><span class='badge rounded-pill alert-warning'>{{user.status}}</td>
                     {% endif %}
                     
                     <td><a href="{% url "admin_app:edituser" user.user_id %}">edit</a>/

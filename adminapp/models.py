@@ -84,3 +84,4 @@ def send_account_activation_email(email, email_token):
 
     send_mail(subject, message, email_from, [email])
  """
+

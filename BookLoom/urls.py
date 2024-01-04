@@ -23,6 +23,7 @@ urlpatterns = [
     path('django_admin/', admin.site.urls),
     path('',include("adminapp.urls", namespace='admin_app') ),
     path('',include("userapp.urls", namespace='userapp_app') ),
+    path('',include("store.urls", namespace='store_app') ),
 ]
 urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

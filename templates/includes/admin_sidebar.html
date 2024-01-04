@@ -12,7 +12,7 @@
     <nav>
         <ul class="menu-aside">
             <li class="menu-item active">
-                <a class="menu-link" href="index.html"> <i class="icon material-icons md-home"></i>
+                <a class="menu-link" href="{% url "admin_app:admin_dashboard" %}"> <i class="icon material-icons md-home"></i>
                     <span class="text">Dashboard</span>
                 </a>
             </li>
@@ -29,8 +29,8 @@
                     <span class="text">Products</span>
                 </a>
                 <div class="submenu">
-                    <a href="page-products-list.html">Product List</a>
-                    <a href="page-products-grid.html">Add Product </a>
+                    <a href="{% url "store_app:list_products" %}">Product List</a>
+                    <a href="{% url "store_app:add_products" %}">Add Product </a>
                 </div>
             </li>
             <li class="menu-item has-submenu">
@@ -38,7 +38,7 @@
                     <span class="text">Categories</span>
                 </a>
                 <div class="submenu">
-                    <a href="page-products-list.html">Category List</a>
+                    <a href="{% url "store_app:category" %}">Category List</a>
                 </div>
             </li>
             <li class="menu-item has-submenu">

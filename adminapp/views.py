@@ -122,7 +122,6 @@ def deleteuser(request,pk):
     if request.user.is_superuser:
         if NewUser.objects.filter(user_id = pk):
             user = NewUser.objects.get(user_id = pk)
-            print(user)
             if not user.is_superuser:
                 user.delete()
     return redirect('admin_app:userinfo')
