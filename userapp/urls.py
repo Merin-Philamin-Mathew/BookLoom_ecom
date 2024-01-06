@@ -9,7 +9,8 @@ urlpatterns = [
     path('login/',views.user_login,name='login'),
     path('logout/',views.user_logout,name='logout'),
     path('home',views.home,name='home'),
-    path('signup/',views.user_signup,name='signup')
+    path('signup/',views.user_signup,name='signup'),
+    path('verify/',views.verify_otp,name='verify_otp')
 ]
 if settings.DEBUG:
     urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

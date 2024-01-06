@@ -7,7 +7,7 @@ app_name = 'admin_app'
 
 urlpatterns = [
     path('dashboard/',views.admin_dashboard,name='admin_dashboard'),
-    path('admin',views.admin_login,name='admin_login'),
+    path('admin/',views.admin_login,name='admin_login'),
     path('adminlogout/',views.admin_logout,name='admin_logout'),
     #user management
     path('userinfo',views.userinfo,name='userinfo'),

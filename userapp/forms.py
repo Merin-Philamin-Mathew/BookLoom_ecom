@@ -18,8 +18,9 @@ class UserRegisterForm(UserCreationForm):
 
     class Meta:
         model = NewUser
-        fields = ['username','email','phone_number']
+        fields = ['username','email','phone_number',]
 
+       
     def clean_phone_number(self):
         phone_number = self.cleaned_data.get('phone_number')
         try:
@@ -29,7 +30,10 @@ class UserRegisterForm(UserCreationForm):
             raise forms.ValidationError(str(e))
         return phone_number
     
+    
+    
 class OtpVerificationForm(forms.ModelForm):
+    
     
     class Meta:
         fields = ("",)

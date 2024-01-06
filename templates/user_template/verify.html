@@ -7,29 +7,11 @@
 signup
 {% endblock %}
 
-
 {% block content %}
 
 {% comment %} {% include "" %} {% endcomment %}
 
 <body>
-    <style>
-        /* Adjust the styles for the country code dropdown and phone number input */
-        .form-group.flex-container {
-            display: flex;
-            align-items: center;
-        }
-    
-        .form-group.flex-container select,
-        .form-group.flex-container input[type="text"] {
-            flex: 3; /* 30% width for the select element */
-        }
-    
-        .form-group.flex-container input[type="text"] {
-            flex: 7; /* 70% width for the input element */
-        }
-    </style>
-    
 
     <main class="main">
         <div class="page-header breadcrumb-wrap">
@@ -52,54 +34,44 @@ signup
                                 <div class="login_wrap widget-taber-content p-30 background-white border-radius-5">
                                     <div class="padding_eight_all bg-white">
                                         <div class="heading_s1">
-                                            <h3 class="mb-30">Create an Account</h3>
+                                            <h3 class="mb-30">Verify your Email</h3>
                                         </div>
                                         <p class="mb-50 font-sm">
-                                            {% if messages %} 
-                                            {% for message in messages %}
-                                                <label style="color: red">{{ message }}</label>
-                                            {% endfor %}
-                                            {% endif %}
-                                
-                                        </p>
+                          {% comment %}   {% if messages %}
+                                        <ul class="messages">
+                                          {% for message in messages %}
+                                            <li{% if message.tags %} class="alert alert-danger {{ message.tags }}"{% endif %}>{{ message }}</li>
+                                          {% endfor %}
+                                        </ul>
+                                        {% else %} Your personal data will be used to support your experience throughout this website, to manage access to your account, and for other purposes described in our privacy policy
+                             {% endif %} {% endcomment %}
+                             
+                             {% if messages %} 
+                             {% for message in messages %}
+                                 <label style="color: red">{{ message }}</label>
+                             {% endfor %}
+                             {% endif %}
                                         
                                         <form method="post"> {% csrf_token %}
+                                            <div class='form-group flex-container"'> 
+                                                <div class="form-group">
+                                                    
+                                                    <input
+                                                        type="stringformat"
+                                                        class="form-control"
+                                                        name="otp"
+                                                        id=""
+                                                        aria-describedby="Enter otp id"
+                                                        placeholder="Enter your otp"
+                                                    />  
+                                            </div>
+                                             <div class="form-group">
+                                                <button type="submit" class="btn btn-fill-out btn-block hover-up" name="login">Verify &amp; Register</button>
+                                            </div>
+                                               </div>
                                             
-                                            <div class="form-group">
-                                                {{form.username}}
-                                                {% if form.errors.username %}
-                                                <label class="text-danger">{{form.errors.username}}</label>
-                                                {% endif %}
-                                            </div>
-                                            <div class="form-group">
-                                                {{form.email}}
-                                                {% if form.errors.email %}
-                                                <label class="text-danger">{{form.errors.email}}</label>
-                                                {% endif %}
-                                            </div>
-                                            <div class="form-group flex-container">
-                                                {{form.phone_number}}
-                                                {% if form.errors.phone_number %}
-                                                <label class="text-danger">{{form.errors.phone_number}}</label>
-                                                {% endif %}
-                                            </div>
+                                                        </p>
                                             
-                                            <div class="form-group">
-                                                {{form.password1}}
-                                                {% if form.errors.password1 %}
-                                                <label class="text-danger">{{form.errors.password1}}</label>
-                                                {% endif %}
-                                            </div>
-                                    
-                                            <div class="col-md-12 form-group p_star">
-                                                {{form.password2}}
-                                                {% if form.errors.password2 %}
-                                                <label class="text-danger">{{form.errors.password2}}</label>
-                                                {% endif %}
-                                            </div>
-                                            <div class="form-group">
-                                                <button type="submit" class="btn btn-fill-out btn-block hover-up" name="login">Submit &amp; Register</button>
-                                            </div>
                                         </form>
                                         <div class="divider-text-center mt-15 mb-15">
                                         {% comment %}

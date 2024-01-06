@@ -5,6 +5,8 @@ from django.contrib import messages
 from adminapp.models import NewUser
 from .forms import UserRegisterForm
 from django.http import HttpResponseRedirect
+import random
+from django.core.mail import send_mail
 """ from django.conf import settings
 
 
@@ -29,25 +31,54 @@ def user_signup(request):
         form = UserRegisterForm(request.POST)
     
         if form.is_valid():
-            user = form.save()
+            
+            email = form.cleaned_data['email']
+            check_user = NewUser.objects.filter(email=email).first()
+            if check_user:
+                messages.warning(request, "Email already exists")
+                return redirect('user_app:user_sign')
+            request.session['registration_form_data']=form.cleaned_data
+            otp = random.randint(100000,999999) 
+            request.session['otp']=str(otp)
+            send_mail(
+                'BooLoom OTP Verification',
+                'Your OTP is'+str(otp),
+                'merinphilaminmathew19@gmail.com',
+                [email],
+                fail_silently=False,
+            )
 
-            # Log in the user
-            user = authenticate(username=form.cleaned_data['email'], password=form.cleaned_data['password1'])
-            if user is not None:
-                login(request, user)
-                messages.success(request, f"Hey {user.username}, Your account created successfully")
-                return redirect('user_app:home')
-            else:
-                # Handle authentication failure
-                messages.error(request, 'Authentication failed. Please try again.')
-
+            return redirect('user_app:verify_otp')
     else:
         form = UserRegisterForm()
 
     context = {'form': form}
     return render(request, "user_template/signup.html", context)
 
-
+def verify_otp(request):
+    if 'otp' in request.session: 
+        if request.method == 'POST':
+            otp = request.POST.get('otp')
+            if otp == request.session.get('otp'):
+                form_data = request.session.get('registration_form_data')
+                print('form_data',form_data)
+                form = UserRegisterForm(form_data)
+                print('form_datasss',form_data)
+                if form.is_valid():
+                    form.save()
+                    messages.success(request, 'Registration Successful')
+                    request.session.flush()
+                    return redirect('user_app:login')
+                else:
+                    messages.error(request, 'Invalid form data')
+                    return redirect('user_app:signup')
+            else:
+                messages.error(request, 'Time exceeded')
+                return redirect('user_app:verify_otp')
+        return render(request, "user_template/verify.html" )
+    else:
+        return redirect('user_app:signup')
+    
 
 def user_login(request):
     if request.user.is_authenticated:
