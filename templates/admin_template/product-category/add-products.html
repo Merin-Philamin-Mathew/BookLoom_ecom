@@ -38,44 +38,39 @@ users info
                         <form method='POST'>
                             {% csrf_token %}
                             <div class="mb-4">
-                                <label for="product_name" class="form-label">Product title</label>
+                                <label for="product_name" class="form-label">Product name</label>
                                 <input type="text" placeholder="Type here" class="form-control" id="product_name" name="product_name">
                             </div>
                             <div class="mb-4">
-                                <label class="form-label">Full description</label>
+                                <label class="form-label">Description</label>
                                 <textarea placeholder="Type here" class="form-control" rows="4" name="description"></textarea>
                             </div>
                             <div class="row">
                                 <div class="col-lg-4">
                                     <div class="mb-4">
-                                        <label class="form-label">Regular price</label>
+                                        <label class="form-label">Max price</label>
                                         <div class="row gx-2">
-                                            <input placeholder="$" type="text" class="form-control">
+                                            <input placeholder="$" type="text" class="form-control" name="max_price">
                                         </div>
                                     </div>
                                 </div>
                                 <div class="col-lg-4">
                                     <div class="mb-4">
-                                        <label class="form-label">Promotional price</label>
-                                        <input placeholder="$" type="text" class="form-control">
+                                        <label class="form-label">Sale price</label>
+                                        <input placeholder="$" type="text" class="form-control" name="sale_price">
                                     </div>
                                 </div>
                                 <div class="col-lg-4">
-                                    <label class="form-label">Currency</label>
-                                    <select class="form-select">
-                                        <option> USD </option>
-                                        <option> EUR </option>
-                                        <option> RUBL </option>
-                                    </select>
+                                    
                                 </div>
                             </div>
                             <div class="mb-4">
-                                <label class="form-label">Tax rate</label>
-                                <input type="text" placeholder="%" class="form-control" id="product_name" name="slug">
+                                <label class="form-label">Slug</label>
+                                <input type="text" placeholder="%" class="form-control" id="slug_name" name="slug">
                             </div>
                             <label class="form-check mb-4">
                                 <input class="form-check-input" name="is_available" type="checkbox" value="">
-                                <span class="form-check-label"> Enable </span>
+                                <span class="form-check-label"> Available </span>
                             </label>
                             <button class="btn btn-md rounded font-sm hover-up" type='submit'>Submit</button>
                         </form>
@@ -114,17 +109,18 @@ users info
                 </div> <!-- card end// --> {% endcomment %}
             </div>
             <div class="col-lg-3">
-                <div class="card mb-4">
+                {% comment %} <div class="card mb-4">
                     <div class="card-header">
-                        <h4>Media</h4>
+                        <h4>Thumbnail image</h4>
                     </div>
                     <div class="card-body">
                         <div class="input-upload">
                             <img src="assets/imgs/theme/upload.svg" alt="">
-                            <input class="form-control" type="file">
+                            <input class="form-control" type="file" name='thumbnail_image'>
                         </div>
                     </div>
-                </div> <!-- card end// -->
+                </div>  {% endcomment %}
+                <!-- card end// -->
                 <div class="card mb-4">
                     <div class="card-header">
                         <h4>Organization</h4>

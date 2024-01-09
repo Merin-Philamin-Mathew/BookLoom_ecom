@@ -24,6 +24,7 @@ signup
         </div>
         <section class="pt-150 pb-150">
             <div class="container">
+               
                 <div class="row">
                     <div class="col-lg-10 m-auto">
                         <div class="row">
@@ -33,13 +34,8 @@ signup
                                         <div class="heading_s1">
                                             <h3 class="mb-30">Login</h3>
                                         </div>
-{% if messages %}
-<ul class="messages">
-  {% for message in messages %}
-    <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
-  {% endfor %}
-</ul>
-{% endif %}
+                                        {% include "includes/alerts.html" %}
+
                                         <form method="post"> {% csrf_token %}
                                             <div class="form-group">
                                                 <input type="text" required="" name="email" placeholder="Your Email">

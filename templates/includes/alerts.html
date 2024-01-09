@@ -1,9 +1,9 @@
 {% if messages %}
+    {% for message in messages %}
     <div
-    class="alert alert-success alert-dismissible fade show messages"
+    class="alert alert-{{message.tags}} alert-dismissible fade show messages"
     role="alert"
     >
-        {% for message in messages %}
 
         <button
         type="button"
@@ -12,8 +12,8 @@
         aria-label="Close"
         ></button>
         <strong{% if message.tags %} class="{{ message.tags }} "{% endif %}>{{ message }}</strong> 
-        {% endfor %}
     </div>
+    {% endfor %}
     <script>
         var alertList = document.querySelectorAll(".alert");
         alertList.forEach(function (alert) {

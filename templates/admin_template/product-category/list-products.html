@@ -55,6 +55,48 @@ users info
                 </header> <!-- card-header end// -->
 
                 <!--listing the products-->
+                <divclass="table-responsive">
+                    <table
+                        class="table"
+                    >
+                        <thead>
+                            <tr  >
+                                <th scope="col">id</th>
+                                <th scope="col" >Title</th>
+                                <th scope="col">Author</th>
+                                <th scope="col">Publication Name</th>
+                                <th scope="col">Category</th>
+                                <th scope="col">Availability</th>
+                                <th scope="col">Actions</th>
+                            </tr>
+                        </thead>
+                        {% for data in pro_data %}
+                        <tbody>
+                            <tr class="">
+                                <td scope="row">{{data.id}}</td>
+                                <td style="display: flex; align-items: center;">
+                                    <div><img src="{{data.thumbnail_image.url}}" class="img-sm img-thumbnail" alt="Item"></div>
+                                    <div ><a href="{% url "store_app:edit_products" data.id %}">{{data.product_name}}</a></div>
+                                </td>
+                                <td>{{data.author}}</td>
+                                <td>{{data.more_details.publication}}</td>
+                                <td>{{data.category.category_name}}</td>
+                                <td>{{data.is_available}}</td>
+                                <td></td>
+
+                               {% comment %}  {% if user.status == 'active' %}
+                                <td ><span class='badge rounded-pill alert-success'>{{user.status}}</td>
+                                {% elif user.status == 'blocked' %}
+                                <td ><span class='badge rounded-pill alert-danger'>{{user.status}}</span></td>
+                                {% else %}
+                                <td ><span class='badge rounded-pill alert-warning'>{{user.status}}</td>
+                                {% endif %} {% endcomment %}
+                                
+                            </tr>
+                        </tbody>
+                        {% endfor %}
+                    </table>
+                </div>
                 {% for data in pro_data %}
                 <div class="card-body">
                     <article class="itemlist">
@@ -67,16 +109,22 @@ users info
                             <div class="col-lg-4 col-sm-4 col-8 flex-grow-1 col-name">
                                 <a class="itemside" href="#">
                                     <div class="left">
-                                        <img src="assets/imgs/items/1.jpg" class="img-sm img-thumbnail" alt="Item">
+                                        <img src="{{data.thumbnail_image.url}}" class="img-sm img-thumbnail" alt="Item">
                                     </div>
                                     <div class="info">
                                         <h6 class="mb-0">{{data.product_name}}</h6>
+                                    </div>
+                                    <div class="info">
+                                        <h6 class="mb-0">{{data.author.author_name}}</h6>
+                                    </div>
+                                    <div class="info">
+                                        <h6 class="mb-0">{{data.category.category_name}}</h6>
                                     </div>
                                 </a>
                             </div>
                             <div class="col-lg-2 col-sm-2 col-4 col-price"> <span>{{data.description}}</span> </div>
                             <div class="col-lg-2 col-sm-2 col-4 col-status">
-                                <span class="badge rounded-pill alert-success">{{data.slug}}</span>
+                                <span class="badge rounded-pill alert-success">{{data.is_active}}</span>
                             </div>
                             <div class="col-lg-1 col-sm-2 col-4 col-date">
                                 <span>date</span>

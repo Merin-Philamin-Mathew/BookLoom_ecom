@@ -32,7 +32,7 @@ class Category(models.Model):
 
 
 #  Create your models here.
-
+""" 
 class Attribute(models.Model):
     attribute_name = models.CharField(max_length=150,unique=True)
     is_active = models.BooleanField(default=True)
@@ -42,7 +42,7 @@ class Attribute(models.Model):
         return self.attribute_name
 
 class AttributeValue(models.Model):
-    attribute = models.ForeignKey(Attribute,on_delete=models.CASCADE)
+    attribute = models.ForeignKey(Attribute,on_delete=models.CASCADE,related_name='value')
     attribute_value = models.CharField(max_length=250,unique=True)
     is_active = models.BooleanField(default=True)
 
@@ -57,11 +57,11 @@ class Publication(models.Model):
     modified_date = models.DateTimeField(auto_now = True)
 
     def __str__(self):
-        return self.name
+        return self.name """
     
 class Author(models.Model):
     author_name = models.CharField(max_length=50,unique=True)
-    about_authour = models.TextField(null = True)
+    about_authour = models.TextField(null = True, blank = True)
     is_active = models.BooleanField(default=True)
     author_created_at = models.DateTimeField(auto_now_add=True)
     author_modified_at = models.DateTimeField(auto_now=True)
@@ -72,16 +72,32 @@ class Author(models.Model):
 
 class Product(models.Model):
     product_name = models.CharField(max_length=200, unique=True)
-    slug = models.SlugField(max_length=255,blank = True, unique=True)
-    short_description = models.CharField(max_length = 255 ,null=True)
+    slug = models.SlugField(max_length=255,null = True, unique=True)
+    short_description = models.CharField(max_length = 255 ,null=True, blank = True)
     long_description = models.TextField(blank=True, null=True)
+    #images
+    #stock
+    #price
+    thumbnail_image = models.ImageField(upload_to='photos/product-variant/thumbnail')
+    additonal_images = models.ImageField(null=True,upload_to='photos/product-variant/additional_images')
+    max_price = models.DecimalField(max_digits=6,decimal_places=2, validators=[MinValueValidator(0)])
+    sale_price = models.DecimalField(max_digits=6,decimal_places=2, validators=[MinValueValidator(0)])
+    stock = models.IntegerField()
+    #if translated:
+        #product_name - translsator - language
+    #else:
+        #product_name - author
+    #translated = models.booleanfield(....)
+    #language as attribute if more variants or just put the language in product variant
+    author = models.ForeignKey(Author,on_delete=models.CASCADE, related_name = 'writen_books')
+    #
     is_available = models.BooleanField(default=True)
-    #category = models.ForeignKey(Category,on_delete=models.CASCADE)
+    category = models.ForeignKey(Category,on_delete=models.CASCADE,related_name='cat_products')
     created_date = models.DateTimeField(auto_now_add=True)
     modified_date = models.DateTimeField(auto_now = True)
 
     def save(self, *args, **kwargs):
-        product_slug_name = f'{self.publication.name}-{self.product_name}-{self.category.category_name}'
+        product_slug_name = f'{self.product_name}'
         base_slug = slugify(product_slug_name)
         counter = Product.objects.filter(slug__startswith=base_slug).count()
         if counter > 0:
@@ -94,16 +110,16 @@ class Product(models.Model):
     def __str__(self):
         return self.product_name
     
-class ProductVariant(models.Model):
-    product = models.ForeignKey(Product,on_delete=models.CASCADE)
-    attribute = models.ManyToManyField(AttributeValue,related_name='attributes')
+""" class ProductVariant(models.Model):
+    product = models.ForeignKey(Product,on_delete=models.CASCADE,related_name='more_details')
+    all_attributes = models.ManyToManyField(AttributeValue,related_name='attributes')
     sku_id = models.IntegerField()
     max_price = models.DecimalField(max_digits=6,decimal_places=2, validators=[MinValueValidator(0)])
     sale_price = models.DecimalField(max_digits=6,decimal_places=2, validators=[MinValueValidator(0)])
     stock = models.IntegerField()
     product_variant_slug = models.SlugField(max_length=255,unique=True)
-    author = models.ForeignKey(Author,on_delete=models.CASCADE)
-    publication = models.ForeignKey(Publication,on_delete=models.CASCADE)
+    author = models.ForeignKey(Author,on_delete=models.CASCADE, related_name = 'writen_books')
+    publication = models.ForeignKey(Publication,on_delete=models.CASCADE,related_name = "published_books")
     thumbnail_image = models.ImageField(upload_to='photos/product-variant/thumbnail')
     is_active = models.BooleanField(default=True)
     created_date = models.DateTimeField(auto_now_add=True)
@@ -136,7 +152,7 @@ class AdditionalProductImages(models.Model):
 
 
     def __str__(self):
-        return self.image.url
+        return self.image.url """
     
 
     

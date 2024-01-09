@@ -21,20 +21,13 @@ class UserRegisterForm(UserCreationForm):
         fields = ['username','email','phone_number',]
 
        
-    def clean_phone_number(self):
+"""     def clean_phone_number(self):
         phone_number = self.cleaned_data.get('phone_number')
         try:
             # Attempt to validate the phone number
-            PhoneNumberField().clean(phone_number, None)
+            PhoneNumberField().clean(phone_number)
         except ValidationError as e:
             raise forms.ValidationError(str(e))
         return phone_number
-    
-    
-    
-class OtpVerificationForm(forms.ModelForm):
-    
-    
-    class Meta:
-        fields = ("",)
+     """
 

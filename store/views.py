@@ -92,9 +92,13 @@ def addproducts(request):
         if request.method == 'POST':
             product_name = request.POST['product_name']
             description = request.POST['description']
+            max_price = request.POST['max_price']
+            sale_price = request.POST['sale_price']
+            #thumbnail_image = request.FILES['thumbnail_image']
             slug = request.POST['slug']
+            
 
-            proinfo = Product(product_name=product_name, description=description, slug=slug)
+            proinfo = Product(product_name=product_name, long_description=description,max_price=max_price, sale_price=sale_price, slug=slug)
             proinfo.save()  
             return redirect('store_app:list_products')        
     return render(request, 'admin_template/product-category/add-products.html')
