@@ -79,7 +79,7 @@ class Product(models.Model):
     #stock
     #price
     thumbnail_image = models.ImageField(upload_to='photos/product-variant/thumbnail')
-    additonal_images = models.ImageField(null=True,upload_to='photos/product-variant/additional_images')
+    #additonal_images = models.ImageField(null=True,upload_to='photos/product-variant/additional_images')
     max_price = models.DecimalField(max_digits=6,decimal_places=2, validators=[MinValueValidator(0)])
     sale_price = models.DecimalField(max_digits=6,decimal_places=2, validators=[MinValueValidator(0)])
     stock = models.IntegerField()
@@ -109,6 +109,8 @@ class Product(models.Model):
 
     def __str__(self):
         return self.product_name
+    
+    
     
 """ class ProductVariant(models.Model):
     product = models.ForeignKey(Product,on_delete=models.CASCADE,related_name='more_details')

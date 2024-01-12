@@ -37,14 +37,7 @@ signup
                                             <h3 class="mb-30">Verify your Email</h3>
                                         </div>
                                         <p class="mb-50 font-sm">
-                          {% comment %}   {% if messages %}
-                                        <ul class="messages">
-                                          {% for message in messages %}
-                                            <li{% if message.tags %} class="alert alert-danger {{ message.tags }}"{% endif %}>{{ message }}</li>
-                                          {% endfor %}
-                                        </ul>
-                                        {% else %} Your personal data will be used to support your experience throughout this website, to manage access to your account, and for other purposes described in our privacy policy
-                             {% endif %} {% endcomment %}
+                       
                              
                              {% if messages %} 
                              {% for message in messages %}
@@ -74,13 +67,6 @@ signup
                                             
                                         </form>
                                         <div class="divider-text-center mt-15 mb-15">
-                                        {% comment %}
-                                            <span> or</span>
-                                        </div>
-                                         <ul class="btn-login list_none text-center mb-15">
-                                            <li><a href="#" class="btn btn-facebook hover-up mb-lg-0 mb-sm-4">Login With Facebook</a></li>
-                                            <li><a href="#" class="btn btn-google hover-up">Login With Google</a></li>
-                                        </ul> {% endcomment %}
                                         <div class="text-muted text-center">Already have an account? <a href={% url "user_app:login" %}>Sign in now</a></div>
                                     </div>
                                 </div>

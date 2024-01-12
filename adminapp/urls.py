@@ -6,16 +6,29 @@ from django.conf.urls.static import static
 app_name = 'admin_app'
 
 urlpatterns = [
-    path('dashboard/',views.admin_dashboard,name='admin_dashboard'),
     path('admin/',views.admin_login,name='admin_login'),
+    path('dashboard/',views.admin_dashboard,name='admin_dashboard'),
     path('adminlogout/',views.admin_logout,name='admin_logout'),
-    #user management
+
+    #user management_________________________________________________________________
     path('userinfo',views.userinfo,name='userinfo'),
     path('adduser',views.adduser,name='adduser'),
     path('edituser/<pk>',views.edituser,name='edituser'),
-    path('deleteuser/<pk>',views.deleteuser,name='deleteuser'),
-    #path('usercontrol/,<int:user_id>',views.user_control,name='user_control')
+    #path('deleteuser/<pk>',views.deleteuser,name='deleteuser'),
+    path('usercontrol/,<int:user_id>',views.controluser,name='control_user'),
     
+    #product management_____________________________________________________________
+    path('listproducts',views.listproducts,name='list_products'),
+    path('addproducts',views.addproducts,name='add_products'),
+    path('editproducts/<str:slug>',views.editproducts,name='edit_products'),
+    path('controlproducts/<str:slug>',views.controlproducts,name='control_products'),
+
+    #category management____________________________________________________________
+    path('category',views.listcategory,name='category'),
+    path('addcategory',views.addcategory,name='add_category'),
+    path('editcategory/<str:slug>',views.editcategory,name='edit_category'),
+    path('controlcategory/<str:slug>',views.controlcategory,name='control_category'),
+     
 ]
 if settings.DEBUG:
     urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

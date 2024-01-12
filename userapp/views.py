@@ -52,7 +52,7 @@ def user_signup(request):
             otp = random.randint(100000,999999) 
             request.session['otp']=str(otp)
             send_mail(
-                'BooLoom OTP Verification',
+                'BookLoom OTP Verification',
                 'Your OTP is'+str(otp),
                 'merinphilaminmathew19@gmail.com',
                 [email],

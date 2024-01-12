@@ -12,148 +12,220 @@ users info
 
 <main class="main-wrap">
     {% include "includes/admin_navbar.html" %}
+   
     
     <section class="content-main">
-        <div class="row">
-            <div class="col-9">
+        <form method="POST" enctype="multipart/form-data">
+    
+            {% csrf_token %}
+            <div class="col-12">
                 <div class="content-header">
-                    <h2 class="content-title">Add New Product</h2>
-                    <div>
-                        <button class="btn btn-light rounded font-sm mr-5 text-body hover-up">Save to draft</button>
-                        <button class="btn btn-md rounded font-sm hover-up">Publich</button>
+                    <div class="card-header bg-transparent border-0">
+                        <h2 class="content-title">Add Product</h2>
                     </div>
                 </div>
             </div>
-            <div class="col-lg-6">
-                <div class="card mb-4">
-                    <div class="card-header">
-                        <h4>Basic</h4>
-                    </div>
-                    {% if messages %} 
-                            {% for message in messages %}
-                                <label style="color: red">{{ message }}</label>
-                            {% endfor %} 
-                    {% endif %}
-                    <div class="card-body">
-                        <form method='POST'>
-                            {% csrf_token %}
-                            <div class="mb-4">
-                                <label for="product_name" class="form-label">Product name</label>
-                                <input type="text" placeholder="Type here" class="form-control" id="product_name" name="product_name">
-                            </div>
-                            <div class="mb-4">
-                                <label class="form-label">Description</label>
-                                <textarea placeholder="Type here" class="form-control" rows="4" name="description"></textarea>
-                            </div>
+            <div class="row justify-content-lg-center">
+                <div class="col-lg-10">
+                    <div class="card mb-4">
+                        <div class="card-header">
+                            <h4>Product details</h4>
+                        </div>
+                        <div class="card-body">
                             <div class="row">
-                                <div class="col-lg-4">
+                                <div class="col-lg-6">
                                     <div class="mb-4">
-                                        <label class="form-label">Max price</label>
+                                        <label for="product_name" class="form-label">Product Name</label>
+                                        {{ form.product_name }}
+                                        {% if form.errors.product_name %}
+                                                <label class="text-danger">{{form.errors.product_name}}</label>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                <div class="col-lg-6">
+                                    <div class="mb-4">
+                                        <label for="category" class="form-label">Category</label>
+                                        {{ form.category }}
+                                        {% if form.errors.category %}
+                                                <label class="text-danger">{{form.errors.category}}</label>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="row justify-content-between">
+                                <div class="col-lg-6">
+                                    <div class="mb-4">
+                                        <div class="row align-items-center">
+                                            <div class="col-lg-6">
+                                                <label class="form-label">Author</label>
+                                                <div class="input-group">
+                                                    {{ form.author }}
+                                                    {% if form.errors.author %}
+                                                        <label class="text-danger">{{form.errors.author}}</label>
+                                                    {% endif %}
+                                                </div>
+                                            </div>
+                                            <div class="col-lg-6 pt-4">
+                                                <div class="d-flex align-items-center justify-content-end">
+                                                    <button type="button" class="btn btn-primary px-3 mx-2 add-new d-none d-md-inline"><i class="bi bi-plus-lg"></i> Add</button>
+                                                    <button type="button" class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#editPublicationModal"><i class="bi bi-pencil"></i> Edit</button>
+                                                </div>
+                                            </div>
+                                        </div> 
+                                    </div>
+                                    <div class="mb-4">
+                                        <div class="row align-items-center">
+                                            <div class="col-lg-6">
+                                                <label class="form-label">Publication</label>
+                                                <div class="input-group">
+                                                    {{ form.author }}
+                                                    {% if form.errors.author %}
+                                                        <label class="text-danger">{{form.errors.author}}</label>
+                                                    {% endif %}
+                                                </div>
+                                            </div>
+                                            <div class="col-lg-6 pt-4">
+                                                <div class="d-flex align-items-center justify-content-end">
+                                                    <button type="button" class="btn btn-primary px-3 mx-2 add-new d-none d-md-inline"><i class="bi bi-plus-lg"></i> Add</button>
+                                                    <button type="button" class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#editPublicationModal"><i class="bi bi-pencil"></i> Edit</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        
+                                        
+                                    </div>
+                                    <div class="mb-4">
+                                        <label class="form-label">Short Description</label>
                                         <div class="row gx-2">
-                                            <input placeholder="$" type="text" class="form-control" name="max_price">
+                                            {{ form.short_description }}
+                                            {% if form.errors.short_description %}
+                                                <label class="text-danger">{{form.errors.short_description}}</label>
+                                            {% endif %}
                                         </div>
                                     </div>
                                 </div>
-                                <div class="col-lg-4">
-                                    <div class="mb-4">
-                                        <label class="form-label">Sale price</label>
-                                        <input placeholder="$" type="text" class="form-control" name="sale_price">
-                                    </div>
+                                <div class="col-lg-5">
+                                        <div class="mb-4">
+                                            <label class="form-label">Thumbnail Image</label>
+                                            <div class="row gx-2">
+                                                {{ form.thumbnail_image }}
+                                                {% if form.errors.thumbnail_image %}
+                                                    <label class="text-danger">{{form.errors.thumbnail_image}}</label>
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                
                                 </div>
-                                <div class="col-lg-4">
-                                    
-                                </div>
-                            </div>
-                            <div class="mb-4">
-                                <label class="form-label">Slug</label>
-                                <input type="text" placeholder="%" class="form-control" id="slug_name" name="slug">
-                            </div>
-                            <label class="form-check mb-4">
-                                <input class="form-check-input" name="is_available" type="checkbox" value="">
-                                <span class="form-check-label"> Available </span>
-                            </label>
-                            <button class="btn btn-md rounded font-sm hover-up" type='submit'>Submit</button>
-                        </form>
-                    </div>
-                </div> <!-- card end// -->
-               {% comment %}  <div class="card mb-4">
-                    <div class="card-header">
-                        <h4>Shipping</h4>
-                    </div>
-                    <div class="card-body">
-                        <form>
+                            
+                           
                             <div class="row">
-                                <div class="col-lg-6">
+                                <div class="col-lg-12">
                                     <div class="mb-4">
-                                        <label for="product_name" class="form-label">Width</label>
-                                        <input type="text" placeholder="inch" class="form-control" id="product_name">
+                                        <label class="form-label">Long Description</label>
+                                        <div class="row gx-2">
+                                            {{ form.long_description }}
+                                            {% if form.errors.long_description %}
+                                                <label class="text-danger">{{form.errors.long_description}}</label>
+                                            {% endif %}
+                                        </div>
                                     </div>
                                 </div>
-                                <div class="col-lg-6">
+                            </div>
+
+                            <div class="row justify-content-between">
+                                <div class="col-lg-3">
                                     <div class="mb-4">
-                                        <label for="product_name" class="form-label">Height</label>
-                                        <input type="text" placeholder="inch" class="form-control" id="product_name">
+                                        <label class="form-label">MRP</label>
+                                        <div class="row gx-2">
+                                            {{ form.max_price }}
+                                            {% if form.errors.max_price %}
+                                                <label class="text-danger">{{form.errors.max_price}}</label>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-lg-3">
+                                    <div class="mb-4">
+                                        <label class="form-label">Sale Price</label>
+                                        <div class="row gx-2">
+                                            {{ form.sale_price }}
+                                            {% if form.errors.sale_price %}
+                                                <label class="text-danger">{{form.errors.sale_price}}</label>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-lg-3">
+                                    <div class="mb-4">
+                                        <label class="form-label">Stock</label>
+                                        <div class="row gx-2">
+                                            {{ form.stock}}
+                                            {% if form.errors.stock %}
+                                                <label class="text-danger">{{form.errors.stock}}</label>
+                                            {% endif %}
+                                        </div>
                                     </div>
                                 </div>
                             </div>
-                            <div class="mb-4">
-                                <label for="product_name" class="form-label">Weight</label>
-                                <input type="text" placeholder="gam" class="form-control" id="product_name">
+
+                            <div class="row">
+                                <label class="form-check my-2">
+                                    {{form.is_available}}
+                                    <span class="form-check-label"> Is Active </span>
+                                </label>
                             </div>
-                            <div class="mb-4">
-                                <label for="product_name" class="form-label">Shipping fees</label>
-                                <input type="text" placeholder="$" class="form-control" id="product_name">
+                            <div class="row mt-4">
+                                <div class="col-lg-6 mb-4">
+                                    <button type="submit" class="w-100 btn btn-md rounded-pill font-sm hover-up">Update Product</button>
+                                </div>
+                                <div class="col-lg-6 mb-4">
+                                    <a href="{% url 'admin_app:list_products' %}" class="btn btn-dark rounded-pill w-100">Go Back</a>
+                                </div>
                             </div>
-                        </form>
-                    </div>
-                </div> <!-- card end// --> {% endcomment %}
-            </div>
-            <div class="col-lg-3">
-                {% comment %} <div class="card mb-4">
-                    <div class="card-header">
-                        <h4>Thumbnail image</h4>
-                    </div>
-                    <div class="card-body">
-                        <div class="input-upload">
-                            <img src="assets/imgs/theme/upload.svg" alt="">
-                            <input class="form-control" type="file" name='thumbnail_image'>
+                            
                         </div>
-                    </div>
-                </div>  {% endcomment %}
-                <!-- card end// -->
-                <div class="card mb-4">
-                    <div class="card-header">
-                        <h4>Organization</h4>
-                    </div>
-                    <div class="card-body">
-                        <div class="row gx-2">
-                            <div class="col-sm-6 mb-3">
-                                <label class="form-label">Category</label>
-                                <select class="form-select">
-                                    <option> Automobiles </option>
-                                    <option> Home items </option>
-                                </select>
+                    </div> <!-- card end// -->
+                    
+                    <hr>
+                    <!--adding the variant part-->
+                    <!--will change this as iam going to add the vairants in the attribute and attribute_value-->
+                    {% comment %} <div class="card mb-4">
+                        <div class="card-body">
+                            <div class="card-header">
+                                <h5 >Product Variants</h5>
                             </div>
-                            <div class="col-sm-6 mb-3">
-                                <label class="form-label">Sub-category</label>
-                                <select class="form-select">
-                                    <option> Nissan </option>
-                                    <option> Honda </option>
-                                </select>
-                            </div>
-                            <div class="mb-4">=
-                                <label for="product_name" class="form-label">Tags</label>
-                                <input type="text" class="form-control">
-                            </div>
-                        </div> <!-- row.// -->
-                    </div>
-                </div> <!-- card end// -->
-            </div>
-        </div>
-    </section> <!-- content-main end// -->
-    
-   <!-- content-main end// -->
-    {% include "includes/admin_footer.html" %}
+                            <a href="{% url 'create_product_variant' slug %}" class="btn btn-dark rounded-pill my-4 p-3">Add New Product Variant</a>
+                        </div>
+                        {% if not product_variants %}
+                        <h5 class="mt-3 text-warning">No variants added</h5>
+                        {% else %}
+              
+                            {% for product_variant in product_variants %}
+                            <ul>
+                                <li class="m-3">
+                                    <a href="{% url 'product_variant_update' product_variant.product_variant_slug %}">
+                                        {{ product_variant.product_variant_slug}}
+                                        {% for attribute in product_variant.attributes.all %}
+                                            {{ attribute.attribute_value }}
+                                            {% if not forloop.last %}, {% endif %}
+                                        {% endfor %}
+                                    </a>
+                                </li>
+                            </ul>
+                            {% endfor %}
+                        {% endif %}
+                    </div> {% endcomment %}
+                    
+                </div>
+                
+                   
+             </div>
+                </form>
+    </section>
+
+<!-- content-main end// -->
+{% include "includes/admin_footer.html" %}
 </main>
 <script src="{% static 'assets/js/vendors/jquery-3.6.0.min.js' %}"></script>
 <script src="{% static 'assets/js/vendors/bootstrap.bundle.min.js' %}"></script>

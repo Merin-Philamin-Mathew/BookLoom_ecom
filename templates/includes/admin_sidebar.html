@@ -29,8 +29,8 @@
                     <span class="text">Products</span>
                 </a>
                 <div class="submenu">
-                    <a href="{% url "store_app:list_products" %}">Product List</a>
-                    <a href="{% url "store_app:add_products" %}">Add Product </a>
+                    <a href="{% url "admin_app:list_products" %}">Product List</a>
+                    <a href="{% url "admin_app:add_products" %}">Add Product </a>
                 </div>
             </li>
             <li class="menu-item has-submenu">
@@ -38,7 +38,8 @@
                     <span class="text">Categories</span>
                 </a>
                 <div class="submenu">
-                    <a href="{% url "store_app:category" %}">Category List</a>
+                    <a href="{% url "admin_app:category" %}">Category List</a>
+                    <a href="{% url "admin_app:add_category" %}">Add Category</a>
                 </div>
             </li>
             <li class="menu-item has-submenu">

@@ -13,42 +13,124 @@ users info
 <main class="main-wrap">
     {% include "includes/admin_navbar.html" %}
     
-    <divclass="table-responsive">
-        <table
-            class="table"
-        >
-            <thead>
-                <tr>
-                    <th scope="col">id</th>
-                    <th scope="col">Username</th>
-                    <th scope="col">Email</th>
-                    <th scope="col">Phone Number</th>
-                    <th scope="col">Status</th>
-                    <th scope="col">Actions</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for user in users %}
-                <tr class="">
-                    <td scope="row">{{user.user_id}}</td>
-                    <td>{{user.username}}</td>
-                    <td>{{user.email}}</td>
-                    <td>{{user.phone_number}}</td>
-                    {% if user.status == 'active' %}
-                    <td ><span class='badge rounded-pill alert-success'>{{user.status}}</td>
-                    {% elif user.status == 'blocked' %}
-                    <td ><span class='badge rounded-pill alert-danger'>{{user.status}}</span></td>
-                    {% else %}
-                    <td ><span class='badge rounded-pill alert-warning'>{{user.status}}</td>
-                    {% endif %}
-                    
-                    <td><a href="{% url "admin_app:edituser" user.user_id %}">edit</a>/
-                        <a href="{% url "admin_app:deleteuser" user.user_id %}">delete</a></td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    </div>
+    <section class="content-main">
+        <div class="content-header">
+            <div>
+                <h2 class="content-title card-title">User Info</h2>
+                {% include "includes/alerts.html" %}
+            </div>
+          {% comment %}   <div>
+                <a href="#" class="btn btn-light rounded font-md">Export</a>
+                <a href="#" class="btn btn-light rounded  font-md">Import</a>
+                <a href="#" class="btn btn-primary btn-sm rounded">Create new</a>
+            </div> {% endcomment %}
+        </div>
+        <div class="card mb-4">
+            <header class="card-header">
+                <div class="row align-items-center">
+                    {% comment %} <div class="col col-check flex-grow-0">
+                        <div class="form-check ms-2">
+                            <input class="form-check-input" type="checkbox" value="">
+                        </div>
+                    </div> {% endcomment %}
+                    <div class="col-md-3 col-12 me-auto mb-md-0 mb-3">
+                        <form class="searchform">
+                            <div class="input-group">
+                                <input list="search_terms" type="text" class="form-control" placeholder="Search term">
+                                <button class="btn btn-light bg" type="button"> <i class="material-icons md-search"></i></button>
+                            </div>{% comment %} 
+                            <datalist id="search_terms">
+                                <option value="Products">
+                                <option value="Newdfsgdsgsdders">
+                                <option value="Apple iphone">
+                                <option value="Ahmed Hassan">
+                            </datalist> {% endcomment %}
+                        </form>
+                    </div>
+                    <div class="col-md-2 col-6">
+                        <input type="date" value="02.05.2021" class="form-control">
+                    </div>
+                    <div class="col-md-2 col-6">
+                        <select class="form-select">
+                            <option selected>Status</option>
+                            <option>Available</option>
+                            <option>Unavailable</option>
+                            <option>Show all</option>
+                        </select>
+                    </div>
+                </div>
+            </header> <!-- card-header end// -->
+
+            <!--listing the products-->
+            <div class="table-responsive">
+                <table class="table table-bordered table-hover">
+                    <thead class="thead-dark">
+                        <tr>
+                            <th scope="col">id</th>
+                            <th scope="col">Username</th>
+                            <th scope="col">Email</th>
+                            <th scope="col">Phone Number</th>
+                            <th scope="col">Status</th>
+                            <th scope="col">User Management</th>
+                        </tr>
+                    </thead>
+                    {% for user in users %}
+                    <tbody>
+                        <tr>
+                            <td class="border-bottom-0 text-center">
+                                <h6 class="fw-semibold tablecontent mb-1">{{ forloop.counter }}</h6>
+                            </td>
+                            <td>
+                                <a href="{% url 'admin_app:edituser' user.user_id %}">
+                                    {{user.username}}
+                                </a>
+                            </td>
+                            <td>{{user.email}}</td>
+                            <td>{{user.phone_number}}</td>
+                            {% if user.status == 'active' %}
+                            <td ><span class='badge rounded-pill alert-success'>{{user.status}}</td>
+                                {% if user.is_superuser == False %}
+                                <td><a href="{% url 'admin_app:control_user' user.user_id %}">
+                                    <button class="btn btn-danger mb-1 px-3">Block</button>
+                                    </a>
+                                </td>
+                                {% endif %}
+                            {% elif user.status == 'blocked' %}
+                            <td ><span class='badge rounded-pill alert-danger'>{{user.status}}</span></td>
+                            <td><a href="{% url 'admin_app:control_user' user.user_id %}">
+                                <button class="btn btn-warning mb-1 px-3">Unblock</button>
+                                </a>
+                            </td>
+                            {% else %}
+                            <td ><span class='badge rounded-pill alert-warning'>{{user.status}}</td>
+                            <td><a href="{% url 'admin_app:control_user' user.user_id %}">
+                                <button class="btn btn-danger mb-1 px-3">Block</button>
+                                </a>
+                            </td>
+                            {% endif %}
+                        
+                        </tr>
+                    </tbody>
+                    {% endfor %}
+                </table>
+            </div>
+        </div> <!-- card end// -->
+        
+        <div class="pagination-area mt-30 mb-50">
+            <nav aria-label="Page navigation example">
+                <ul class="pagination justify-content-start">
+                    <li class="page-item active"><a class="page-link" href="#">01</a></li>
+                    <li class="page-item"><a class="page-link" href="#">02</a></li>
+                    <li class="page-item"><a class="page-link" href="#">03</a></li>
+                    <li class="page-item"><a class="page-link dot" href="#">...</a></li>
+                    <li class="page-item"><a class="page-link" href="#">16</a></li>
+                    <li class="page-item"><a class="page-link" href="#"><i class="material-icons md-chevron_right"></i></a></li>
+                </ul>
+            </nav>
+        </div>
+</section> 
+
+    
     
    <!-- content-main end// -->
     {% include "includes/admin_footer.html" %}
