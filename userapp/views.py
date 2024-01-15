@@ -16,9 +16,11 @@ NewUser = settings.AUTH_USER_MODEL """
 # Create your views here.
 def home(request):
     products = Product.objects.all().filter(is_available = True)
+    newproducts = Product.objects.all().filter(is_available = True).order_by("-id")
     
     context = {
-        'products':products, 
+        'products':products,
+        'newproducts':newproducts, 
     }
     return render(request, 'user_template\home.html', context)
 

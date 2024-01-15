@@ -6,10 +6,7 @@ from django.conf.urls.static import static
 app_name = 'store_app'
 
 urlpatterns = [
-    
-
-   
+     path('',views.viewstore,name='view_store'),
+     path('<slug:category_slug>/',views.viewstore,name='products_by_category'),
+     path('<slug:category_slug>/<slug:product_slug>/',views.product_detail,name='product_detail'),
 ]
-if settings.DEBUG:
-    urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
-    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

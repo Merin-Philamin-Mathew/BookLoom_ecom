@@ -10,7 +10,7 @@ class Category(models.Model):
     category_name = models.CharField(max_length=50,unique=True)
     slug = models.SlugField(max_length=100, unique=True)
     description = models.TextField(max_length=300, blank=True)
-    parent_cat = models.ForeignKey('self',null=True,blank=True,on_delete=models.CASCADE)
+    parent_cat = models.ForeignKey('self',null=True,blank=True,on_delete=models.CASCADE,related_name = 'subcategories')
     is_active = models.BooleanField(default = True)
 
 
@@ -18,14 +18,12 @@ class Category(models.Model):
         self.slug = slugify(self.category_name)
         super(Category,self).save(*args, **kwargs)
 
-    # def get_url(self):
-    #     return reverse('product_by_category',args=[self.slug])
-    
-
     class Meta:
         verbose_name = 'Category'
         verbose_name_plural = 'Categories'
     
+    def get_url(self):
+        return reverse('store_app:products_by_category',args=[self.slug])
     
     def __str__(self):
         return self.category_name
@@ -49,15 +47,17 @@ class AttributeValue(models.Model):
 
     def __str__(self):
         return str(self.attribute) + "-" + self.attribute_value
+"""
 
 class Publication(models.Model):
     name = models.CharField(max_length=100,unique=True)
     is_active = models.BooleanField(default=True)
+    publication_date = models.DateField()
     created_date = models.DateTimeField(auto_now_add=True)
     modified_date = models.DateTimeField(auto_now = True)
 
     def __str__(self):
-        return self.name """
+        return self.name 
     
 class Author(models.Model):
     author_name = models.CharField(max_length=50,unique=True)
@@ -105,6 +105,9 @@ class Product(models.Model):
         else:
             self.slug = base_slug
         super(Product, self).save(*args, **kwargs)
+
+    def get_url(self):
+        return reverse('store_app:product_detail',args=[self.category.slug,self.slug])
 
 
     def __str__(self):
