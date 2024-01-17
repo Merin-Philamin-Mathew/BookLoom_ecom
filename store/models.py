@@ -52,7 +52,6 @@ class AttributeValue(models.Model):
 class Publication(models.Model):
     name = models.CharField(max_length=100,unique=True)
     is_active = models.BooleanField(default=True)
-    publication_date = models.DateField()
     created_date = models.DateTimeField(auto_now_add=True)
     modified_date = models.DateTimeField(auto_now = True)
 
@@ -61,7 +60,8 @@ class Publication(models.Model):
     
 class Author(models.Model):
     author_name = models.CharField(max_length=50,unique=True)
-    about_authour = models.TextField(null = True, blank = True)
+    about_author = models.TextField(null = True, blank = True)
+    author_image = models.ImageField(upload_to='photos/profile-pic/author',null=True)
     is_active = models.BooleanField(default=True)
     author_created_at = models.DateTimeField(auto_now_add=True)
     author_modified_at = models.DateTimeField(auto_now=True)
@@ -75,11 +75,10 @@ class Product(models.Model):
     slug = models.SlugField(max_length=255,null = True, unique=True)
     short_description = models.CharField(max_length = 255 ,null=True, blank = True)
     long_description = models.TextField(blank=True, null=True)
-    #images
     #stock
     #price
     thumbnail_image = models.ImageField(upload_to='photos/product-variant/thumbnail')
-    #additonal_images = models.ImageField(null=True,upload_to='photos/product-variant/additional_images')
+    publication = models.ForeignKey(Publication, null=True,on_delete=models.CASCADE,related_name = "published_books")
     max_price = models.DecimalField(max_digits=6,decimal_places=2, validators=[MinValueValidator(0)])
     sale_price = models.DecimalField(max_digits=6,decimal_places=2, validators=[MinValueValidator(0)])
     stock = models.IntegerField()
@@ -149,15 +148,16 @@ class Product(models.Model):
 
     def __str__(self):
         return self.product_variant_slug
-    
+ """   
 class AdditionalProductImages(models.Model):
-    product_variant = models.ForeignKey(ProductVariant,on_delete=models.CASCADE,related_name='additional_product_images')
+    product = models.ForeignKey(Product,on_delete=models.CASCADE,related_name='additional_product_images')
+    #product_variant = models.ForeignKey(ProductVariant,on_delete=models.CASCADE,related_name='additional_product_images')
     image = models.ImageField(upload_to='photos/product-variant/additional-images')
     is_active = models.BooleanField(default=True)
 
 
     def __str__(self):
-        return self.image.url """
+        return self.image.url 
     
 
     

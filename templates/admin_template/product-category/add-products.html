@@ -79,9 +79,9 @@ users info
                                             <div class="col-lg-6">
                                                 <label class="form-label">Publication</label>
                                                 <div class="input-group">
-                                                    {{ form.author }}
-                                                    {% if form.errors.author %}
-                                                        <label class="text-danger">{{form.errors.author}}</label>
+                                                    {{ form.publication }}
+                                                    {% if form.errors.publication %}
+                                                        <label class="text-danger">{{form.errors.publication}}</label>
                                                     {% endif %}
                                                 </div>
                                             </div>
@@ -177,7 +177,7 @@ users info
                             </div>
                             <div class="row mt-4">
                                 <div class="col-lg-6 mb-4">
-                                    <button type="submit" class="w-100 btn btn-md rounded-pill font-sm hover-up">Update Product</button>
+                                    <button type="submit" class="w-100 btn btn-md rounded-pill font-sm hover-up">Add Product</button>
                                 </div>
                                 <div class="col-lg-6 mb-4">
                                     <a href="{% url 'admin_app:list_products' %}" class="btn btn-dark rounded-pill w-100">Go Back</a>

@@ -123,14 +123,6 @@ def edituser(request,pk):
                 user.save()                
     return redirect('admin_app:userinfo')
 
-""" def deleteuser(request,slug):
-    if request.user.is_superuser:
-        if NewUser.objects.filter(user_id = slug):
-            user = NewUser.objects.get(user_id = slug)
-            if not user.is_superuser:
-                user.delete()
-    return redirect('admin_app:userinfo') """
-   
 
 def controluser(request,user_id):
     if not request.user.is_superuser:
@@ -154,11 +146,13 @@ def controluser(request,user_id):
 #________________________Product_management___________________________________________
 #_____________________________________________________________________________________
 def listproducts(request):
+    print("if kerilaa............")
     if request.user.is_superuser:
         pro_data = Product.objects.all()
         categories = Category.objects.all().order_by('id')
 
         context = {'pro_data':pro_data,'all_categories':categories}
+        print("if keri............")
         return render(request, 'admin_template/product-category/list-products.html',context)
 
 def controlproducts(request,slug):
@@ -172,8 +166,13 @@ def controlproducts(request,slug):
 def addproducts(request):
     if request.user.is_superuser:
         if request.method == 'POST':
-            form = ProductForm(request.POST)
+            form = ProductForm(request.POST, request.FILES)
+            thumbnail_image = request.FILES.get('thumbnail_image')  
+            
+            print("b4 valid",form.errors)
             if form.is_valid():
+                print("aftr valid",form.errors)
+                form.thumbnail_image = thumbnail_image
                 form.save()  
                 messages.success(request,'product added')
             return redirect('admin_app:list_products') 
@@ -199,38 +198,38 @@ def editproducts(request,slug):
         #     return render(request, 'admin_template/product-category/edit-products.html',context)
         print("values passed------------------------------------------------------------------------------------------")
     #after submit button
-    if request.method == 'POST':
-        print("method is post----------------------------------------------------------------------------")
-        form = ProductForm(request.POST,instance=product)  
-        print("form.......................................................................................",form)
-        # product_name = request.POST['product_name']
-        # description = request.POST['description']
-        # slug = request.POST['slug']
+        if request.method == 'POST':
+            print("method is post----------------------------------------------------------------------------")
+            form = ProductForm(request.POST, request.FILES, instance=product)  
+            # product_name = request.POST['product_name']
+            # description = request.POST['description']
+            # slug = request.POST['slug']
+            print("b4 valid",form.errors)
+            if form.is_valid():
+                print("aftr valid",form.errors)
+                print("form is valid-------------------------------------------------------------------------------")
+            # proinfo = Product.objects.get(slug=slug)
+            # if product_name and proinfo.product_name != product_name:
+            #     if Product.objects.filter(product_name=product_name):
+            #         messages.add_message(request, messages.WARNING, 'product exists' )
+            #         return render(request,'admin_template/product-category/edit-products.html')
+            #     else:
+            #         proinfo.product_name = product_name
 
-        if form.is_valid():
-            print("form is valid-------------------------------------------------------------------------------")
-        # proinfo = Product.objects.get(slug=slug)
-        # if product_name and proinfo.product_name != product_name:
-        #     if Product.objects.filter(product_name=product_name):
-        #         messages.add_message(request, messages.WARNING, 'product exists' )
-        #         return render(request,'admin_template/product-category/edit-products.html')
-        #     else:
-        #         proinfo.product_name = product_name
-
-        # if proinfo.description != description:
-        #     proinfo.description = description
-            
-        # if proinfo.slug != slug:
-        #     if Product.objects.filter(slug=slug):
-        #         messages.add_message(request, messages.WARNING, 'slug exists' )
-        #         return render(request,'admin_template/product-category/edit-products.html')
-        #     else:
-        #         proinfo.slug = slug
-            form.save()
-            print("form is saved.........................................................................")
-            messages.success(request,"Product updated")
-            return redirect('admin_app:list_products')
-        
+            # if proinfo.description != description:
+            #     proinfo.description = description
+                
+            # if proinfo.slug != slug:
+            #     if Product.objects.filter(slug=slug):
+            #         messages.add_message(request, messages.WARNING, 'slug exists' )
+            #         return render(request,'admin_template/product-category/edit-products.html')
+            #     else:
+            #         proinfo.slug = slug
+                form.save()
+                print("form is saved.........................................................................")
+                messages.success(request,"Product updated")
+                return redirect('admin_app:list_products')
+    print("aavo",form.errors)
     context = {
         'form': form,
         #'product_variants':product_variants, 
@@ -268,13 +267,21 @@ def listcategory(request):
 
 def controlcategory(request, slug):
     try:
-        category = Category.objects.get(slug = slug)
-    except Exception as e:
+        category = Category.objects.get(slug=slug)
+    except Category.DoesNotExist as e:
         print(e)
-    
+
     category.is_active = not category.is_active
     category.save()
+
+    if category.parent_cat is None:
+        subcategories = category.subcategories.all()
+        for subcategory in subcategories:
+            subcategory.is_active = category.is_active
+            subcategory.save()
+
     return redirect('admin_app:category')
+
 
 def editcategory(request,slug):
     try:

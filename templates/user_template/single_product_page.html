@@ -138,9 +138,9 @@ signup
                                     </div>
                                 </div>
                                 <ul class="product-meta font-xs color-grey mt-50">
-                                    <li class="mb-5">SKU: <a href="#">FWM15VKT</a></li>
+                                 {% comment %}    <li class="mb-5">SKU: <a href="#">FWM15VKT</a></li>
                                     <li class="mb-5">Tags: <a href="#" rel="tag">Cloth</a>, <a href="#" rel="tag">Women</a>, <a href="#" rel="tag">Dress</a> </li>
-                                    <li>Availability:<span class="in-stock text-success ml-5">8 Items In Stock</span></li>
+                                     {% endcomment %}<li>Availability:<span class="in-stock text-success ml-5">{{single_product.stock}} Items In Stock</span></li>
                                 </ul>
                             </div>
                             <!-- Detail Info -->
@@ -329,44 +329,32 @@ signup
                 <div class="row">
                     <div class="col-lg-9">
                         <div class="product-detail accordion-detail">
-                            <div class="row mb-50">
+                            <div class="row mb-50" >
                                 <div class="col-md-6 col-sm-12 col-xs-12">
                                     <div class="detail-gallery">
                                         <span class="zoom-icon"><i class="fi-rs-search"></i></span>
                                         <!-- MAIN SLIDES -->
-                                        
                                         <div class="product-image-slider">
                                             <figure class="border-radius-10">
                                                 <img src="{{single_product.thumbnail_image.url}}" alt="product image">
                                             </figure>
+                                            {% if single_product.additional_product_images.all%}
+                                                {% for more_images in single_product.additional_product_images.all %}
                                             <figure class="border-radius-10">
-                                                <img src="{% static 'assets/imgs/shop/product-16-1.jpg' %}" alt="product image">
+                                                <img src="{{more_images.image.url}}" alt="product image">
                                             </figure>
-                                            <figure class="border-radius-10">
-                                                <img src="{% static 'assets/imgs/shop/product-16-3.jpg' %}" alt="product image">
-                                            </figure>
-                                            <figure class="border-radius-10">
-                                                <img src="{% static 'assets/imgs/shop/product-16-4.jpg' %}" alt="product image">
-                                            </figure>
-                                            <figure class="border-radius-10">
-                                                <img src="{% static 'assets/imgs/shop/product-16-5.jpg' %}" alt="product image">
-                                            </figure>
-                                            <figure class="border-radius-10">
-                                                <img src="{% static 'assets/imgs/shop/product-16-6.jpg' %}" alt="product image">
-                                            </figure>
-                                            <figure class="border-radius-10">
-                                                <img src="{% static 'assets/imgs/shop/product-16-7.jpg' %}" alt="product image">
-                                            </figure>
+                                                {% endfor %}
+                                            {% endif %}
+                                            
                                         </div>
                                         <!-- THUMBNAILS -->
                                         <div class="slider-nav-thumbnails pl-15 pr-15">
                                             <div><img src="{{single_product.thumbnail_image.url}}" alt="product image"></div>
-                                            <div><img src="{% static 'assets/imgs/shop/thumbnail-4.jpg' %}" alt="product image"></div>
-                                            <div><img src="{% static 'assets/imgs/shop/thumbnail-5.jpg' %}" alt="product image"></div>
-                                            <div><img src="{% static 'assets/imgs/shop/thumbnail-6.jpg' %}" alt="product image"></div>
-                                            <div><img src="{% static 'assets/imgs/shop/thumbnail-7.jpg' %}" alt="product image"></div>
-                                            <div><img src="{% static 'assets/imgs/shop/thumbnail-8.jpg' %}" alt="product image"></div>
-                                            <div><img src="{% static 'assets/imgs/shop/thumbnail-9.jpg' %}" alt="product image"></div>
+                                            {% if single_product.additional_product_images.all %}
+                                                {% for more_images in single_product.additional_product_images.all %}
+                                                <div><img src="{{more_images.image.url}}" alt="product image"></div>
+                                                {% endfor %}
+                                            {% endif %}
                                         </div>
                                     </div>
                                     <!-- End Gallery -->
@@ -380,8 +368,8 @@ signup
                                         </ul>
                                     </div>
                                 </div>
-                                <div class="col-md-6 col-sm-12 col-xs-12">
-                                    <div class="detail-info">
+                                <div class="col-md-6 col-sm-12 col-xs-12 ">
+                                    <div class="detail-info ">
                                         <h2 class="title-detail">{{single_product.product_name}}</h2>
                                         <div class="product-detail-rating">
                                             <div class="pro-details-brand">
@@ -416,7 +404,7 @@ signup
                                             </ul>
                                         </div>
                                 <!--color variants-->
-                                        <div class="attr-detail attr-color mb-15">
+                                       {% comment %}  <div class="attr-detail attr-color mb-15">
                                             <strong class="mr-10">Color</strong>
                                             <ul class="list-filter color-filter">
                                                 <li><a href="#" data-color="Red"><span class="product-color-red"></span></a></li>
@@ -427,11 +415,11 @@ signup
                                                 <li><a href="#" data-color="Green"><span class="product-color-green"></span></a></li>
                                                 <li><a href="#" data-color="Purple"><span class="product-color-purple"></span></a></li>
                                             </ul>
-                                        </div>
+                                        </div> {% endcomment %}
                                 <!--color variants-->
 
                                 <!--size variants-->
-                                        <div class="attr-detail attr-size">
+                                        {% comment %} <div class="attr-detail attr-size">
                                             <strong class="mr-10">Size</strong>
                                             <ul class="list-filter size-filter font-small">
                                                 <li><a href="#">S</a></li>
@@ -440,7 +428,7 @@ signup
                                                 <li><a href="#">XL</a></li>
                                                 <li><a href="#">XXL</a></li>
                                             </ul>
-                                        </div>
+                                        </div> {% endcomment %}
                                 <!--size variants-->
 
                                         <div class="bt-1 border-color-1 mt-30 mb-30"></div>
@@ -457,14 +445,19 @@ signup
                                             </div>
                                         </div>
                                         <ul class="product-meta font-xs color-grey mt-50">
-                                            <li class="mb-5">SKU: <a href="#">FWM15VKT</a></li>
+                                            <!--Tags and SKU-->
+                                           {% comment %}  <li class="mb-5">SKU: <a href="#">FWM15VKT</a></li>
                                             <li class="mb-5">Tags: <a href="#" rel="tag">Cloth</a>, <a href="#" rel="tag">Women</a>, <a href="#" rel="tag">Dress</a> </li>
-                                            <li>Availability:<span class="in-stock text-success ml-5">8 Items In Stock</span></li>
+                                            {% endcomment %} <li>Availability:<strong class="in-stock text-success ml-5">{{single_product.stock}} Items In Stock</strong></li>
                                         </ul>
                                     </div>
                                     <!-- Detail Info -->
                                 </div>
                             </div>
+
+                        
+
+
                             <div class="tab-style3">
                                 <ul class="nav nav-tabs text-uppercase">
                                     <li class="nav-item">
@@ -481,7 +474,7 @@ signup
                                     <div class="tab-pane fade show active" id="Description">
                                         <div class="">
                                             <p>{{single_product.long_description}}</p>
-                                            <ul class="product-more-infor mt-30">
+                                           {% comment %}  <ul class="product-more-infor mt-30">
                                                 <li><span>Type Of Packing</span> Bottle</li>
                                                 <li><span>Color</span> Green, Pink, Powder Blue, Purple</li>
                                                 <li><span>Quantity Per Case</span> 100ml</li>
@@ -499,7 +492,7 @@ signup
                                             <p>Scallop or far crud plain remarkably far by thus far iguana lewd precociously and and less rattlesnake contrary caustic wow this near alas and next and pled the yikes articulate about as less cackled dalmatian
                                                 in much less well jeering for the thanks blindly sentimental whimpered less across objectively fanciful grimaced wildly some wow and rose jeepers outgrew lugubrious luridly irrationally attractively
                                                 dachshund.
-                                            </p>
+                                            </p> {% endcomment %}
                                         </div>
                                     </div>
                                     <div class="tab-pane fade" id="Additional-info">
@@ -744,47 +737,49 @@ signup
                                     </div>
                                 </div>
                             </div>
-                            <div class="row mt-60">
-                                <div class="col-12">
-                                    <h3 class="section-title style-1 mb-30">Related products</h3>
-                                </div>
-                                <div class="col-12">
                         <!--related products-->
-                                    <div class="row related-products">
-                                        <div class="col-lg-3 col-md-4 col-12 col-sm-6">
-                                            <div class="product-cart-wrap small hover-up">
-                                                <div class="product-img-action-wrap">
-                                                    <div class="product-img product-img-zoom">
-                                                        <a href="shop-product-right.html" tabindex="0">
-                                                            <img class="default-img" src="{% static 'assets/imgs/shop/product-2-1.jpg' %}" alt="">
-                                                            <img class="hover-img" src="{% static 'assets/imgs/shop/product-2-2.jpg' %}" alt="">
-                                                        </a>
-                                                    </div>
-                                                    <div class="product-action-1">
-                                                        <a aria-label="Quick view" class="action-btn small hover-up" data-bs-toggle="modal" data-bs-target="#quickViewModal"><i class="fi-rs-search"></i></a>
-                                                        <a aria-label="Add To Wishlist" class="action-btn small hover-up" href="shop-wishlist.html" tabindex="0"><i class="fi-rs-heart"></i></a>
-                                                        <a aria-label="Compare" class="action-btn small hover-up" href="shop-compare.html" tabindex="0"><i class="fi-rs-shuffle"></i></a>
-                                                    </div>
-                                                    <div class="product-badges product-badges-position product-badges-mrg">
-                                                        <span class="hot">Hot</span>
-                                                    </div>
-                                                </div>
-                                                <div class="product-content-wrap">
-                                                    <h2><a href="shop-product-right.html" tabindex="0">Ulstra Bass Headphone</a></h2>
-                                                    <div class="rating-result" title="90%">
-                                                        <span>
-                                                        </span>
-                                                    </div>
-                                                    <div class="product-price">
-                                                        <span>$238.85 </span>
-                                                        <span class="old-price">$245.8</span>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>   
+                                <section class="section-padding">
+                                    <div class="container wow fadeIn animated">
+                                        <h3 class="section-title style-1 mb-30">Related products</h3>
+                                        <div class="carausel-6-columns-cover position-relative">
+                                            <div class="slider-arrow slider-arrow-2 carausel-6-columns-arrow" id="carausel-6-columns-2-arrows"></div>
+                                            <div class="carausel-6-columns carausel-arrow-center" id="carausel-6-columns-2">
+                                                
+                            <!--End product-cart-wrap-2-->
+                            {% for relpro in rel_products %}
+                                                        <div class="product-cart-wrap small hover-up">
+                                                            <div class="product-img-action-wrap">
+                                                                <div class="product-img product-img-zoom">
+                                                                    <a href="{{relpro.get_url}}">
+                                                                        <img class="default-img" src="{{relpro.thumbnail_image.url}}" alt="">
+                                                                        {% comment %} <img class="hover-img" src="{% static 'assets/imgs/shop/product-7-2.jpg' %}" alt=""> {% endcomment %}
+                                                                    </a>
+                                                                </div>
+                                                                <div class="product-action-1">
+                                                                    <a aria-label="Quick view" class="action-btn small hover-up" data-bs-toggle="modal" data-bs-target="#quickViewModal"><i class="fi-rs-eye"></i></a>
+                                                                    <a aria-label="Add To Wishlist" class="action-btn small hover-up" href="shop-wishlist.html" tabindex="0"><i class="fi-rs-heart"></i></a>
+                                                                    <a aria-label="Compare" class="action-btn small hover-up" href="shop-compare.html" tabindex="0"><i class="fi-rs-shuffle"></i></a>
+                                                                </div>
+                                                            </div>
+                                                            <div class="product-content-wrap">
+                                                                <h2><a href="{% comment %} {{relpro.get_url}} {% endcomment %}">{{relpro.product_name}}</a></h2>
+                                                                <div class="rating-result" title="90%">
+                                                                    <span>
+                                                                    </span>
+                                                                </div>
+                                                                <div class="product-price">
+                                                                    <span>{{relpro.sale_price}}</span>
+                                                                    <span class="old-price">${{relpro.max_price}}</span>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                            <!--End product-cart-wrap-2-->
+                            {% endfor %}  
+                                        </div>
                                     </div>
-                        <!--related products-->
                                 </div>
+                         </section>
+                        <!--related products-->
                             </div>
                             <div class="banner-img banner-big wow fadeIn f-none animated mt-50">
                                 <img class="border-radius-10" src="{% static 'assets/imgs/banner/banner-4.png' %}" alt="">
@@ -796,7 +791,7 @@ signup
                         </div>
                     </div>
                 <!--side bar-->
-                    <div class="col-lg-3 primary-sidebar sticky-sidebar">
+                   {% comment %}  <div class="col-lg-3 primary-sidebar sticky-sidebar">
                         <div class="widget-category mb-30">
                             <h5 class="section-title style-1 mb-30 wow fadeIn animated">Category</h5>
                             <ul class="categories">
@@ -898,7 +893,7 @@ signup
                                 <a href="shop-grid-right.html">Shop Now <i class="fi-rs-arrow-right"></i></a>
                             </div>
                         </div>
-                    </div>
+                    </div> {% endcomment %}
                 
                 </div>
             </div>

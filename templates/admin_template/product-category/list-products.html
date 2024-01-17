@@ -35,7 +35,7 @@ users info
                         <div class="col-md-3 col-12 me-auto mb-md-0 mb-3">
                             <select class="form-select">
                                 <option selected>All category</option>
-                                {% for category in all_categories %}
+                            {% for category in all_categories %}
                                 <option>{{category.category_name}}</option>
                             {% endfor %}
                             </select>
@@ -83,7 +83,7 @@ users info
                                     <div class="ml-2"><a href="{% url 'admin_app:edit_products' data.slug %}">{{data.product_name}}</a></div>
                                 </td>
                                 <td>{{data.author}}</td>
-                                <td>{{data.more_details.publication}}</td>
+                                <td>{{data.publication}}</td>
                                 <td>{{data.category.category_name}}</td>
                                 {% if data.is_available == True %}
                                     <td><span class='badge rounded-pill alert-success'>&#10004;</span></td>
@@ -102,7 +102,7 @@ users info
                         </tbody>
                         {% endfor %}
                     </table>
-                </div>] 
+                </div>
             </div> <!-- card end// -->
             
             <div class="pagination-area mt-30 mb-50">

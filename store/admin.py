@@ -1,5 +1,5 @@
 from django.contrib import admin
-from . models import Category, Product, Author
+from . models import Category, Product, Author, Publication,AdditionalProductImages
 
 # Register your models here.
 class CategoryAdmin(admin.ModelAdmin):
@@ -18,6 +18,6 @@ admin.site.register(Product, ProductAdmin)
 #admin.site.register(ProductVariant)
 #admin.site.register(Attribute)
 #admin.site.register(AttributeValue)
-#admin.site.register(Publication)
+admin.site.register(Publication)
 admin.site.register(Author)
-#admin.site.register(AdditionalProductImages)
+admin.site.register(AdditionalProductImages)

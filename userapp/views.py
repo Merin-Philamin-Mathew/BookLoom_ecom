@@ -8,13 +8,16 @@ from django.http import HttpResponseRedirect
 import random
 from django.core.mail import send_mail
 from store.models import Product
+from datetime import timedelta, datetime
+from django.utils import timezone
+from django.views.decorators.cache import never_cache
 """ from django.conf import settings
 
 
 NewUser = settings.AUTH_USER_MODEL """
 
 # Create your views here.
-def home(request):
+def home(request):  
     products = Product.objects.all().filter(is_available = True)
     newproducts = Product.objects.all().filter(is_available = True).order_by("-id")
     
@@ -35,7 +38,7 @@ def user_logout(request):
         logout(request)
     return redirect('user_app:login')
 
-
+@never_cache
 def user_signup(request):
     if request.user.is_authenticated:
         return redirect('user_app:home')
@@ -53,6 +56,8 @@ def user_signup(request):
             request.session['registration_form_data']=form.cleaned_data
             otp = random.randint(100000,999999) 
             request.session['otp']=str(otp)
+            expiration_time = timezone.now() + timedelta(minutes=1)
+            request.session['otp_expiry_time'] = expiration_time.isoformat()  # Expires after 1 minute
             send_mail(
                 'BookLoom OTP Verification',
                 'Your OTP is'+str(otp),
@@ -68,36 +73,45 @@ def user_signup(request):
     context = {'form': form}
     return render(request, "user_template/signup.html", context)
 
-
+@never_cache
 def verify_otp(request):
     if 'otp' in request.session: 
         if request.method == 'POST':
             otp = request.POST.get('otp')
-            if otp == request.session.get('otp'):
-                form_data = request.session.get('registration_form_data')
-                username = form_data['username']
-                email = form_data['email']
-                phone_number = form_data['phone_number']
-                password = form_data['password1']
-                password = make_password(password, salt=None, hasher="pbkdf2_sha256")
-                user = NewUser(username=username, email=email, phone_number=phone_number,password=password)
-                print(form_data,'user created')
-                user.save()
-                request.session.flush()
-                messages.success(request, f'hey {username}, your account has created succesfully')
-                return redirect('user_app:login')
-                # form = UserRegisterForm(form_data)
-                # if form.is_valid():
-                #     form.save()
-                #     messages.success(request, 'Registration Successful')
-                #     request.session['otp'].flush()
-                #     return redirect('user_app:login')
-                # else:
-                #     messages.error(request, 'Invalid form data')
-                #     return redirect('user_app:signup')
+            otp_expiry_time_str = request.session.get('otp_expiry_time')
+            otp_expiry_time = datetime.fromisoformat(otp_expiry_time_str)
+
+            if otp == request.session.get('otp') and timezone.now() <= otp_expiry_time:
+
+                if otp == request.session.get('otp'):
+                    form_data = request.session.get('registration_form_data')
+                    username = form_data['username']
+                    email = form_data['email']
+                    phone_number = form_data['phone_number']
+                    password = form_data['password1']
+                    password = make_password(password, salt=None, hasher="pbkdf2_sha256")
+                    user = NewUser(username=username, email=email, phone_number=phone_number,password=password)
+                    print(form_data,'user created')
+                    user.save()
+                    request.session.flush()
+                    messages.success(request, f'hey {username}, your account has created succesfully')
+                    return redirect('user_app:login')
+                    # form = UserRegisterForm(form_data)
+                    # if form.is_valid():
+                    #     form.save()
+                    #     messages.success(request, 'Registration Successful')
+                    #     request.session['otp'].flush()
+                    #     return redirect('user_app:login')
+                    # else:
+                    #     messages.error(request, 'Invalid form data')
+                    #     return redirect('user_app:signup')
+                else:
+                    messages.error(request, 'Invalid otp')
+                    return redirect('user_app:verify_otp')
             else:
-                messages.error(request, 'Invalid otp')
-                return redirect('user_app:verify_otp')
+                request.session.flush('otp','otp_expiry_time')
+                messages.error(request, 'Time expired')
+                
         return render(request, "user_template/verify.html" )
     else:
         return redirect('user_app:signup')

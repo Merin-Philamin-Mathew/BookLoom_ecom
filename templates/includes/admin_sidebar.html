@@ -11,12 +11,12 @@
     </div>
     <nav>
         <ul class="menu-aside">
-            <li class="menu-item active">
+            <li class="menu-item {% if request.path in '/dashboard' %} active {% endif %}">
                 <a class="menu-link" href="{% url "admin_app:admin_dashboard" %}"> <i class="icon material-icons md-home"></i>
                     <span class="text">Dashboard</span>
                 </a>
             </li>
-            <li class="menu-item has-submenu">
+            <li class="menu-item has-submenu {% if request.path in '/userinfo' or request.path in '/adduser'%} active {% endif %}">
                 <a class="menu-link" href="page-products-list.html"> <i class="icon material-icons md-shopping_bag"></i>
                     <span class="text">User Info</span>
                 </a>
@@ -24,7 +24,7 @@
                     <a href="{% url "admin_app:userinfo" %}">Users List</a>
                     <a href="{% url "admin_app:adduser" %}">Add user</a>
             </li>
-            <li class="menu-item has-submenu">
+            <li class="menu-item has-submenu {% if request.path in '/listproducts' or request.path in '/addproducts'%} active {% endif %}">
                 <a class="menu-link" href="page-products-list.html"> <i class="icon material-icons md-shopping_bag"></i>
                     <span class="text">Products</span>
                 </a>
@@ -33,7 +33,7 @@
                     <a href="{% url "admin_app:add_products" %}">Add Product </a>
                 </div>
             </li>
-            <li class="menu-item has-submenu">
+            <li class="menu-item has-submenu {% if request.path in '/category' or request.path in '/addcategory'%} active {% endif %}">
                 <a class="menu-link" href="page-products-list.html"> <i class="icon material-icons md-shopping_bag"></i>
                     <span class="text">Categories</span>
                 </a>

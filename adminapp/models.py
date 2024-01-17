@@ -2,6 +2,7 @@ from django.db import models
 from django.utils.translation import gettext as _
 from django.contrib.auth.models import AbstractUser
 from phonenumber_field.modelfields import PhoneNumberField
+
 #from django_otp.models import TimeBasedOTP
 # Create your models here.
 
