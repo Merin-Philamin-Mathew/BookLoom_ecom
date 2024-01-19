@@ -61,10 +61,16 @@ class Publication(models.Model):
 class Author(models.Model):
     author_name = models.CharField(max_length=50,unique=True)
     about_author = models.TextField(null = True, blank = True)
-    author_image = models.ImageField(upload_to='photos/profile-pic/author',null=True)
+    slug = models.SlugField(max_length=255, unique=True)
+    author_image = models.ImageField(upload_to='photos/profile-pic/author',null=True, blank=True)
     is_active = models.BooleanField(default=True)
     author_created_at = models.DateTimeField(auto_now_add=True)
     author_modified_at = models.DateTimeField(auto_now=True)
+
+    
+    def save(self, *args, **kwargs):
+        self.slug = slugify(self.author_name)
+        super(Author,self).save(*args, **kwargs)
 
     def __str__(self):
         return self.author_name

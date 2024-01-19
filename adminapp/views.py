@@ -4,8 +4,8 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.hashers import make_password
 from django.contrib import messages
 from . models import NewUser
-from store.models import Product,Category
-from store.forms import ProductForm, CategoryForm
+from store.models import Product,Category, Author, Publication
+from store.forms import ProductForm, CategoryForm, AuthorForm, PublicationForm
 
 # Create your views here.
 
@@ -146,13 +146,11 @@ def controluser(request,user_id):
 #________________________Product_management___________________________________________
 #_____________________________________________________________________________________
 def listproducts(request):
-    print("if kerilaa............")
     if request.user.is_superuser:
         pro_data = Product.objects.all()
         categories = Category.objects.all().order_by('id')
 
         context = {'pro_data':pro_data,'all_categories':categories}
-        print("if keri............")
         return render(request, 'admin_template/product-category/list-products.html',context)
 
 def controlproducts(request,slug):
@@ -161,7 +159,6 @@ def controlproducts(request,slug):
     product.save()
     
     return redirect('admin_app:list_products')
-
 
 def addproducts(request):
     if request.user.is_superuser:
@@ -178,7 +175,8 @@ def addproducts(request):
             return redirect('admin_app:list_products') 
         form = ProductForm()
         context = {
-            'form':form
+            'form':form,
+            'formerror':form.errors
         }       
     return render(request, 'admin_template/product-category/add-products.html',context)
 
@@ -366,4 +364,117 @@ def addcategory(request):
     return render(request, 'admin_template/product-category/add-category.html', context)
 
 
+
+
+#________________________Author_management___________________________________________
+#_____________________________________________________________________________________
+
+def listauthor(request):
+    authors = Author.objects.all().order_by('id')
+
+    context = {
+        'all_authors':authors
+    }
+    return render(request, 'admin_template/product-category/list-author.html',context) 
+
+def controlauthor(request, slug):
+    if request.user.is_superuser:
+        try:
+            author = Author.objects.get(slug=slug)
+        except Author.DoesNotExist as e:
+            print(e)
+
+        author.is_active = not author.is_active
+        author.save()
+        return redirect('admin_app:list_author')
+
+def editauthor(request,slug): 
+    if request.user.is_superuser:
+
+        author = Author.objects.get(slug=slug)
+        form = AuthorForm(instance = author)
+
+        if request.method == 'POST':
+            form = AuthorForm(request.POST, request.FILES, instance=author)  
+      
+            if form.is_valid():
+                form.save()
+                messages.success(request,"Author updated")
+                return redirect('admin_app:list_author')
+ 
+    context = {
+        'form': form,
+        'slug':slug
+    }
+    return render(request,'admin_template/product-category/edit-author.html',context)        
+
+def addauthor(request):  
+    if request.method == 'POST':
+        form = AuthorForm(request.POST,request.FILES)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Author created")
+            return redirect('admin_app:list_author')
+    
+    form = AuthorForm()
+    context = {
+        'form':form
+    }
+    return render(request, 'admin_template/product-category/add-author.html',context) 
+
+#________________________Publication_management_______________________________________
+#_____________________________________________________________________________________
+
+def listpublication(request):
+    publications = Publication.objects.all().order_by('id')
+
+    context = {
+        'all_publications':publications
+    }
+    return render(request, 'admin_template/product-category/list-publication.html',context) 
+
+def controlpublication(request, id):
+    try:
+        publication = Publication.objects.get(id=id)
+    except Publication.DoesNotExist as e:
+        print(e)
+
+    publication.is_active = not publication.is_active
+    publication.save()
+    return redirect('admin_app:list_publication')
+
+def editpublication(request,id):
+    try:
+        publication = Publication.objects.get(id=id)
+    except Exception as e:
+        print(e)
+    form = PublicationForm(instance = publication)
+    
+    if request.method == 'POST':
+        form = PublicationForm(request.POST, instance=publication)
+
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Publication updated")
+            return redirect('admin_app:list_publication')
+
+    context = {
+        'form':form
+    }
+    return render(request, 'admin_template/product-category/edit-publication.html', context)
+
+
+def addpublication(request):  
+    if request.method == 'POST':
+        form = PublicationForm(request.POST,request.FILES)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Publication created")
+            return redirect('admin_app:list_publication')
+    
+    form = PublicationForm()
+    context = {
+        'form':form
+    }
+    return render(request, 'admin_template/product-category/add-publication.html',context) 
 

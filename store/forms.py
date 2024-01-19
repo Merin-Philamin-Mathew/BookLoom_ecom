@@ -48,16 +48,23 @@ class AuthorForm(forms.ModelForm):
             'is_active',
             ]
         widgets = {
-            #username = forms.CharField(widget=forms.TextInput(attrs={"placeholder":"Username"}))
             'author_name': forms.TextInput(attrs={'class': 'form-control','placeholder':'Author name'}),
-            'about_author': forms.TextInput(attrs={'class': 'form-control','placeholder':'About Author'}),
+            'about_author': forms.Textarea(attrs={'class': 'form-control','placeholder':'About Author'}),
             'author_image': forms.FileInput(attrs={'class': 'form-control', 'placeholder': 'Upload Author Image'}),
             'is_active': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
             }
-        labels = {
-            'author_name': 'Name',
-            'about_author': 'About Author',
-            'author_image': 'Author Image',
-            'is_active': 'Is Active',
-        }
+    
+class PublicationForm(forms.ModelForm):
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs) 
+        
+        for field_name, field in self.fields.items():
+            if field_name != 'is_active':
+                field.widget.attrs['class'] = 'form-control'
+            
+        self.fields['is_active'].widget.attrs['class'] = 'form-check d-inline-block p-3'
+           
+    class Meta:
+        model = Publication
+        fields = '__all__'   

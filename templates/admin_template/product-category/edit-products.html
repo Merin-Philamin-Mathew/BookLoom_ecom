@@ -55,7 +55,7 @@ users info
                              
                             <div class="row justify-content-between">
                                 <div class="col-lg-6">
-                <!--col for product_name,category author, publication-->
+                <!--col for  author, publication, short description-->
                                     <div class="mb-4">
                                         <div class="row align-items-center">
                                             <div class="col-lg-6">
@@ -69,8 +69,8 @@ users info
                                             </div>
                                             <div class="col-lg-6 pt-4">
                                                 <div class="d-flex align-items-center justify-content-end">
-                                                    <button type="button" class="btn btn-primary px-3 mx-2 add-new d-none d-md-inline"><i class="bi bi-plus-lg"></i> Add</button>
-                                                    <button type="button" class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#editPublicationModal"><i class="bi bi-pencil"></i> Edit</button>
+                                                    <a href="{% url 'admin_app:add_author' %}"><button type="button" class="btn btn-primary px-3 mx-2 add-new d-none d-md-inline"><i class="bi bi-plus-lg"></i> Add</button></a>
+                                                    <a href=""><button type="button" class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#editPublicationModal"><i class="bi bi-pencil"></i> Edit</button></a>
                                                 </div>
                                             </div>
                                         </div> 
@@ -88,8 +88,8 @@ users info
                                             </div>
                                             <div class="col-lg-6 pt-4">
                                                 <div class="d-flex align-items-center justify-content-end">
-                                                    <button type="button" class="btn btn-primary px-3 mx-2 add-new d-none d-md-inline"><i class="bi bi-plus-lg"></i> Add</button>
-                                                    <button type="button" class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#editPublicationModal"><i class="bi bi-pencil"></i> Edit</button>
+                                                    <a href="admin_app:add_publication"><button type="button" class="btn btn-primary px-3 mx-2 add-new d-none d-md-inline"><i class="bi bi-plus-lg"></i> Add</button></a>
+                                                    <a href="admin_app:edit_publication"><button type="button" class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#editPublicationModal"><i class="bi bi-pencil"></i> Edit</button></a>
                                                 </div>
                                             </div>
                                         </div>
@@ -106,6 +106,7 @@ users info
                                         </div>
                                     </div>
                                 </div>
+
                                 <div class="col-lg-5">
                 <!--col for thumbanail image and additional images-->
                                         <div class="mb-4">
@@ -117,7 +118,7 @@ users info
                                                 {% endif %}
                                             </div>
                                         </div>
-                                
+                <!--col for thumbanail image and additional images-->
                                 </div>
                             
                            

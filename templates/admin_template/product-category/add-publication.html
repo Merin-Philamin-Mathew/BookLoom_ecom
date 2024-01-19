@@ -21,7 +21,7 @@ users info
             <div class="col-12">
                 <div class="content-header">
                     <div class="card-header bg-transparent border-0">
-                        <h2 class="content-title">Add Category</h2>
+                        <h2 class="content-title">Add Publication</h2>
                     </div>
                 </div>
             </div>
@@ -29,40 +29,21 @@ users info
                 <div class="col-lg-10">
                     <div class="card mb-4">
                         <div class="card-header">
-                            <h4>Category details</h4>
+                            <h4>Publication details</h4>
                         </div>
                         <div class="card-body">
                             <div class="row px-5">
                                 <div class="col-lg-6">
                                     <div class="mb-4">
-                                        <label for="category_name" class="form-label">Category Name</label>
-                                        {{ form.category_name }}
-                                        {% if form.errors.category_name %}
-                                                <label class="text-danger">{{form.errors.category_name}}</label>
-                                        {% endif %}
-                                    </div>
-                                </div>
-                                <div class="col-lg-6">
-                                    <div class="mb-4">
-                                        <label for="parent_cat" class="form-label">Parent category</label>
-                                        {{ form.parent_cat }}
-                                        {% if form.errors.parent_cat %}
-                                                <label class="text-danger">{{form.errors.parent_cat}}</label>
+                                        <label for="name" class="form-label">Publication Name</label>
+                                        {{ form.name }}
+                                        {% if form.errors.name %}
+                                                <label class="text-danger">{{form.errors.name}}</label>
                                         {% endif %}
                                     </div>
                                 </div>
                             </div>
-                                <div class="row px-5">
-                                <div class="col-lg-12">
-                                    <div class="mb-4">
-                                        <label for="description" class="form-label">Description</label>
-                                        {{ form.description }}
-                                        {% if form.errors.description %}
-                                                <label class="text-danger">{{form.errors.description}}</label>
-                                        {% endif %}
-                                    </div>
-                                </div>
-                                </div>
+                                
                             </div>
 
 
@@ -73,14 +54,14 @@ users info
                                 </label>
                             </div>
                             <div class="row  px-5 mx-1">
-                                <div class="col-lg-6 ">
+                                <div class="col-lg-6">
                                     <div class="mb-4">
-                                        <button type="submit" class="w-100 btn btn-md rounded-pill font-sm hover-up">Update Category</button>
+                                        <button type="submit" class="w-100 btn btn-md rounded-pill font-sm hover-up">Create Publicaiton</button>
                                     </div>
                                 </div>
                                 <div class="col-lg-6">
                                     <div class="mb-4">
-                                        <a href="{% url 'admin_app:category' %}" class="btn btn-dark rounded-pill w-100">Go Back</a>
+                                        <a href="admin_app:list_publication" class="btn btn-dark rounded-pill w-100">Go Back</a>
                                     </div>
                                 </div>
                             </div>
