@@ -56,15 +56,8 @@ class AuthorForm(forms.ModelForm):
     
 class PublicationForm(forms.ModelForm):
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs) 
-        
-        for field_name, field in self.fields.items():
-            if field_name != 'is_active':
-                field.widget.attrs['class'] = 'form-control'
-            
-        self.fields['is_active'].widget.attrs['class'] = 'form-check d-inline-block p-3'
+    name = forms.CharField(widget=forms.TextInput(attrs={'class':'form-control','id':'name'}))
            
     class Meta:
         model = Publication
-        fields = '__all__'   
+        fields = ['name',]   

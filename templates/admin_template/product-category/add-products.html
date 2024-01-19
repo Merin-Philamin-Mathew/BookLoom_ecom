@@ -30,6 +30,7 @@ users info
                     <div class="card mb-4">
                         <div class="card-header">
                             <h4>Product details</h4>
+                            
                         </div>
                         <div class="card-body">
                             <div class="row">
@@ -37,17 +38,18 @@ users info
                                     <div class="mb-4">
                                         <label for="product_name" class="form-label">Product Name</label>
                                         {{ form.product_name }}
-                                        {% if form.errors.product_name %}
-                                                <label class="text-danger">{{form.errors.product_name}}</label>
+                                        {% if form.product_name.errors %}
+                                                <label class="text-danger">{{form.product_name.errors}}</label>
                                         {% endif %}
+
                                     </div>
                                 </div>
                                 <div class="col-lg-6">
                                     <div class="mb-4">
                                         <label for="category" class="form-label">Category</label>
                                         {{ form.category }}
-                                        {% if form.errors.category %}
-                                                <label class="text-danger">{{form.errors.category}}</label>
+                                        {% if form.category.errors %}
+                                                <label class="text-danger">{{form.category.errors}}</label>
                                         {% endif %}
                                     </div>
                                 </div>
@@ -61,8 +63,8 @@ users info
                                                 <label class="form-label">Author</label>
                                                 <div class="input-group">
                                                     {{ form.author }}
-                                                    {% if form.errors.author %}
-                                                        <label class="text-danger">{{form.errors.author}}</label>
+                                                    {% if form.author.errors %}
+                                                        <label class="text-danger">{{form.author.errors}}</label>
                                                     {% endif %}
                                                 </div>
                                             </div>
@@ -80,8 +82,8 @@ users info
                                                 <label class="form-label">Publication</label>
                                                 <div class="input-group">
                                                     {{ form.publication }}
-                                                    {% if form.errors.publication %}
-                                                        <label class="text-danger">{{form.errors.publication}}</label>
+                                                    {% if form.publication.errors %}
+                                                        <label class="text-danger">{{form.publication.errors}}</label>
                                                     {% endif %}
                                                 </div>
                                             </div>
@@ -99,8 +101,8 @@ users info
                                         <label class="form-label">Short Description</label>
                                         <div class="row gx-2">
                                             {{ form.short_description }}
-                                            {% if form.errors.short_description %}
-                                                <label class="text-danger">{{form.errors.short_description}}</label>
+                                            {% if form.short_description.errors %}
+                                                <label class="text-danger">{{form.short_description.errors}}</label>
                                             {% endif %}
                                         </div>
                                     </div>
@@ -110,8 +112,8 @@ users info
                                             <label class="form-label">Thumbnail Image</label>
                                             <div class="row gx-2">
                                                 {{ form.thumbnail_image }}
-                                                {% if form.errors.thumbnail_image %}
-                                                    <label class="text-danger">{{form.errors.thumbnail_image}}</label>
+                                                {% if form.thumbnail_image.errors %}
+                                                    <label class="text-danger">{{form.thumbnail_image.errors}}</label>
                                                 {% endif %}
                                             </div>
                                         </div>
@@ -125,8 +127,8 @@ users info
                                         <label class="form-label">Long Description</label>
                                         <div class="row gx-2">
                                             {{ form.long_description }}
-                                            {% if form.errors.long_description %}
-                                                <label class="text-danger">{{form.errors.long_description}}</label>
+                                            {% if form.long_description.errors %}
+                                                <label class="text-danger">{{form.long_description.errors}}</label>
                                             {% endif %}
                                         </div>
                                     </div>
@@ -139,8 +141,8 @@ users info
                                         <label class="form-label">MRP</label>
                                         <div class="row gx-2">
                                             {{ form.max_price }}
-                                            {% if form.errors.max_price %}
-                                                <label class="text-danger">{{form.errors.max_price}}</label>
+                                            {% if form.max_price.errors %}
+                                                <label class="text-danger">{{form.max_price.errors}}</label>
                                             {% endif %}
                                         </div>
                                     </div>
@@ -150,8 +152,8 @@ users info
                                         <label class="form-label">Sale Price</label>
                                         <div class="row gx-2">
                                             {{ form.sale_price }}
-                                            {% if form.errors.sale_price %}
-                                                <label class="text-danger">{{form.errors.sale_price}}</label>
+                                            {% if form.sale_price.errors %}
+                                                <label class="text-danger">{{form.sale_price.errors}}</label>
                                             {% endif %}
                                         </div>
                                     </div>
@@ -161,8 +163,8 @@ users info
                                         <label class="form-label">Stock</label>
                                         <div class="row gx-2">
                                             {{ form.stock}}
-                                            {% if form.errors.stock %}
-                                                <label class="text-danger">{{form.errors.stock}}</label>
+                                            {% if form.stock.errors %}
+                                                <label class="text-danger">{{form.stock.errors}}</label>
                                             {% endif %}
                                         </div>
                                     </div>

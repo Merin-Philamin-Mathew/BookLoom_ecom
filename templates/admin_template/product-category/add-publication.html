@@ -37,8 +37,8 @@ users info
                                     <div class="mb-4">
                                         <label for="name" class="form-label">Publication Name</label>
                                         {{ form.name }}
-                                        {% if form.errors.name %}
-                                                <label class="text-danger">{{form.errors.name}}</label>
+                                        {% if error %}
+                                                <label class="text-danger">{{error.name}}</label>
                                         {% endif %}
                                     </div>
                                 </div>

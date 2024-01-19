@@ -37,8 +37,8 @@ users info
                                     <div class="mb-4">
                                         <label for="author_name" class="form-label">Author Name</label>
                                         {{ form.author_name }}
-                                        {% if form.errors.author_name %}
-                                                <label class="text-danger">{{form.errors.author_name}}</label>
+                                        {% if error %}
+                                                <label class="text-danger">{{error.author_name}}</label>
                                         {% endif %}
                                     </div>
                                 </div>
@@ -46,8 +46,8 @@ users info
                                     <div class="mb-4">
                                         <label for="author_image" class="form-label">Author image</label>
                                         {{ form.author_image }}
-                                        {% if form.errors.author_image %}
-                                                <label class="text-danger">{{form.errors.author_image}}</label>
+                                        {% if error %}
+                                                <label class="text-danger">{{error.author_image}}</label>
                                         {% endif %}
                                     </div>
                                 </div>
@@ -57,8 +57,8 @@ users info
                                     <div class="mb-4">
                                         <label for="about_author" class="form-label">About Author</label>
                                         {{ form.about_author }}
-                                        {% if form.errors.about_author %}
-                                                <label class="text-danger">{{form.errors.about_author}}</label>
+                                        {% if error %}
+                                                <label class="text-danger">{{error.about_author}}</label>
                                         {% endif %}
                                     </div>
                                 </div>

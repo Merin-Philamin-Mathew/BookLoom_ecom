@@ -27,11 +27,8 @@ def admin_login(request):
         if user is not None:
             login(request, user)
             return redirect('admin_app:admin_dashboard') 
-        # else:
-        #     if User.objects.filter(username=uname):
-        #         messages.add_message(request, messages.WARNING, 'Invaluser_id password')
-        #     else:
-        #         messages.add_message(request, messages.WARNING, 'Not admin')
+        else:
+            messages.add_message(request, messages.WARNING, 'username or password is invalid')
     return render(request, 'admin_template/admin-login.html')
 
 
@@ -160,25 +157,27 @@ def controlproducts(request,slug):
     
     return redirect('admin_app:list_products')
 
+       
+  
 def addproducts(request):
     if request.user.is_superuser:
         if request.method == 'POST':
             form = ProductForm(request.POST, request.FILES)
             thumbnail_image = request.FILES.get('thumbnail_image')  
             
-            print("b4 valid",form.errors)
+            print("b4 valid")
             if form.is_valid():
-                print("aftr valid",form.errors)
+                print("aftr valid")
                 form.thumbnail_image = thumbnail_image
                 form.save()  
                 messages.success(request,'product added')
-            return redirect('admin_app:list_products') 
+                return redirect('admin_app:list_products') 
+            
         form = ProductForm()
         context = {
             'form':form,
-            'formerror':form.errors
         }       
-    return render(request, 'admin_template/product-category/add-products.html',context)
+        return render(request, 'admin_template/product-category/add-products.html',context)
 
 def editproducts(request,slug):
     if request.user.is_superuser:
@@ -415,6 +414,10 @@ def addauthor(request):
             form.save()
             messages.success(request, "Author created")
             return redirect('admin_app:list_author')
+        else:
+            error = form.errors
+            context = {'form':form, 'error':error}
+            return render(request, 'admin_template/product-category/add-author.html',context)
     
     form = AuthorForm()
     context = {
@@ -467,11 +470,16 @@ def editpublication(request,id):
 def addpublication(request):  
     if request.method == 'POST':
         form = PublicationForm(request.POST,request.FILES)
+        
         if form.is_valid():
             form.save()
             messages.success(request, "Publication created")
             return redirect('admin_app:list_publication')
-    
+        else:
+            error = form.errors
+            context = {'form':form, 'error':error}
+            return render(request, 'admin_template/product-category/add-publication.html',context)
+            
     form = PublicationForm()
     context = {
         'form':form

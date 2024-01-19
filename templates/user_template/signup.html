@@ -54,14 +54,7 @@ signup
                                         <div class="heading_s1">
                                             <h3 class="mb-30">Create an Account</h3>
                                         </div>
-                                        <p class="mb-50 font-sm">
-                                            {% if messages %} 
-                                            {% for message in messages %}
-                                                <label style="color: red">{{ message }}</label>
-                                            {% endfor %}
-                                            {% endif %}
-                                
-                                        </p>
+                             
                                         
                                         <form method="post"> {% csrf_token %}
                                             

@@ -35,6 +35,7 @@ Homeettwe
         <div class="card mx-auto card-login">
             <div class="card-body">
                 <h4 class="card-title mb-4">Sign in</h4>
+                {% include "includes/alerts.html" %}
                 <form action="" method="post"> {% csrf_token %}
                     <div class="mb-3">
                         <input class="form-control" placeholder="email" type="text" name="username" required>
