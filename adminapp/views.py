@@ -1,23 +1,32 @@
 from django.shortcuts import render,redirect
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
+from django.views.decorators.cache import never_cache
 from django.contrib.auth.hashers import make_password
 from django.contrib import messages
 from . models import NewUser
 from store.models import Product,Category, Author, Publication
 from store.forms import ProductForm, CategoryForm, AuthorForm, PublicationForm
 
-# Create your views here.
 
+# Create your views here.
+def is_superuser(request):
+    user = request.user
+    if user.is_superuser:
+        return True
+    return False
+
+@login_required(login_url='admin_app:admin_login')
 def admin_logout(request):
-    if request.user.is_superuser:
-        logout(request)
+    if not is_superuser(request):
+        return redirect('user_app:home')
+    logout(request)
     return redirect('admin_app:admin_login')
 
-
+@never_cache
 def admin_login(request):
-    if request.user.is_superuser:
-            return redirect('admin_app:admin_dashboard')
+    if is_superuser(request):
+        return redirect('admin_app:admin_dashboard')
         
     if request.method == 'POST':
         uname = request.POST['username']
@@ -28,28 +37,33 @@ def admin_login(request):
             login(request, user)
             return redirect('admin_app:admin_dashboard') 
         else:
-            messages.add_message(request, messages.WARNING, 'username or password is invalid')
+            messages.add_message(request, messages.WARNING, 'Admin user not found or incorrect password')
     return render(request, 'admin_template/admin-login.html')
 
 
+@never_cache
+@login_required(login_url='admin_app:admin_login')
 def admin_dashboard(request):
+    if not is_superuser(request):
+        return redirect('user_app:home')
     if request.user.is_superuser:
         return render(request, 'admin_template\index.html')
 
 
-def userinfo(request):
-    users = NewUser.objects.all()
-
-    context = {
-        'users':users
-    }
-    return render(request, 'admin_template/user_management/all_user.html', context)
-
 #________________________User_management___________________________________________
 #_____________________________________________________________________________________
+@login_required(login_url='admin_app:admin_login')
+def userinfo(request):
+    if not is_superuser(request):
+        return redirect('user_app:home')
+    users = NewUser.objects.filter(is_superuser = False)
+    return render(request, 'admin_template/user_management/all_user.html', {'users':users})
 
-@login_required(login_url='admin_login')
+
+@login_required(login_url='admin_app:admin_login')
 def adduser(request):
+    if not is_superuser(request):
+        return redirect('user_app:home')
     if request.user.is_superuser:
         if request.method == 'POST':
             username = request.POST['username']
@@ -72,8 +86,9 @@ def adduser(request):
         return render(request, 'admin_template/user_management/add_user.html')
     
     return redirect('admin_app:userinfo')
-    
 
+
+@login_required(login_url='admin_app:admin_login')
 def edituser(request,pk):
     if request.user.is_superuser:
         if request.method == "GET":
@@ -121,6 +136,7 @@ def edituser(request,pk):
     return redirect('admin_app:userinfo')
 
 
+@login_required(login_url='admin_app:admin_login')
 def controluser(request,user_id):
     if not request.user.is_superuser:
         return redirect('user_app:home')
@@ -142,6 +158,7 @@ def controluser(request,user_id):
 
 #________________________Product_management___________________________________________
 #_____________________________________________________________________________________
+@login_required(login_url='admin_app:admin_login')
 def listproducts(request):
     if request.user.is_superuser:
         pro_data = Product.objects.all()
@@ -149,8 +166,14 @@ def listproducts(request):
 
         context = {'pro_data':pro_data,'all_categories':categories}
         return render(request, 'admin_template/product-category/list-products.html',context)
+    else:
+        return redirect('user_app:home')
 
+
+@login_required(login_url='admin_app:admin_login')
 def controlproducts(request,slug):
+    if not request.user.is_superuser:
+        return redirect('user_app:home')
     product = Product.objects.get(slug=slug)
     product.is_available = not product.is_available
     product.save()
@@ -158,30 +181,35 @@ def controlproducts(request,slug):
     return redirect('admin_app:list_products')
 
        
-  
+@login_required(login_url='admin_app:admin_login')
 def addproducts(request):
     if request.user.is_superuser:
         if request.method == 'POST':
             form = ProductForm(request.POST, request.FILES)
             thumbnail_image = request.FILES.get('thumbnail_image')  
             
-            print("b4 valid")
             if form.is_valid():
-                print("aftr valid")
                 form.thumbnail_image = thumbnail_image
                 form.save()  
                 messages.success(request,'product added')
                 return redirect('admin_app:list_products') 
+            else:
+                error = form.errors
+                context = {'form':form, 'error':error}
+                return render(request, 'admin_template/product-category/add-products.html',context)
             
         form = ProductForm()
         context = {
             'form':form,
         }       
         return render(request, 'admin_template/product-category/add-products.html',context)
+    else:
+        return redirect('user_app:home')
 
+
+@login_required(login_url='admin_app:admin_login')
 def editproducts(request,slug):
     if request.user.is_superuser:
-        print('user is supser user ----------------------------------------------------------')
         product = Product.objects.get(slug=slug)
         #if varients take that also
         #product_variants = ProductVariant.objects.filter(product = product)
@@ -193,19 +221,15 @@ def editproducts(request,slug):
         #         'pro_data':proinfo
         #     }
         #     return render(request, 'admin_template/product-category/edit-products.html',context)
-        print("values passed------------------------------------------------------------------------------------------")
+    
     #after submit button
         if request.method == 'POST':
-            print("method is post----------------------------------------------------------------------------")
             form = ProductForm(request.POST, request.FILES, instance=product)  
             # product_name = request.POST['product_name']
             # description = request.POST['description']
             # slug = request.POST['slug']
-            print("b4 valid",form.errors)
             if form.is_valid():
-                print("aftr valid",form.errors)
-                print("form is valid-------------------------------------------------------------------------------")
-            # proinfo = Product.objects.get(slug=slug)
+           # proinfo = Product.objects.get(slug=slug)
             # if product_name and proinfo.product_name != product_name:
             #     if Product.objects.filter(product_name=product_name):
             #         messages.add_message(request, messages.WARNING, 'product exists' )
@@ -223,16 +247,21 @@ def editproducts(request,slug):
             #     else:
             #         proinfo.slug = slug
                 form.save()
-                print("form is saved.........................................................................")
                 messages.success(request,"Product updated")
                 return redirect('admin_app:list_products')
-    print("aavo",form.errors)
-    context = {
-        'form': form,
-        #'product_variants':product_variants, 
-        'slug': slug,
-    }
-    return render(request,'admin_template/product-category/edit-products.html',context)        
+            else:
+                error = form.errors
+                context = {'form':form, 'error':error}
+                return render(request, 'admin_template/product-category/edit-products.html',context)
+   
+        context = {
+            'form': form,
+            #'product_variants':product_variants, 
+            'slug': slug,
+        }
+        return render(request,'admin_template/product-category/edit-products.html',context)   
+    else:
+        return redirect('user_app:home')     
 
 
 #________________________Category_management___________________________________________
@@ -253,16 +282,19 @@ def editproducts(request,slug):
         return render(request, 'admin_template/product-category/category-list.html', context)
     return render(request, 'admin_template/product-category/category-list.html')
  """
+@login_required(login_url='admin_app:admin_login')
 def listcategory(request):
-    
+    if not request.user.is_superuser:
+        return redirect('user_app:home')
     categories = Category.objects.all().order_by('id')
 
-    context = {
-        'all_categories':categories
-    }
-    return render(request, 'admin_template/product-category/category-list.html',context)
+    return render(request, 'admin_template/product-category/category-list.html',{'all_categories':categories})
 
+
+@login_required(login_url='admin_app:admin_login')
 def controlcategory(request, slug):
+    if not request.user.is_superuser:
+        return redirect('user_app:home')
     try:
         category = Category.objects.get(slug=slug)
     except Category.DoesNotExist as e:
@@ -280,7 +312,9 @@ def controlcategory(request, slug):
     return redirect('admin_app:category')
 
 
+@login_required(login_url='admin_app:admin_login')
 def editcategory(request,slug):
+    
     try:
         category = Category.objects.get(slug=slug)
     except Exception as e:
@@ -347,14 +381,22 @@ def editcategory(request,slug):
                 catinfo.save()                
     return redirect('store_app:category')
 
+@login_required(login_url='admin_app:admin_login')
 def addcategory(request):
+    if not request.user.is_superuser:
+        return redirect('user_app:home')
+    # import pdb
+    # pdb.set_trace()
     if request.method == 'POST':
         form = CategoryForm(request.POST)
 
         if form.is_valid():
             form.save()
             messages.success(request, "Category created")
-            return redirect('admin_app:list_category')
+            return redirect('admin_app:category')
+        else:
+            print(form.errors)
+      
     
     form = CategoryForm()
     context = {
@@ -367,15 +409,15 @@ def addcategory(request):
 
 #________________________Author_management___________________________________________
 #_____________________________________________________________________________________
-
+@login_required(login_url='admin_app:admin_login')
 def listauthor(request):
+    if not request.user.is_superuser:
+        return redirect('user_app:home')
+    
     authors = Author.objects.all().order_by('id')
+    return render(request, 'admin_template/product-category/list-author.html',{'all_authors':authors}) 
 
-    context = {
-        'all_authors':authors
-    }
-    return render(request, 'admin_template/product-category/list-author.html',context) 
-
+@login_required(login_url='admin_app:admin_login')
 def controlauthor(request, slug):
     if request.user.is_superuser:
         try:
@@ -386,7 +428,10 @@ def controlauthor(request, slug):
         author.is_active = not author.is_active
         author.save()
         return redirect('admin_app:list_author')
+    else:
+        return redirect('user_app:home')
 
+@login_required(login_url='admin_app:admin_login')
 def editauthor(request,slug): 
     if request.user.is_superuser:
 
@@ -400,14 +445,23 @@ def editauthor(request,slug):
                 form.save()
                 messages.success(request,"Author updated")
                 return redirect('admin_app:list_author')
+            else:
+                error = form.errors
+                context = {'form':form, 'error':error}
+                return render(request, 'admin_template/product-category/edit-author.html',context)
  
-    context = {
-        'form': form,
-        'slug':slug
-    }
-    return render(request,'admin_template/product-category/edit-author.html',context)        
+        context = {
+            'form': form,
+            'slug':slug
+        }
+        return render(request,'admin_template/product-category/edit-author.html',context)     
+    else:
+        return redirect('user_app:home')   
 
-def addauthor(request):  
+@login_required(login_url='admin_app:admin_login')
+def addauthor(request): 
+    if not request.user.is_superuser:
+        return redirect('user_app:home') 
     if request.method == 'POST':
         form = AuthorForm(request.POST,request.FILES)
         if form.is_valid():
@@ -427,8 +481,10 @@ def addauthor(request):
 
 #________________________Publication_management_______________________________________
 #_____________________________________________________________________________________
-
+@login_required(login_url='admin_app:admin_login')
 def listpublication(request):
+    if not request.user.is_superuser:
+        return redirect('user_app:home')
     publications = Publication.objects.all().order_by('id')
 
     context = {
@@ -436,7 +492,10 @@ def listpublication(request):
     }
     return render(request, 'admin_template/product-category/list-publication.html',context) 
 
+@login_required(login_url='admin_app:admin_login')
 def controlpublication(request, id):
+    if not request.user.is_superuser:
+        return redirect('user_app:home')
     try:
         publication = Publication.objects.get(id=id)
     except Publication.DoesNotExist as e:
@@ -446,7 +505,10 @@ def controlpublication(request, id):
     publication.save()
     return redirect('admin_app:list_publication')
 
+@login_required(login_url='admin_app:admin_login')
 def editpublication(request,id):
+    if not request.user.is_superuser:
+        return redirect('user_app:home')
     try:
         publication = Publication.objects.get(id=id)
     except Exception as e:
@@ -460,14 +522,20 @@ def editpublication(request,id):
             form.save()
             messages.success(request, "Publication updated")
             return redirect('admin_app:list_publication')
+        else:
+            error = form.errors
+            context = {'form':form, 'error':error}
+            return render(request, 'admin_template/product-category/edit-publication.html',context)
 
     context = {
         'form':form
     }
     return render(request, 'admin_template/product-category/edit-publication.html', context)
 
-
+@login_required(login_url='admin_app:admin_login')
 def addpublication(request):  
+    if not request.user.is_superuser:
+        return redirect('user_app:home')
     if request.method == 'POST':
         form = PublicationForm(request.POST,request.FILES)
         

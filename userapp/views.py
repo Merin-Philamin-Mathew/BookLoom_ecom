@@ -1,3 +1,4 @@
+
 from django.shortcuts import render,redirect
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.hashers import make_password
@@ -11,12 +12,20 @@ from store.models import Product
 from datetime import timedelta, datetime
 from django.utils import timezone
 from django.views.decorators.cache import never_cache
+from django.http import JsonResponse
+from django.contrib.sites.shortcuts import get_current_site
+from django.template.loader import render_to_string
+from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
+from django.utils.encoding import force_bytes
+from django.contrib.auth.tokens import default_token_generator
+from django.core.mail import EmailMessage
 """ from django.conf import settings
 
 
 NewUser = settings.AUTH_USER_MODEL """
 
 # Create your views here.
+@never_cache
 def home(request):  
     products = Product.objects.all().filter(is_available = True)
     newproducts = Product.objects.all().filter(is_available = True).order_by("-id")
@@ -32,7 +41,7 @@ def product_view(request,pk):
    
     return render(request, 'user_template\single_product_page.html')
 
-
+@never_cache
 def user_logout(request):
     if request.user.is_authenticated :
         logout(request)
@@ -60,7 +69,7 @@ def user_signup(request):
             request.session['otp_expiry_time'] = expiration_time.isoformat()  # Expires after 1 minute
             send_mail(
                 'BookLoom OTP Verification',
-                'Your OTP is'+str(otp),
+                'Your OTP is '+str(otp),
                 'merinphilaminmathew19@gmail.com',
                 [email],
                 fail_silently=False,
@@ -94,8 +103,8 @@ def verify_otp(request):
                     print(form_data,'user created')
                     user.save()
                     request.session.flush()
-                    messages.success(request, f'hey {username}, your account has created succesfully')
-                    return redirect('user_app:login')
+                    messages.success(request, f'Hey {username}, your account has created succesfully, Welcome to BookLoom')
+                    return redirect('user_app:home')
                     # form = UserRegisterForm(form_data)
                     # if form.is_valid():
                     #     form.save()
@@ -109,14 +118,35 @@ def verify_otp(request):
                     messages.error(request, 'Invalid otp')
                     return redirect('user_app:verify_otp')
             else:
-                request.session.flush('otp','otp_expiry_time')
-                messages.error(request, 'Time expired')
+                # request.session.flush('otp','otp_expiry_time')
+                # messages.error(request, 'Time expired')
+                return render(request, "user_template/verify.html" ,{'otp_expiry_time':otp_expiry_time})
                 
         return render(request, "user_template/verify.html" )
     else:
         return redirect('user_app:signup')
-    
 
+
+ 
+
+""" @never_cache
+def resend_otp(request):
+    if 'otp' in request.session:
+        # Generate a new OTP
+        new_otp = random.randint(100000, 999999)
+        request.session['otp'] = str(new_otp)
+        
+        # Update the expiration time
+        expiration_time = timezone.now() + timedelta(seconds=6)
+        request.session['otp_expiry_time'] = expiration_time.isoformat()
+        
+        # Resend the email (you can reuse your existing code here)
+
+        return JsonResponse({'success': True})
+    else:
+        return JsonResponse({'success': False, 'error': 'No OTP in session'}) """
+   
+@never_cache
 def user_login(request):
     if request.user.is_authenticated:
         return redirect('user_app:home')
@@ -140,6 +170,65 @@ def user_login(request):
        
     return render(request, 'user_template/login.html')
 
+
+def forgotpassword(request):
+    if request.method == "POST":
+        email = request.POST['email']
+        if NewUser.objects.filter(email=email).exists():
+            user = NewUser.objects.get(email__exact=email)
+
+            current_site = get_current_site(request)
+            subject = 'BookLoom : Reset your password'
+            body = render_to_string('user_template/resetmailcontent.html', {
+                'user': user,
+                'domain': current_site,
+                'uid': urlsafe_base64_encode(force_bytes(user.pk)),
+                'token': default_token_generator.make_token(user),
+            })
+            to_email = email
+            send_email = EmailMessage(subject, body, to=[to_email])
+            send_email.send()
+            messages.success(
+                request, 'Password reset email has been sent to your email address')
+            return render(request,'user_template/linksuccess.html')
+        else:
+            messages.error(request, "Account Does't Exists!!!")
+            return redirect('user_app:forgot_password')
+    return render(request, 'user_template/forgot-password.html')
+
+def resetpassword(request, uidb64, token):
+    try:
+        uid = urlsafe_base64_decode(uidb64).decode()
+        user = NewUser._default_manager.get(pk=uid)
+    except (TypeError, ValueError, OverflowError, NewUser.DoesNotExist):
+        user = None
+
+    if user is not None and default_token_generator.check_token(user, token):
+        request.session['uid'] = uid
+        messages.success(request, 'Please reset your password.!')
+        return redirect('user_app:reset_password')
+    else:
+        messages.error(request, 'Sorry, the activation link has expired.!')
+        return redirect('user_app:login')
+
+def reset_password(request):
+    if request.method == 'POST':
+        password = request.POST['password']
+        confirm_password = request.POST['Confirm_password']
+        if password == confirm_password:
+            uid = request.session.get('uid')
+            user = NewUser.objects.get(pk=uid)
+            user.set_password(password)
+            user.save()
+            messages.success(request, "sucessfully reset password")
+            return render(request,'user_template/reset-success.html')
+
+        else:
+            messages.error(request, "Passwords are not match")
+            return redirect('user_app:reset_password')
+        
+    else:
+        return render(request, 'user_template/reset-password.html')
 
 
 """ def user_signup(request):

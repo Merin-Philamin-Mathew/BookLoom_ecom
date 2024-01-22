@@ -38,8 +38,8 @@ users info
                                     <div class="mb-4">
                                         <label for="product_name" class="form-label">Product Name</label>
                                         {{ form.product_name }}
-                                        {% if form.product_name.errors %}
-                                                <label class="text-danger">{{form.product_name.errors}}</label>
+                                        {% if error %}
+                                                <label class="text-danger">{{error.product_name}}</label>
                                         {% endif %}
 
                                     </div>
@@ -48,8 +48,8 @@ users info
                                     <div class="mb-4">
                                         <label for="category" class="form-label">Category</label>
                                         {{ form.category }}
-                                        {% if form.category.errors %}
-                                                <label class="text-danger">{{form.category.errors}}</label>
+                                        {% if error %}
+                                                <label class="text-danger">{{error.category}}</label>
                                         {% endif %}
                                     </div>
                                 </div>
@@ -112,8 +112,8 @@ users info
                                             <label class="form-label">Thumbnail Image</label>
                                             <div class="row gx-2">
                                                 {{ form.thumbnail_image }}
-                                                {% if form.thumbnail_image.errors %}
-                                                    <label class="text-danger">{{form.thumbnail_image.errors}}</label>
+                                                {% if error %}
+                                                    <label class="text-danger">{{error.thumbnail_image}}</label>
                                                 {% endif %}
                                             </div>
                                         </div>
@@ -141,8 +141,8 @@ users info
                                         <label class="form-label">MRP</label>
                                         <div class="row gx-2">
                                             {{ form.max_price }}
-                                            {% if form.max_price.errors %}
-                                                <label class="text-danger">{{form.max_price.errors}}</label>
+                                            {% if error %}
+                                                <label class="text-danger">{{error.max_price}}</label>
                                             {% endif %}
                                         </div>
                                     </div>
@@ -152,8 +152,8 @@ users info
                                         <label class="form-label">Sale Price</label>
                                         <div class="row gx-2">
                                             {{ form.sale_price }}
-                                            {% if form.sale_price.errors %}
-                                                <label class="text-danger">{{form.sale_price.errors}}</label>
+                                            {% if error %}
+                                                <label class="text-danger">{{error.sale_price}}</label>
                                             {% endif %}
                                         </div>
                                     </div>
@@ -163,8 +163,8 @@ users info
                                         <label class="form-label">Stock</label>
                                         <div class="row gx-2">
                                             {{ form.stock}}
-                                            {% if form.stock.errors %}
-                                                <label class="text-danger">{{form.stock.errors}}</label>
+                                            {% if error %}
+                                                <label class="text-danger">{{error.stock}}</label>
                                             {% endif %}
                                         </div>
                                     </div>

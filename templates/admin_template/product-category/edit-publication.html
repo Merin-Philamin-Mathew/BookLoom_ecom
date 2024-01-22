@@ -21,7 +21,7 @@ users info
             <div class="col-12">
                 <div class="content-header">
                     <div class="card-header bg-transparent border-0">
-                        <h2 class="content-title">Edit Publication</h2>
+                        <h2 class="content-title">Add Publication</h2>
                     </div>
                 </div>
             </div>
@@ -37,8 +37,8 @@ users info
                                     <div class="mb-4">
                                         <label for="name" class="form-label">Publication Name</label>
                                         {{ form.name }}
-                                        {% if form.errors.name %}
-                                                <label class="text-danger">{{form.errors.name}}</label>
+                                        {% if error %}
+                                                <label class="text-danger">{{error.name}}</label>
                                         {% endif %}
                                     </div>
                                 </div>
@@ -56,7 +56,7 @@ users info
                             <div class="row  px-5 mx-1">
                                 <div class="col-lg-6">
                                     <div class="mb-4">
-                                        <button type="submit" class="w-100 btn btn-md rounded-pill font-sm hover-up">Update Publicaiton</button>
+                                        <button type="submit" class="w-100 btn btn-md rounded-pill font-sm hover-up">Create Publicaiton</button>
                                     </div>
                                 </div>
                                 <div class="col-lg-6">
