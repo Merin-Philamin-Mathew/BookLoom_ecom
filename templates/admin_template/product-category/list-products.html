@@ -2,7 +2,7 @@
 {% load static %}
 
 {% block title %}
-users info
+List products
 {% endblock %}
 
 {% block content %}
@@ -62,44 +62,97 @@ users info
                                 <th scope="col"><h5>ID</h5></th>
                                 <th scope="col"><h5>Title</h5></th>
                                 <th scope="col"><h5>Author</h5></th>
-                                <th scope="col"><h5>Publication Name</h5></th>
                                 <th scope="col"><h5>Category</h5></th>
+                                <th scope="col"><h5>Publication Name</h5></th>
+                                <th scope="col"><h5>Language</h5></th>
                                 <th scope="col"><h5>Availability</h5></th>
                                 <th scope="col"><h5>Actions</h5></th>
+                                <th scope="col"><h5>Other languages</h5></th>
                             </tr>
                         </thead>
-                        {% for data in pro_data %}
-                        <tbody>
-                            <tr>
-                                <td class="border-bottom-0 text-center">
-                                    <h6 class="fw-semibold tablecontent mb-1">{{ forloop.counter }}</h6>
-                                </td>
-                                <td style="display: flex; align-items: center;">
-                                    <div class="left">
-                                        <a href="{% url 'admin_app:edit_products' data.slug %}">
-                                            <img src="{{data.thumbnail_image.url}}" class="img-thumbnail" alt="Item" style="max-width: 50px;">
+                    {% for data in pro_data %}
+                        {% if data.translator == None %}
+                            <tbody>
+                                <tr >
+                                    <td class="border-bottom-0 text-center">
+                                        <h6 class="fw-semibold tablecontent mb-1">{{ forloop.counter }}</h6>
+                                    </td>
+                                    <td>
+                                        <div class="left pb-0"> 
+                                            <a href="{% url 'admin_app:edit_products' data.product_variant_slug %}">
+                                                <img src="{{data.thumbnail_image.url}}" class="img-thumbnail " alt="Item" style="max-width: 50px;">
+                                            </a>
+                                        </div>
+                                        <div class=""><a href="{% url 'admin_app:edit_products' data.product_variant_slug %}">{{data.product}}</a></div>
+                                    </td>
+                                    <td class='pt-0'>{{data.product.author}}</td>
+                                    <td>{{data.product.category.category_name}}</td>
+                                    <td>{{data.publication}}</td>
+                                    <td>{{data.language}}</td>
+                                    {% if data.is_active == True %}
+                                        <td><span class='badge rounded-pill alert-success'>&#10004;</span></td>
+                                        <td><a href="{% url 'admin_app:control_products' data.product_variant_slug %}">
+                                            <button class="btn btn-danger mb-1 px-3">Disable</button>
                                         </a>
-                                    </div>
-                                    <div class="ml-2"><a href="{% url 'admin_app:edit_products' data.slug %}">{{data.product_name}}</a></div>
-                                </td>
-                                <td>{{data.author}}</td>
-                                <td>{{data.publication}}</td>
-                                <td>{{data.category.category_name}}</td>
-                                {% if data.is_available == True %}
-                                    <td><span class='badge rounded-pill alert-success'>&#10004;</span></td>
-                                    <td><a href="{% url 'admin_app:control_products' data.slug %}">
-                                        <button class="btn btn-danger mb-1 px-3">Disable</button>
-                                    </a>
-                                    </td>
+                                        </td>
+                                    {% else %}
+                                        <td><span class='badge rounded-pill alert-danger'>&#10006;</span></td>
+                                        <td><a href="{% url 'admin_app:control_products' data.product_variant_slug %}">
+                                            <button class="btn btn-success mb-1">Enable</button>
+                                        </a>
+                                        </td>
+                                    {% endif %}
+                                    {% if data.product.is_translated  %}
+                                    <td class="text-center">Available <br><a href="{% url "admin_app:add_product_variant" data.product_variant_slug %}">add more</a></td>
+                                    {% else %}
+                                    <td class="text-center">Not available <br><a href="{% url "admin_app:add_product_variant" data.product_variant_slug %}">add more</a></td>
+                                    {% endif %} 
+                                    
                                 {% else %}
-                                    <td><span class='badge rounded-pill alert-danger'>&#10006;</span></td>
-                                    <td><a href="{% url 'admin_app:control_products' data.slug %}">
-                                        <button class="btn btn-success mb-1">Enable</button>
-                                    </a>
-                                    </td>
-                                {% endif %}
+                                        <tbody>
+                                            <tr>
+                                                <div class="d-flex align-items-center">
+                                                    <td class="border-bottom-0 text-center">
+                                                        <h6 class="fw-semibold tablecontent mb-1">{{ forloop.counter }}</h6>
+                                                    </td>
+                                                        <td > 
+                                                                <a href="{% url 'admin_app:edit_products' data.product_variant_slug %}">
+                                                                    <img src="{{data.thumbnail_image.url}}" class="img-thumbnail " alt="Item" style="max-width: 50px;">
+                                                                </a>
+                                                            {% comment %} <div class=""><a href="{% url 'admin_app:edit_products' data.product_variant_slug %}">{{data.product}}</a></div> {% endcomment %}
+                                                        </td>
+                                                        {% if data.translator != data.author %}
+                                                        <td >{{data.translator}}<br>(translator)</td>
+                                                        {% else %}
+                                                        <td class="align-items-center">{{data.product.author}}</td>
+                                                        {% endif %}
+                                                        
+                                                        <td>{{data.product.category.category_name}}</td>
+                                                        <td>{{data.publication}}</td>
+                                                        <td>{{data.language}}</td>
+                                                        {% if data.is_active == True %}
+                                                            <td><span class='badge rounded-pill alert-success'>&#10004;</span></td>
+                                                            <td><a href="{% url 'admin_app:control_products' data.product_variant_slug %}">
+                                                                <button class="btn btn-danger mb-1 px-3">Disable</button>
+                                                            </a>
+                                                            </td>
+                                                        {% else %}
+                                                            <td><span class='badge rounded-pill alert-danger'>&#10006;</span></td>
+                                                            <td><a href="{% url 'admin_app:control_products' data.product_variant_slug %}">
+                                                                <button class="btn btn-success mb-1">Enable</button>
+                                                            </a>
+                                                            </td>
+                                                        {% endif %}
+                                                        <td class="text-center"><a href="{% url 'admin_app:edit_products' data.product_variant_slug %}" class="{% comment %} btn btn-sm font-sm rounded btn-brand {% endcomment %}">
+                                                            <i class="material-icons md-edit"></i> 
+                                                        </a></td>
+                                                </div>
+                                            </tr>
+                                        </tbody>
                                 </tr>
-                        </tbody>
+                                <!--single row with translated books finish-->  
+                            </tbody>
+                            {% endif %}
                         {% endfor %}
                     </table>
                 </div>
@@ -138,3 +191,5 @@ users info
 </html>
 
 {% endblock content %}
+
+

@@ -1,13 +1,17 @@
 from django.contrib import admin
-from . models import Category, Product, Author, Publication,AdditionalProductImages
+from . models import Category, Product, ProductVariant, Author, Publication, Language, AdditionalProductImages
 
 # Register your models here.
 class CategoryAdmin(admin.ModelAdmin):
     
     prepopulated_fields = {'slug':('category_name',)}
-    list_display = ('category_name','slug', 'description', 'parent_cat')
+    list_display = ('category_name','slug', 'parent_cat')
 
 
+class ProductVariantAdmin(admin.ModelAdmin):
+    
+    list_display = ('product', 'product_variant_slug', )
+    
 class ProductAdmin(admin.ModelAdmin):
     
     prepopulated_fields = {'slug':('product_name',)}
@@ -19,9 +23,8 @@ class AuthorAdmin(admin.ModelAdmin):
 
 admin.site.register(Category, CategoryAdmin)
 admin.site.register(Product, ProductAdmin)
-#admin.site.register(ProductVariant)
-#admin.site.register(Attribute)
-#admin.site.register(AttributeValue)
+admin.site.register(ProductVariant,ProductVariantAdmin)
 admin.site.register(Publication)
+admin.site.register(Language)
 admin.site.register(Author,AuthorAdmin)
 admin.site.register(AdditionalProductImages)

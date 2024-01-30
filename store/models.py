@@ -9,7 +9,6 @@ from django.urls import reverse
 class Category(models.Model):
     category_name = models.CharField(max_length=50,unique=True)
     slug = models.SlugField(max_length=100, unique=True)
-    description = models.TextField(max_length=300, blank=True)
     parent_cat = models.ForeignKey('self',null=True,blank=True,on_delete=models.CASCADE,related_name = 'subcategories')
     is_active = models.BooleanField(default = True)
 
@@ -58,6 +57,15 @@ class Publication(models.Model):
     def __str__(self):
         return self.name 
     
+class Language(models.Model):
+    name = models.CharField(max_length=100,unique=True)
+    is_active = models.BooleanField(default=True)
+    created_date = models.DateTimeField(auto_now_add=True)
+    modified_date = models.DateTimeField(auto_now = True)
+
+    def __str__(self):
+        return self.name 
+
 class Author(models.Model):
     author_name = models.CharField(max_length=50,unique=True)
     about_author = models.TextField(null = True, blank = True)
@@ -79,25 +87,10 @@ class Author(models.Model):
 class Product(models.Model):
     product_name = models.CharField(max_length=200, unique=True)
     slug = models.SlugField(max_length=255,null = True, unique=True)
-    short_description = models.CharField(max_length = 255 ,null=True, blank = True)
-    long_description = models.TextField(blank=True, null=True)
-    #stock
-    #price
-    thumbnail_image = models.ImageField(upload_to='photos/product-variant/thumbnail')
-    publication = models.ForeignKey(Publication, null=True,on_delete=models.CASCADE,related_name = "published_books")
-    max_price = models.DecimalField(max_digits=6,decimal_places=2, validators=[MinValueValidator(0)])
-    sale_price = models.DecimalField(max_digits=6,decimal_places=2, validators=[MinValueValidator(0)])
-    stock = models.IntegerField()
-    #if translated:
-        #product_name - translsator - language
-    #else:
-        #product_name - author
-    #translated = models.booleanfield(....)
-    #language as attribute if more variants or just put the language in product variant
     author = models.ForeignKey(Author,on_delete=models.CASCADE, related_name = 'writen_books')
-    #
     is_available = models.BooleanField(default=True)
     category = models.ForeignKey(Category,on_delete=models.CASCADE,related_name='cat_products')
+    is_translated = models.BooleanField(default=False)
     created_date = models.DateTimeField(auto_now_add=True)
     modified_date = models.DateTimeField(auto_now = True)
 
@@ -111,32 +104,35 @@ class Product(models.Model):
             self.slug = base_slug
         super(Product, self).save(*args, **kwargs)
 
-    def get_url(self):
-        return reverse('store_app:product_detail',args=[self.category.slug,self.slug])
-
+    
 
     def __str__(self):
         return self.product_name
     
+
     
-    
-""" class ProductVariant(models.Model):
+class ProductVariant(models.Model):
     product = models.ForeignKey(Product,on_delete=models.CASCADE,related_name='more_details')
-    all_attributes = models.ManyToManyField(AttributeValue,related_name='attributes')
-    sku_id = models.IntegerField()
+    #all_attributes = models.ManyToManyField(AttributeValue,related_name='attributes')
+    #sku_id = models.IntegerField()
+    short_description = models.CharField(max_length = 255 ,null=True, blank = True)
+    long_description = models.TextField(blank=True, null=True)
+    thumbnail_image = models.ImageField(upload_to='photos/product-variant/thumbnail')
+    publication = models.ForeignKey(Publication,on_delete=models.CASCADE,related_name = "published_books")
     max_price = models.DecimalField(max_digits=6,decimal_places=2, validators=[MinValueValidator(0)])
     sale_price = models.DecimalField(max_digits=6,decimal_places=2, validators=[MinValueValidator(0)])
+    translator = models.ForeignKey(Author,blank=True,null=True,on_delete=models.CASCADE, related_name = 'translated_books')
+    language = models.ForeignKey(Language, on_delete=models.CASCADE)
+    product_variant_slug = models.SlugField(blank = True,max_length=255,unique=True)
     stock = models.IntegerField()
-    product_variant_slug = models.SlugField(max_length=255,unique=True)
-    author = models.ForeignKey(Author,on_delete=models.CASCADE, related_name = 'writen_books')
-    publication = models.ForeignKey(Publication,on_delete=models.CASCADE,related_name = "published_books")
-    thumbnail_image = models.ImageField(upload_to='photos/product-variant/thumbnail')
     is_active = models.BooleanField(default=True)
     created_date = models.DateTimeField(auto_now_add=True)
     modified_date = models.DateTimeField(auto_now = True)
+    def get_url(self):
+        return reverse('store_app:product_detail',args=[self.product.category.slug,self.product_variant_slug])
 
     def save(self, *args, **kwargs):   #self.product.publication.name 
-        product_variant_slug_name = f'{self.publication.name}-{self.product.product_name}-{self.product.category.category_name}-{self.sku_id}'
+        product_variant_slug_name = f'{self.product}-{self.language}-{self.product.category.category_name}'
         base_slug = slugify(product_variant_slug_name)
         counter = ProductVariant.objects.filter(product_variant_slug__startswith=base_slug).count()
         if counter > 0:
@@ -144,6 +140,7 @@ class Product(models.Model):
         else:
             self.product_variant_slug = base_slug
         super(ProductVariant, self).save(*args, **kwargs)
+
 
     def get_url(self):
         return reverse('product_variant_detail',args=[self.product.category.slug,self.product_variant_slug])
@@ -154,10 +151,9 @@ class Product(models.Model):
 
     def __str__(self):
         return self.product_variant_slug
- """   
+
 class AdditionalProductImages(models.Model):
-    product = models.ForeignKey(Product,on_delete=models.CASCADE,related_name='additional_product_images')
-    #product_variant = models.ForeignKey(ProductVariant,on_delete=models.CASCADE,related_name='additional_product_images')
+    product_variant = models.ForeignKey(ProductVariant,on_delete=models.CASCADE,related_name='additional_product_images')
     image = models.ImageField(upload_to='photos/product-variant/additional-images')
     is_active = models.BooleanField(default=True)
 

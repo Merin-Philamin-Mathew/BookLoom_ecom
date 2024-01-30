@@ -23,6 +23,7 @@ urlpatterns = [
     path('editproducts/<str:slug>',views.editproducts,name='edit_products'),
     path('controlproducts/<str:slug>',views.controlproducts,name='control_products'),
 
+    path('addproductvariant/<str:slug>',views.addproductvariant,name='add_product_variant'),
     #category management____________________________________________________________
     path('category',views.listcategory,name='category'),
     path('addcategory',views.addcategory,name='add_category'),
@@ -40,6 +41,12 @@ urlpatterns = [
     path('addpublication',views.addpublication,name='add_publication'),
     path('editpublication/<int:id>',views.editpublication,name='edit_publication'),
     path('controlpublication/<int:id>',views.controlpublication,name='control_publication'),
+
+    #language management____________________________________________________________
+    path('listlanguage',views.listlanguage,name='list_language'),
+    path('addlanguage',views.addlanguage,name='add_language'),
+    path('editlanguage/<int:id>',views.editlanguage,name='edit_language'),
+    path('controllanguage/<int:id>',views.controllanguage,name='control_language'),
 ]
 if settings.DEBUG:
     urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

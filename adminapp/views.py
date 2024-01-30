@@ -5,8 +5,8 @@ from django.views.decorators.cache import never_cache
 from django.contrib.auth.hashers import make_password
 from django.contrib import messages
 from . models import NewUser
-from store.models import Product,Category, Author, Publication
-from store.forms import ProductForm, CategoryForm, AuthorForm, PublicationForm
+from store.models import Product,Category, Author, Publication, ProductVariant, AdditionalProductImages, Language
+from store.forms import ProductForm, ProductVariantForm, AddProImgForm, CategoryForm, AuthorForm, PublicationForm, LanguageForm
 
 
 # Create your views here.
@@ -161,7 +161,8 @@ def controluser(request,user_id):
 @login_required(login_url='admin_app:admin_login')
 def listproducts(request):
     if request.user.is_superuser:
-        pro_data = Product.objects.all()
+        pro_data = ProductVariant.objects.all().order_by('product')
+      
         categories = Category.objects.all().order_by('id')
 
         context = {'pro_data':pro_data,'all_categories':categories}
@@ -174,35 +175,62 @@ def listproducts(request):
 def controlproducts(request,slug):
     if not request.user.is_superuser:
         return redirect('user_app:home')
-    product = Product.objects.get(slug=slug)
-    product.is_available = not product.is_available
+    product = ProductVariant.objects.get(product_variant_slug=slug)
+    product.is_active = not product.is_active
     product.save()
-    
-    return redirect('admin_app:list_products')
+
+    return redirect('admin_app:list_products')    
 
        
 @login_required(login_url='admin_app:admin_login')
 def addproducts(request):
+    
     if request.user.is_superuser:
+  
+        thumbnail_image = request.FILES.get('thumbnail_image')  
+        
+      
         if request.method == 'POST':
-            form = ProductForm(request.POST, request.FILES)
-            thumbnail_image = request.FILES.get('thumbnail_image')  
+            author_form = AuthorForm(request.POST, request.FILES)
+            proform = ProductForm(request.POST)
+            form = ProductVariantForm(request.POST, request.FILES)
+            print("pro",proform.errors)
+            print("var",form.errors)   
+            print("author",author_form.errors)   
+            # if author_form.is_valid():
+            #     author = author_form.save()
             
-            if form.is_valid():
-                form.thumbnail_image = thumbnail_image
-                form.save()  
-                messages.success(request,'product added')
+            
+            if all([form.is_valid(), proform.is_valid()]):
+                
+                product = proform.save(commit=False)
+                product.save()
+                product_variant = form.save(commit=False)
+                product_variant.product = product
+                product_variant.save()
+
+                messages.success(request,'product added successfully')
                 return redirect('admin_app:list_products') 
             else:
                 error = form.errors
-                context = {'form':form, 'error':error}
+                proerror = proform.errors
+                context = {'form':form, 'error':error, 'proform':proform,'proerror':proerror}
+                print("error",error)
+                print("proerror",proerror)
                 return render(request, 'admin_template/product-category/add-products.html',context)
+        else:
+            authorform = AuthorForm()
+            proform = ProductForm()
+            form =  ProductVariantForm()
+        
+        
+            context = {
+                'proform':proform,
+                'form':form,
+                'authorform':authorform,
             
-        form = ProductForm()
-        context = {
-            'form':form,
-        }       
-        return render(request, 'admin_template/product-category/add-products.html',context)
+            }       
+            return render(request, 'admin_template/product-category/add-products.html',context)
     else:
         return redirect('user_app:home')
 
@@ -210,58 +238,79 @@ def addproducts(request):
 @login_required(login_url='admin_app:admin_login')
 def editproducts(request,slug):
     if request.user.is_superuser:
-        product = Product.objects.get(slug=slug)
-        #if varients take that also
-        #product_variants = ProductVariant.objects.filter(product = product)
-        form = ProductForm(instance = product)
-
-        # if request.method == 'GET':
-        #     proinfo = Product.objects.get(slug=slug)
-        #     context = {
-        #         'pro_data':proinfo
-        #     }
-        #     return render(request, 'admin_template/product-category/edit-products.html',context)
-    
-    #after submit button
+        productvar = ProductVariant.objects.get(product_variant_slug=slug)   
+        product = Product.objects.get(product_name=productvar.product)
+     
+        form = ProductVariantForm(instance = productvar)
+        proform = ProductForm(instance = product)
+      
         if request.method == 'POST':
-            form = ProductForm(request.POST, request.FILES, instance=product)  
-            # product_name = request.POST['product_name']
-            # description = request.POST['description']
-            # slug = request.POST['slug']
-            if form.is_valid():
-           # proinfo = Product.objects.get(slug=slug)
-            # if product_name and proinfo.product_name != product_name:
-            #     if Product.objects.filter(product_name=product_name):
-            #         messages.add_message(request, messages.WARNING, 'product exists' )
-            #         return render(request,'admin_template/product-category/edit-products.html')
-            #     else:
-            #         proinfo.product_name = product_name
-
-            # if proinfo.description != description:
-            #     proinfo.description = description
-                
-            # if proinfo.slug != slug:
-            #     if Product.objects.filter(slug=slug):
-            #         messages.add_message(request, messages.WARNING, 'slug exists' )
-            #         return render(request,'admin_template/product-category/edit-products.html')
-            #     else:
-            #         proinfo.slug = slug
-                form.save()
+            form = ProductVariantForm(request.POST, request.FILES, instance=productvar)  
+            proform = ProductForm(request.POST,instance=product)
+            if all([form.is_valid(), proform.is_valid()]):
+                product = proform.save(commit=False)
+                product.save()
+                product_variant = form.save(commit=False)
+                product_variant.product = product
+                product_variant.save()
                 messages.success(request,"Product updated")
                 return redirect('admin_app:list_products')
             else:
                 error = form.errors
-                context = {'form':form, 'error':error}
+                proerror = proform.errors
+                context = {'form':form,'proform':proform, 'error':error, 'proerror':proerror}
                 return render(request, 'admin_template/product-category/edit-products.html',context)
    
         context = {
             'form': form,
+            'proform':proform,
             #'product_variants':product_variants, 
             'slug': slug,
         }
         return render(request,'admin_template/product-category/edit-products.html',context)   
     else:
         return redirect('user_app:home')     
+
+#product variants
+@login_required(login_url='admin_app:admin_login')
+def addproductvariant(request,slug):
+    if request.user.is_superuser:
+        productvar = ProductVariant.objects.get(product_variant_slug=slug)   
+        product = Product.objects.get(product_name=productvar.product)
+     
+        form = ProductVariantForm()
+        proform = ProductForm(instance = product)
+        proform.is_translated = True
+
+        if request.method == 'POST':
+            form = ProductVariantForm(request.POST, request.FILES)  
+            proform = ProductForm(request.POST)
+            if form.is_valid():
+                product_variant = form.save(commit=False)
+                product_variant.product = product
+                product_variant.save()
+
+                product.is_translated = True
+                product.save()
+                messages.success(request,"Product variant added")
+                return redirect('admin_app:list_products')
+            else:
+                error = form.errors
+                proerror = proform.errors
+                print("var",error)
+                print("pro",proerror)
+                context = {'form':form,'proform':proform, 'error':error, 'proerror':proerror}
+                return render(request, 'admin_template/product-category/add-pro-variant.html',context)
+   
+        context = {
+            'form': form,
+            'proform':proform,
+            'slug': slug,
+        }
+        return render(request,'admin_template/product-category/add-pro-variant.html',context)   
+    else:
+        return redirect('user_app:home')   
+
 
 
 #________________________Category_management___________________________________________
@@ -554,3 +603,143 @@ def addpublication(request):
     }
     return render(request, 'admin_template/product-category/add-publication.html',context) 
 
+
+#________________________language_management_______________________________________
+#_____________________________________________________________________________________
+@login_required(login_url='admin_app:admin_login')
+def listlanguage(request):
+    if not request.user.is_superuser:
+        return redirect('user_app:home')
+    languages = Language.objects.all().order_by('id')
+
+    context = {
+        'all_languages':languages
+    }
+    return render(request, 'admin_template/product-category/list-language.html',context) 
+
+@login_required(login_url='admin_app:admin_login')
+def controllanguage(request, id):
+    if not request.user.is_superuser:
+        return redirect('user_app:home')
+    try:
+        language = Language.objects.get(id=id)
+    except Language.DoesNotExist as e:
+        print(e)
+
+    language.is_active = not language.is_active
+    language.save()
+    return redirect('admin_app:list_language')
+
+@login_required(login_url='admin_app:admin_login')
+def editlanguage(request,id):
+    if not request.user.is_superuser:
+        return redirect('user_app:home')
+    try:
+        language = Language.objects.get(id=id)
+    except Exception as e:
+        print(e)
+    form = LanguageForm(instance = language)
+    
+    if request.method == 'POST':
+        form = LanguageForm(request.POST, instance=language)
+
+        if form.is_valid():
+            form.save()
+            messages.success(request, "language updated")
+            return redirect('admin_app:list_language')
+        else:
+            error = form.errors
+            context = {'form':form, 'error':error}
+            return render(request, 'admin_template/product-category/edit-language.html',context)
+
+    context = {
+        'form':form
+    }
+    return render(request, 'admin_template/product-category/edit-language.html', context)
+
+
+@login_required(login_url='admin_app:admin_login')
+def addlanguage(request):  
+    if not request.user.is_superuser:
+        return redirect('user_app:home')
+    if request.method == 'POST':
+        form = LanguageForm(request.POST,request.FILES)
+        
+        if form.is_valid():
+            form.save()
+            messages.success(request, "language created")
+            return redirect('admin_app:list_language')
+        else:
+            error = form.errors
+            context = {'form':form, 'error':error}
+            return render(request, 'admin_template/product-category/add-language.html',context)
+            
+    form = LanguageForm()
+    context = {
+        'form':form
+    }
+    return render(request, 'admin_template/product-category/add-language.html',context) 
+
+
+
+# def editproducts(request,slug):
+#     if request.user.is_superuser:
+#         productvar = ProductVariant.objects.get(product_variant_slug=slug)   
+#         pro = productvar.product.all()
+#         print(pro,'pro')
+#         #if varients take that also
+#         #product_variants = ProductVariant.objects.filter(product = product)
+#         form = ProductVariantForm(instance = productvar)
+#         proform = ProductForm(instance = product)
+#         # if request.method == 'GET':
+#         #     proinfo = Product.objects.get(slug=slug)
+#         #     context = {
+#         #         'pro_data':proinfo
+#         #     }
+#         #     return render(request, 'admin_template/product-category/edit-products.html',context)
+    
+#     #after submit button
+#         if request.method == 'POST':
+#             form = ProductVariantForm(request.POST, request.FILES, instance=productvar)  
+#             proform = ProductForm(request.POST,instance=product)
+#             # product_name = request.POST['product_name']
+#             # description = request.POST['description']
+#             # slug = request.POST['slug'] 
+#             if all([form.is_valid(), proform.is_valid()]):
+#            # proinfo = Product.objects.get(slug=slug)
+#             # if product_name and proinfo.product_name != product_name:
+#             #     if Product.objects.filter(product_name=product_name):
+#             #         messages.add_message(request, messages.WARNING, 'product exists' )
+#             #         return render(request,'admin_template/product-category/edit-products.html')
+#             #     else:
+#             #         proinfo.product_name = product_name
+
+#             # if proinfo.description != description:
+#             #     proinfo.description = description
+                
+#             # if proinfo.slug != slug:
+#             #     if Product.objects.filter(slug=slug):
+#             #         messages.add_message(request, messages.WARNING, 'slug exists' )
+#             #         return render(request,'admin_template/product-category/edit-products.html')
+#             #     else:
+#             #         proinfo.slug = slug
+#                 product = proform.save(commit=False)
+#                 product.save()
+#                 product_variant = form.save(commit=False)
+#                 product_variant.product = product
+#                 product_variant.save()
+#                 messages.success(request,"Product updated")
+#                 return redirect('admin_app:list_products')
+#             else:
+#                 error = form.errors
+#                 context = {'form':form, 'error':error}
+#                 return render(request, 'admin_template/product-category/edit-products.html',context)
+   
+#         context = {
+#             'form': form,
+#             #'product_variants':product_variants, 
+#             'slug': slug,
+#         }
+#         return render(request,'admin_template/product-category/edit-products.html',context)   
+#     else:
+#         return redirect('user_app:home') 

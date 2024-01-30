@@ -8,7 +8,7 @@ from .forms import UserRegisterForm
 from django.http import HttpResponseRedirect
 import random
 from django.core.mail import send_mail
-from store.models import Product
+from store.models import Product, ProductVariant
 from datetime import timedelta, datetime
 from django.utils import timezone
 from django.views.decorators.cache import never_cache
@@ -27,8 +27,8 @@ NewUser = settings.AUTH_USER_MODEL """
 # Create your views here.
 @never_cache
 def home(request):  
-    products = Product.objects.all().filter(is_available = True)
-    newproducts = Product.objects.all().filter(is_available = True).order_by("-id")
+    products = ProductVariant.objects.all().filter(is_active = True)
+    newproducts = ProductVariant.objects.all().filter(is_active= True).order_by("-id")
     
     context = {
         'products':products,

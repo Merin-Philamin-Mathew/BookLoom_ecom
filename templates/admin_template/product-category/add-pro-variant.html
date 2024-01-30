@@ -1,0 +1,232 @@
+{% extends "admin_base.html" %}
+{% load static %}
+
+{% block title %}
+users info
+{% endblock %}
+
+{% block content %}
+
+<div class="screen-overlay"></div>
+{% include "includes/admin_sidebar.html" %}
+
+<main class="main-wrap">
+    {% include "includes/admin_navbar.html" %}
+   
+    
+    <section class="content-main">
+        <form method="POST" enctype="multipart/form-data">
+    
+            {% csrf_token %}
+ 
+
+            <div class="col-12">
+                <div class="content-header">
+                    <div class="card-header bg-transparent border-0">
+                        <h2 class="content-title">Add Product</h2>
+                    </div>
+                </div>
+            </div>
+            <div class="row justify-content-lg-center">
+                <div class="col-lg-10 ">
+                    <!--card1-->
+                    <div class="card mb-4 px-4">
+                        <div class="card-header">
+                            <h4>Product details</h4>
+                        </div>
+                        <div class="card-body ">
+                            <div class="row justify-content-between ">
+                                <div class="col-lg-6 ">
+                                    <div class="mb-4">
+                                        <label for="product_name" class="form-label">Product Name</label>
+                                        {{ proform.product_name }} 
+                                        {% if proerror %}
+                                                <label class="text-danger">{{proerror.product.product_name}}</label>
+                                        {% endif %}
+
+                                    </div>
+                                    <div class="mb-4">
+                                        <div class="row align-items-center">
+                                            <label class="form-label">Author</label>
+                                                <div class="input-group">
+                                                    {{ proform.author }}
+                                                    {% if proform.author.errors %}
+                                                    <label class="text-danger">{{proform.author.errors}}</label>
+                                                    {% endif %}
+                                                </div>
+                                        </div> 
+                                    </div>
+                                </div>
+                                <div class="col-lg-6 ">
+                                    <div class="mb-4">
+                                        <label for="category" class="form-label">Category</label>
+                                        {{ proform.category }}
+                                        {% if proerror %}
+                                                <label class="text-danger">{{proerror.product.category}}</label>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                    </div>
+                    <!--card1 ends-->
+                    <!--card2 -->
+                    <div class="card mb-4 px-4">
+                        <div class="card-header">
+                            <h4>More details</h4>
+                        </div>    
+                        <div class="card-body ">
+                            <div class="row justify-content-between ">
+                                <div class="col-lg-6 pr-4">
+
+                                    <div class="mb-4">
+                                        <label class="form-label">Translated Language</label>
+                                        <div class="row gx-2">
+                                            {{ form.language }}
+                                            {% if form.language.errors %}
+                                                <label class="text-danger">{{form.language.errors}}</label>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                    <div class="mb-4">
+                                        <label class="form-label">Thumbnail Image</label>
+                                        <div class="row gx-2">
+                                            {{ form.thumbnail_image }}
+                                            {% if error %}
+                                                <label class="text-danger">{{error.thumbnail_image}}</label>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                    <div class="mb-4">
+                                        <label class="form-label">Short Description</label>
+                                        <div class="row gx-2">
+                                            {{ form.short_description }}
+                                            {% if form.short_description.errors %}
+                                                <label class="text-danger">{{form.short_description.errors}}</label>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+
+                                </div>
+                                <div class="col-lg-6 pl-4">
+
+                                    <div class="mb-4">
+                                        <label class="form-label">Translator</label>
+                                        <div class="input-group">
+                                            {{ form.translator }}
+                                            {% if form.translator.errors %}
+                                            <label class="text-danger">{{form.translator.errors}}</label>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+
+                                    <div class="mb-4">
+                                        <label class="form-label">Additional Images</label>
+                                        <div class="row gx-2">
+                                            {{ form.thumbnail_image }}
+                                            {% if error %}
+                                                <label class="text-danger">{{error.thumbnail_image}}</label>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                    <div class="mb-4">
+                                        <label class="form-label">Publication</label>
+                                        <div class="input-group">
+                                            {{ form.publication }}
+                                            {% if form.publication.errors %}
+                                            <label class="text-danger">{{form.publication.errors}}</label>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="mb-4">
+                                    <label class="form-label">Long Description</label>
+                                    <div class="row gx-2">
+                                        {{ form.long_description }}
+                                        {% if form.long_description.errors %}
+                                            <label class="text-danger">{{form.long_description.errors}}</label>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                <div class="row justify-content-between">
+                                    <div class="col-lg-3">
+                                        <div class="mb-4">
+                                            <label class="form-label">MRP</label>
+                                            <div class="row gx-2">
+                                                {{ form.max_price }}
+                                                {% if error %}
+                                                    <label class="text-danger">{{error.max_price}}</label>
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-3">
+                                        <div class="mb-4">
+                                            <label class="form-label">Sale Price</label>
+                                            <div class="row gx-2">
+                                                {{ form.sale_price }}
+                                                {% if error %}
+                                                    <label class="text-danger">{{error.sale_price}}</label>
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-3">
+                                        <div class="mb-4">
+                                            <label class="form-label">Stock</label>
+                                            <div class="row gx-2">
+                                                {{ form.stock}}
+                                                {% if error %}
+                                                    <label class="text-danger">{{error.stock}}</label>
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="mb-4">
+                                    <label class="form-check">
+                                        {{form.is_active}}
+                                        <span class="form-check-label"> Is Active </span>
+                                    </label>
+                                    </div>
+                                </div>
+                                <div class="row mt-4">
+                                    <div class="col-lg-6 mb-4">
+                                        <button type="submit" class="w-100 btn btn-md rounded-pill font-sm hover-up">Add Product Variant</button>
+                                    </div>
+                                    <div class="col-lg-6 mb-4">
+                                        <a href="{% url 'admin_app:list_products' %}" class="btn btn-dark rounded-pill w-100">Go Back</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        </div>
+                    </div>
+                    <!--card2 ends-->
+                     
+                </div>
+            </div> <!-- card end// -->
+                    
+        </form>
+    </section>
+
+<!-- content-main end// -->
+{% include "includes/admin_footer.html" %}
+</main>
+<script src="{% static 'assets/js/vendors/jquery-3.6.0.min.js' %}"></script>
+<script src="{% static 'assets/js/vendors/bootstrap.bundle.min.js' %}"></script>
+<script src="{% static 'assets/js/vendors/select2.min.js' %}"></script>
+<script src="{% static 'assets/js/vendors/perfect-scrollbar.js' %}"></script>
+<script src="{% static 'assets/js/vendors/jquery.fullscreen.min.js' %}"></script>
+<script src="{% static 'assets/js/vendors/chart.js' %}"></script>
+<!-- Main Script -->
+<script src="{% static 'assets/js/main.js' %}" type="text/javascript"></script>
+<script src="{% static 'assets/js/custom-chart.js' %}" type="text/javascript"></script>
+</body>
+
+
+<!-- Mirrored from wp.alithemes.com/html/evara/evara-backend/index.html by HTTrack Website Copier/3.x [XR&CO'2014], Sun, 01 Aug 2021 15:32:57 GMT -->
+</html>
+
+{% endblock content %}
