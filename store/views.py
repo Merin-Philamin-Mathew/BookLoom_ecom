@@ -30,11 +30,11 @@ def viewstore(request,category_slug=None):
 
 def product_detail(request, category_slug, product_variant_slug):
     try:
-        single_product = ProductVariant.objects.get(category__slug=category_slug, slug=product_variant_slug)
-        author_name = single_product.author.author_name
-        add_images = AdditionalProductImages.objects.filter(product_variant = single_product)
-        product_variants = ProductVariant.objects.filter(product=single_product.product,is_active=True)
-        rel_products = Product.objects.filter(Q(category__slug=category_slug) | Q(author__author_name=author_name)).exclude(slug=single_product.slug)
+        single_product = ProductVariant.objects.get(product__category__slug=category_slug, product_variant_slug=product_variant_slug)
+        author_name = single_product.product.author.author_name
+        # add_images = AdditionalProductImages.objects.filter(product_variant = single_product)
+        # product_variants = ProductVariant.objects.filter(product=single_product.product,is_active=True)
+        rel_products = ProductVariant.objects.filter(Q(product__category__slug=category_slug) | Q(product__author__author_name=author_name)).exclude(product_variant_slug =single_product.product_variant_slug)
 
     except Exception as e:
         raise e

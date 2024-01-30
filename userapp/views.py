@@ -8,7 +8,7 @@ from .forms import UserRegisterForm
 from django.http import HttpResponseRedirect
 import random
 from django.core.mail import send_mail
-from store.models import Product, ProductVariant
+from store.models import Product, ProductVariant, Author
 from datetime import timedelta, datetime
 from django.utils import timezone
 from django.views.decorators.cache import never_cache
@@ -24,15 +24,15 @@ from django.core.mail import EmailMessage
 
 NewUser = settings.AUTH_USER_MODEL """
 
-# Create your views here.
 @never_cache
 def home(request):  
     products = ProductVariant.objects.all().filter(is_active = True)
     newproducts = ProductVariant.objects.all().filter(is_active= True).order_by("-id")
-    
+    authors = Author.objects.all().filter(is_active=True)
     context = {
         'products':products,
         'newproducts':newproducts, 
+        'authors':authors,
     }
     return render(request, 'user_template\home.html', context)
 
@@ -127,6 +127,7 @@ def verify_otp(request):
         return redirect('user_app:signup')
 
 
+    
  
 
 """ @never_cache

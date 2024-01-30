@@ -128,9 +128,9 @@ class ProductVariant(models.Model):
     is_active = models.BooleanField(default=True)
     created_date = models.DateTimeField(auto_now_add=True)
     modified_date = models.DateTimeField(auto_now = True)
-    def get_url(self):
+    """ def get_url(self):
         return reverse('store_app:product_detail',args=[self.product.category.slug,self.product_variant_slug])
-
+ """
     def save(self, *args, **kwargs):   #self.product.publication.name 
         product_variant_slug_name = f'{self.product}-{self.language}-{self.product.category.category_name}'
         base_slug = slugify(product_variant_slug_name)
@@ -143,7 +143,7 @@ class ProductVariant(models.Model):
 
 
     def get_url(self):
-        return reverse('product_variant_detail',args=[self.product.category.slug,self.product_variant_slug])
+        return reverse('store_app:product_detail',args=[self.product.category.slug,self.product_variant_slug])
         
 
     def get_product_name(self):

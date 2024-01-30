@@ -314,6 +314,9 @@ signup
             </div>
         </div>
     </div>
+{% comment %}  {% endcomment %}
+{% comment %}  {% endcomment %}
+{% comment %}  {% endcomment %}
     <main class="main">
         <div class="page-header breadcrumb-wrap">
             <div class="container">
@@ -370,11 +373,17 @@ signup
                                 </div>
                                 <div class="col-md-6 col-sm-12 col-xs-12 ">
                                     <div class="detail-info ">
-                                        <h2 class="title-detail">{{single_product.product_name}}</h2>
+                                        <h2 class="title-detail">{{single_product.product.product_name}}</h2>
                                         <div class="product-detail-rating">
+                                            {% if single_product.translator %}
                                             <div class="pro-details-brand">
-                                                <strong><a href="shop-grid-right.html">by {{single_product.author.author_name}}</a>(Author)</strong>
+                                                <strong><a href="shop-grid-right.html">by {{single_product.product.author.author_name}}</a> & {{single_product.translator}}(translator)</strong>
                                             </div>
+                                            {% else %}
+                                            <div class="pro-details-brand">
+                                                <strong><a href="shop-grid-right.html">by {{single_product.product.author.author_name}}</a>(Author)</strong>
+                                            </div>
+                                            {% endif %}
                                             <div class="product-rate-cover text-end">
                                                 <div class="product-rate d-inline-block">
                                                     <div class="product-rating" style="width:90%">
