@@ -2,13 +2,16 @@
 from django.shortcuts import render,redirect
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.hashers import make_password
+from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from adminapp.models import NewUser
-from .forms import UserRegisterForm
+from .forms import UserRegisterForm,AddressForm
 from django.http import HttpResponseRedirect
 import random
 from django.core.mail import send_mail
 from store.models import Product, ProductVariant, Author
+from adminapp.models import NewUser, Profile, Addresses
+from . forms import ProfileForm
 from datetime import timedelta, datetime
 from django.utils import timezone
 from django.views.decorators.cache import never_cache
@@ -19,6 +22,12 @@ from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.utils.encoding import force_bytes
 from django.contrib.auth.tokens import default_token_generator
 from django.core.mail import EmailMessage
+
+from cart.models import Cart, CartItem
+from cart.views import _cart_id
+
+import requests
+
 """ from django.conf import settings
 
 
@@ -36,10 +45,244 @@ def home(request):
     }
     return render(request, 'user_template\home.html', context)
 
-def product_view(request,pk):
-    #product_details = Product.objects.get(id=pk)
+#--------------user profile------------------
+
+@login_required(login_url='userapp_app:login')
+def myaccountmanager(request):
+    current_user = request.user
+    if current_user.is_authenticated:
+        user = NewUser.objects.get(username = current_user.username)
+        # country = Country.objects.all()
+        # states = State.objects.all()
+        # addressform = AddressBookForm()
+        # orders = Order.objects.filter(user = request.user).exclude(status="New").order_by('-created_at')
+        
+        context = {
+            'user' : user, 
+            # 'states' : states,
+            # 'country' : country,
+            # 'addressform' : addressform, 
+            # 'orders' : orders,   
+        }
+            
+        #context.update(catcom(request))
+        try:              #comparing two objects here not fields
+            if Profile.objects.filter(user = user).exists:
+                profile = Profile.objects.get(user = user)
+                context['profile'] = profile
+        except:
+            pass
+        
+        # try:
+        #     if AddressBook.objects.filter(user = user).exists:
+        #         address = AddressBook.objects.filter(user = user)
+        #         context['address'] = address
+        # except:
+        #     pass
+        # try:
+        #     if AddressBook.objects.filter(user = user , default = True).exists:
+        #         d_address = AddressBook.objects.get(user = user ,default = True)
+        #         context['d_address'] = d_address
+        # except:
+        #     pass
+        
+      
+        return render(request, 'profile/dashboard.html')
+    
+    return redirect('user_app:login')
+
+@login_required(login_url='userapp_app:login')
+def accountdetails(request):
+    current_user = request.user
+    user = NewUser.objects.get(username = current_user.username)
+    context = {
+        'user':user
+        }
+    #context.update(catcom(request))
+    try:
+        if Profile.objects.filter(user = user).exists:
+            profile = Profile.objects.get(user = user)
+            context['profile'] = profile
+    except:
+        pass
+    return render(request , 'profile/account-details.html',context)
    
-    return render(request, 'user_template\single_product_page.html')
+from django.db import transaction
+@transaction.atomic
+@login_required(login_url='userapp_app:login')
+
+@login_required(login_url='userapp_app:login')
+def editprofile(request):
+
+    user = request.user
+    try:
+        profile=Profile.objects.get(user = user)
+    except Profile.DoesNotExist as e :
+        profile = Profile(user = user)
+    form = ProfileForm(instance = profile)
+    
+    if request.method == 'POST':
+        form = ProfileForm(request.POST, instance=profile)
+
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Profile successfully completed!!.....")
+            return redirect('user_app:account_details')
+        else:
+            error = form.errors
+            context = {'form':form, 'error':error}
+            return render(request, 'profile\edit-profile.html',context)
+    return render(request, 'profile\edit-profile.html',{'form':form})
+   
+@login_required(login_url='userapp_app:login')
+def addressbook(request):
+    current_user = request.user
+    address_form = AddressForm(user=current_user)
+    addresses = Addresses.objects.filter(user=current_user, is_active=True).order_by('-is_default')
+    
+    context = {
+        'address_form' : address_form,
+        'addresses' : addresses, 
+    }
+    return render(request, 'profile/address-book.html',context)
+
+@login_required(login_url='userapp_app:login')
+def addaddress(request):
+    if request.method == 'POST':
+        form = AddressForm(request.user, request.POST)
+        if form.is_valid():
+            address = form.save(commit=False)
+            address.user = request.user  # Set the user before saving
+            address.save()
+            messages.success(request, "Address successfully added!!.....")
+            return redirect('user_app:address_book')
+        else:
+            error = form.errors
+            print(error)
+            context = {'form': form, 'error': error}
+            return render(request, 'profile/add-address.html', context)
+    
+    form = AddressForm(user=request.user)
+    return render(request, 'profile/add-address.html', {'form': form})
+ 
+@login_required(login_url='userapp_app:login')
+def editaddress(request,pk):
+    user = request.user
+    try:
+        address=Addresses.objects.get(id = pk)
+    except Addresses.DoesNotExist as e :
+        #address = Addresses(user = user)
+        pass
+
+    if request.method == 'POST':
+        form = AddressForm(request.user,request.POST,instance=address)
+        if form.is_valid():
+            address = form.save(commit=False)
+            address.user = request.user  # Set the user before saving
+            address.save()
+            messages.success(request, "Address successfully Updated!!.....")
+            return redirect('user_app:address_book')
+        else:
+            error = form.errors
+            print(error)
+            context = {'form': form, 'error': error}
+            return render(request, 'profile/edit-address.html', context)
+    else:
+        form = AddressForm(instance=address, user=user)
+    return render(request, 'profile/edit-address.html', {'form': form})
+ 
+@login_required(login_url='userapp_app:login')
+def deleteaddress(request,pk):
+    try:
+        address = Addresses.objects.get(id=pk)
+        address.is_active = False
+        address.save()
+        return redirect('user_app:address_book')                
+    
+    except Addresses.DoesNotExist:
+        return redirect('user_app:address_book')   
+
+@login_required(login_url='userapp_app:login')          
+def defaultaddress(request, pk):
+    try:  
+        other = Addresses.objects.all().exclude(id=pk)
+        for address in other:
+            address.is_default = False
+            address.save()
+
+        address = Addresses.objects.get(id=pk)
+        address.is_default = True
+        address.save()
+        return redirect('user_app:address_book')   
+    except Addresses.DoesNotExist:
+        return redirect('user_app:address_book')   
+         
+""" 
+def update_address(request):
+
+    if request.method == 'GET':
+        id = request.GET.get('id')
+        try:
+            address = Addresses.objects.get(id = int(id))
+        except Exception as e:
+            print(e)
+            return JsonResponse({
+                'status': 'error',
+                'message': 'Address not found'
+            })
+        
+        address_form = AddressForm(request.POST, instance = address)
+        form_data = model_to_dict(address_form.instance)
+        form_data.pop('country')
+        form_data['country'] = address.country.name
+        print(form_data)
+
+        country_choices = get_country_choices()
+        countries = json.dumps(country_choices)
+        
+        return JsonResponse({
+            'formData': form_data,
+            'countries': countries
+        })
+    
+        # return JsonResponse({
+        #     'id': address.id,
+        #     'name': address.name,
+        #     'phone_number':address.phone_number,
+        #     'addrl1': address.address_line_1,
+        #     'addrl2': address.address_line_2,
+        #     'city': address.city,
+        #     'state': address.state,
+        #     'country': address.get_country_display(),
+        #     'pincode': address.pincode,
+        # })
+    elif request.method =='POST':
+        
+        address_id = request.POST.get('id')
+        try:
+            address = Addresses.objects.get(id = address_id)
+            print(address)
+        except Exception as e:
+            print(e)
+
+        address_form = AddressForm(request.POST,instance = address)
+        if address_form.is_valid():
+            new_address = address_form.save()
+
+            return JsonResponse({
+                "status" : 'Success',
+                'message': 'Address updated successfully'
+            })
+        else:
+            return JsonResponse({
+                "name_error": address_form.errors
+                })    
+
+   
+            
+              
+  """   
+ 
 
 @never_cache
 def user_logout(request):
@@ -127,10 +370,7 @@ def verify_otp(request):
         return redirect('user_app:signup')
 
 
-    
- 
-
-""" @never_cache
+    """ @never_cache
 def resend_otp(request):
     if 'otp' in request.session:
         # Generate a new OTP
@@ -158,10 +398,33 @@ def user_login(request):
 
         user = authenticate(username=email, password=password)
         if user is not None:
+            try:
+                print("enter try block")
+                cart = Cart.objects.get(cart_id = _cart_id(request))
+                is_cart_item_exists = CartItem.objects.filter(cart = cart). exists()
+                if is_cart_item_exists:
+                    cart_item = CartItem.objects.filter(cart=cart)
+                    print(cart_item)
+                    for item in cart_item:
+                        item.user = user
+                        item.save()
+            except:
+                print("except block")
+                pass
             username = user.username
             login(request, user)
             messages.success(request, f"Hey {username}, welcome back! You've logged in successfully.")
-            return redirect('user_app:home') 
+            url = request.META.get('HTTP_REFERER')
+            try:
+                query = requests.utils.urlparse(url).query
+                #next=/checkout/
+                params = dict(x.split('=') for x in query.split('&'))
+                #{'next': '/checkout/'}
+                if 'next' in params:
+                    nextPage = params['next']
+                    return redirect(nextPage)
+            except:
+                return redirect('user_app:home') 
         else:
             # Check if the email exists in the user model
             if NewUser.objects.filter(email=email).exists():
@@ -221,7 +484,7 @@ def reset_password(request):
             user = NewUser.objects.get(pk=uid)
             user.set_password(password)
             user.save()
-            messages.success(request, "sucessfully reset password")
+            #messages.success(request, "sucessfully reset password")
             return render(request,'user_template/reset-success.html')
 
         else:

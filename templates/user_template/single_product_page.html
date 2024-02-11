@@ -7,6 +7,33 @@ signup
 {% endblock %}
 
 {% block content %}
+<style>
+    /* Override inherited styles for btn-outline-dark */
+.btn.btn-outline-dark {
+    /* Your custom styles here */
+    background-color: transparent;
+    color: #343a40; /* Your desired text color */
+    border-color: #343a40; /* Your desired border color */
+}
+
+/* Override eye icon style */
+.bi.bi-eye {
+    /* Your custom styles here */
+    font-size: 1rem; /* Adjust the size as needed */
+    vertical-align: middle; /* Align vertically with text */
+}
+/* Override styles on hover for btn-outline-dark */
+.btn.btn-outline-dark:hover {
+    background-color: black; /* Your desired background color on hover */
+    color: white; /* Your desired text color on hover */
+}
+
+/* Override styles on hover for eye icon */
+.bi.bi-eye:hover {
+    /* Your custom styles here for the eye icon on hover */
+    color: white; /* Your desired text color on hover */
+}
+</style>
 
 {% include "includes/user_navbar.html" %}
 
@@ -69,7 +96,7 @@ signup
                         </div>
                         <div class="col-md-6 col-sm-12 col-xs-12">
                             <div class="detail-info">
-                                <h3 class="title-detail mt-30">{{single_product.product_name}}</h3>
+                                <h3 class="title-detail mt-30">{{single_productproduct_name}}</h3>
                                 <div class="product-detail-rating">
                                     <div class="pro-details-brand">
                                         <span> Brands: <a href="shop-grid-right.html">Bootstrap</a></span>
@@ -124,7 +151,7 @@ signup
                                     </ul>
                                 </div> {% endcomment %}
                         <!--size variants-->
-                                <div class="bt-1 border-color-1 mt-30 mb-30"></div>
+                           {% comment %}      <div class="bt-1 border-color-1 mt-30 mb-30"></div>
                                 <div class="detail-extralink">
                                     <div class="detail-qty border radius">
                                         <a href="#" class="qty-down"><i class="fi-rs-angle-small-down"></i></a>
@@ -132,11 +159,13 @@ signup
                                         <a href="#" class="qty-up"><i class="fi-rs-angle-small-up"></i></a>
                                     </div>
                                     <div class="product-extra-link2">
-                                        <button type="submit" class="button button-add-to-cart">Add to cart</button>
+                                        <input type="hidden" value="{{single_product.id}}" class="product-id" name="" id="">
+                                        <input type="hidden" value="{{single_product.product.product_name}}" class="product-name" name="" id="">
+                                        <p  class="button button-add-to-cart">Add to cartnfghm</p>
                                         <a aria-label="Add To Wishlist" class="action-btn hover-up" href="shop-wishlist.html"><i class="fi-rs-heart"></i></a>
                                         <a aria-label="Compare" class="action-btn hover-up" href="shop-compare.html"><i class="fi-rs-shuffle"></i></a>
                                     </div>
-                                </div>
+                                </div> {% endcomment %}
                                 <ul class="product-meta font-xs color-grey mt-50">
                                  {% comment %}    <li class="mb-5">SKU: <a href="#">FWM15VKT</a></li>
                                     <li class="mb-5">Tags: <a href="#" rel="tag">Cloth</a>, <a href="#" rel="tag">Women</a>, <a href="#" rel="tag">Dress</a> </li>
@@ -166,10 +195,10 @@ signup
             </div>
             <div class="mobile-header-content-area">
                 <div class="mobile-search search-style-3 mobile-header-border">
-                    <form action="#">
+                    {% comment %} <form action="#">
                         <input type="text" placeholder="Search for items…">
                         <button type="submit"><i class="fi-rs-search"></i></button>
-                    </form>
+                    </form> {% endcomment %}
                 </div>
                 <div class="mobile-menu-wrap mobile-header-border">
                     <div class="main-categori-wrap mobile-header-border">
@@ -323,7 +352,7 @@ signup
                 <div class="breadcrumb">
                     <a href="index.html" rel="nofollow">Home</a>
                     <span></span> Fashion
-                    <span></span> Abstract Print Patchwork Dress
+                    <span class="cart-items-count"></span> {{ request.session.cart_data_obj|length}}
                 </div>
             </div>
         </div>
@@ -394,7 +423,7 @@ signup
                                         </div>
                                         <div class="clearfix product-price-cover">
                                             <div class="product-price primary-color float-left">
-                                                <ins><span class="text-brand">{{single_product.sale_price}}</span></ins>
+                                                <ins><span class="text-brand" id="current-product-price">{{single_product.sale_price}}</span></ins>
                                                 <ins><span class="old-price font-md ml-15">{{single_product.max_price}}</span></ins>
                                                 <span class="save-price  font-md color3 ml-15">25% Off</span>
                                             </div>
@@ -444,20 +473,40 @@ signup
                                         <div class="detail-extralink">
                                             <div class="detail-qty border radius">
                                                 <a href="#" class="qty-down"><i class="fi-rs-angle-small-down"></i></a>
-                                                <span class="qty-val">1</span>
+                                                <span id="product-quantity"><span class="qty-val qty-txt">1</span></span>
                                                 <a href="#" class="qty-up"><i class="fi-rs-angle-small-up"></i></a>
                                             </div>
                                             <div class="product-extra-link2">
-                                                <button type="submit" class="button button-add-to-cart">Add to cart</button>
-                                                <a aria-label="Add To Wishlist" class="action-btn hover-up" href="shop-wishlist.html"><i class="fi-rs-heart"></i></a>
-                                                <a aria-label="Compare" class="action-btn hover-up" href="shop-compare.html"><i class="fi-rs-shuffle"></i></a>
+                                                <input type="hidden" value="{{single_product.id}}" class="product-id" name="" id="">
+                                                <input type="hidden" value="{{single_product.product.category.slug}}" class="product-category-slug" name="" >
+                                                <input type="hidden" value="{{single_product.product_variant_slug}}" class="product-variant-slug" name="" id="">
+                                                <input type="hidden" value="{{single_product.product.product_name}}" class="product-name" name="" id="">
+                                                {% if single_product.stock <= 0 %}
+                                                <h5 class="text-danger">Out of Stock</h5>
+                                                {% else %}
+                                                    {% if in_cart %}
+                                                    <p id="" class="btn">
+                                                        Book added to cart
+                                                        <i class="fi-rs-check ml-4"></i>
+                                                    </p>
+                                                    <a id="" href="{% url "cart_app:cart" %}" class="">
+                                                        <span class=""><i class="fi-rs-eye"></i></span>
+                                                    </a>
+                                                
+                                                    
+                                                    {% else %}
+                                                    <p id="add-to-cart-btn" class="button button-add-to-cart" >Add to cart</p>
+                                                    <a aria-label="Add To Wishlist" class="action-btn hover-up" href="shop-wishlist.html"><i class="fi-rs-heart"></i></a>
+                                                    <a aria-label="Compare" class="action-btn hover-up" href="shop-compare.html"><i class="fi-rs-shuffle"></i></a>
+                                                    {% endif %}
+                                                {% endif %}
                                             </div>
                                         </div>
                                         <ul class="product-meta font-xs color-grey mt-50">
                                             <!--Tags and SKU-->
                                            {% comment %}  <li class="mb-5">SKU: <a href="#">FWM15VKT</a></li>
                                             <li class="mb-5">Tags: <a href="#" rel="tag">Cloth</a>, <a href="#" rel="tag">Women</a>, <a href="#" rel="tag">Dress</a> </li>
-                                            {% endcomment %} <li>Availability:<strong class="in-stock text-success ml-5">{{single_product.stock}} Items In Stock</strong></li>
+                                            {% endcomment %} <li>Availability:{% if single_product.stock <= 0 %}<strong class="in-stock text-danger ml-5">Out of stock{% else %}<strong class="in-stock text-success ml-5">{{single_product.stock}} Items In Stock{% endif %}</strong></li>
                                         </ul>
                                     </div>
                                     <!-- Detail Info -->
@@ -504,6 +553,7 @@ signup
                                             </p> {% endcomment %}
                                         </div>
                                     </div>
+                                <!--Additional Info-->
                                     <div class="tab-pane fade" id="Additional-info">
                                         <table class="font-md">
                                             <tbody>
@@ -594,6 +644,9 @@ signup
                                             </tbody>
                                         </table>
                                     </div>
+                                <!--Additional Info-->
+                                
+                                <!--Reviews-->
                                     <div class="tab-pane fade" id="Reviews">
                                         <!--Comments-->
                                         <div class="comments-area">
@@ -744,6 +797,7 @@ signup
                                             </div>
                                         </div>
                                     </div>
+                                <!--Reviews-->
                                 </div>
                             </div>
                         <!--related products-->
@@ -924,30 +978,102 @@ signup
             </div>
         </div>
     </div> {% endcomment %}
-    <!-- Vendor JS-->
-    <script src="{% static 'assets/js/vendor/modernizr-3.6.0.min.js' %}"></script>
-    <script src="{% static 'assets/js/vendor/jquery-3.6.0.min.js' %}"></script>
-    <script src="{% static 'assets/js/vendor/jquery-migrate-3.3.0.min.js' %}"></script>
-    <script src="{% static 'assets/js/vendor/bootstrap.bundle.min.js' %}"></script>
-    <script src="{% static 'assets/js/plugins/slick.js' %}"></script>
-    <script src="{% static 'assets/js/plugins/jquery.syotimer.min.js' %}"></script>
-    <script src="{% static 'assets/js/plugins/wow.js' %}"></script>
-    <script src="{% static 'assets/js/plugins/jquery-ui.js' %}"></script>
-    <script src="{% static 'assets/js/plugins/perfect-scrollbar.js' %}"></script>
-    <script src="{% static 'assets/js/plugins/magnific-popup.js' %}"></script>
-    <script src="{% static 'assets/js/plugins/select2.min.js' %}"></script>
-    <script src="{% static 'assets/js/plugins/waypoints.js' %}"></script>
-    <script src="{% static 'assets/js/plugins/counterup.js' %}"></script>
-    <script src="{% static 'assets/js/plugins/jquery.countdown.min.js' %}"></script>
-    <script src="{% static 'assets/js/plugins/images-loaded.js' %}"></script>
-    <script src="{% static 'assets/js/plugins/isotope.js' %}"></script>
-    <script src="{% static 'assets/js/plugins/scrollup.js' %}"></script>
-    <script src="{% static 'assets/js/plugins/jquery.vticker-min.js' %}"></script>
-    <script src="{% static 'assets/js/plugins/jquery.theia.sticky.js' %}"></script>
-    <script src="{% static 'assets/js/plugins/jquery.elevatezoom.js' %}"></script>
-    <!-- Template  JS -->
-    <script src="{% static 'assets/js/main.js' %}"></script>
-    <script src="{% static 'assets/js/shop.js' %}"></script>
+
+     <!-- Vendor JS-->
+     <script src="{% static 'assets/js/vendor/modernizr-3.6.0.min.js' %}"></script>
+     <script src="{% static 'assets/js/vendor/jquery-3.6.0.min.js' %}"></script>
+     <script src="{% static 'assets/js/vendor/jquery-migrate-3.3.0.min.js' %}"></script>
+     <script src="{% static 'assets/js/vendor/bootstrap.bundle.min.js' %}"></script>
+     <script src="{% static 'assets/js/plugins/slick.js' %}"></script>
+     <script src="{% static 'assets/js/plugins/jquery.syotimer.min.js' %}"></script>
+     <script src="{% static 'assets/js/plugins/wow.js' %}"></script>
+     <script src="{% static 'assets/js/plugins/jquery-ui.js' %}"></script>
+     <script src="{% static 'assets/js/plugins/perfect-scrollbar.js' %}"></script>
+     <script src="{% static 'assets/js/plugins/magnific-popup.js' %}"></script>
+     <script src="{% static 'assets/js/plugins/select2.min.js' %}"></script>
+     <script src="{% static 'assets/js/plugins/waypoints.js' %}"></script>
+     <script src="{% static 'assets/js/plugins/counterup.js' %}"></script>
+     <script src="{% static 'assets/js/plugins/jquery.countdown.min.js' %}"></script>
+     <script src="{% static 'assets/js/plugins/images-loaded.js' %}"></script>
+     <script src="{% static 'assets/js/plugins/isotope.js' %}"></script>
+     <script src="{% static 'assets/js/plugins/scrollup.js' %}"></script>
+     <script src="{% static 'assets/js/plugins/jquery.vticker-min.js' %}"></script>
+     <script src="{% static 'assets/js/plugins/jquery.theia.sticky.js' %}"></script>
+     <script src="{% static 'assets/js/plugins/jquery.elevatezoom.js' %}"></script>
+     <!-- Template  JS -->
+     <script src="{% static 'assets/js/main.js' %}"></script>
+     <script src="{% static 'assets/js/shop.js' %}"></script>
+ 
+<script>
+        {% comment %} function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+              const cookies = document.cookie.split(';');
+              for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                // Search for the CSRF token cookie
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                  cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                  break;
+                }
+              }
+            }
+            return cookieValue;
+          } {% endcomment %}
+
+    // AJAX request for adding product to cart
+    $('#add-to-cart-btn').on('click',  function (event) {
+        event.preventDefault();  // Prevent form submission
+        let quantity = $("#product-quantity").text();
+        let product_id = $(".product-id").val();
+        let product_name = $(".product-name").val();
+        let product_price = $("#current-product-price").text();
+        let this_val = $(this);
+    
+        console.log("Quantity:", quantity);
+        console.log("Title:", product_name);
+        console.log("Price:", product_price);
+        console.log("ID:", product_id);
+        console.log("Current Element:", this_val);
+        
+        let product_variant_slug = $(".product-variant-slug").val();
+        //let product_category_slug= $(".product-category-slug").val();
+
+        //console.log("product_category_slug:", product_category_slug);
+        console.log("product_variant_slug:", product_variant_slug);
+        //const csrftoken = getCookie('csrftoken');
+        
+        $.ajax({
+            //url: 'http://127.0.0.1:8000/store/add/',
+            url: "{% url 'store_app:add_to_cart' %}",
+            method: 'GET',
+            data: {
+                'id': product_id,
+                'qty': quantity,
+                'title': product_name,
+                'price': product_price,
+                //'csrf_token': csrftoken,
+            },
+            dataType: 'json',
+            beforeSend: function (xhr, settings) {
+                // Set the CSRF token in the request headers
+                //xhr.setRequestHeader('X-CSRFToken', csrftoken);
+                console.log("Adding Product to Cart...");
+            },
+            success: function (response) {
+                this_val.html("Item added to cart!");
+                console.log("Added Product to Cart!");
+                $(".cart-items-count").text(response.totalcartitems)
+            },
+            error: function (xhr, status, error) {
+                console.log("Error adding product to cart:", error);
+            }
+        });
+        
+        return false;
+      });
+</script>
+    
 </body>
 
 

@@ -15,6 +15,15 @@ urlpatterns = [
     path('forgotpassword/', views.forgotpassword, name='forgot_password'),
     path('resetpassword/<uidb64>/<token>/',views.resetpassword,name='reset_password'),
     path('resetpassword/',views.reset_password,name='reset_password'),
+    #user profile
+    path('myaccountmanager/',views.myaccountmanager,name='my_account_manager'),
+    path('accountdetails/',views.accountdetails,name='account_details'),
+    path('editprofile/',views.editprofile,name='edit_profile'),
+    path('addressbook/',views.addressbook,name='address_book'),
+    path('addaddress/', views.addaddress, name='add_address'),
+    path('editaddress/<int:pk>', views.editaddress, name='edit_address'),
+    path('deleteaddress/<int:pk>', views.deleteaddress, name='delete_address'),
+    path('defaultaddress/<int:pk>', views.defaultaddress, name='default_address'),
 
 
 ]

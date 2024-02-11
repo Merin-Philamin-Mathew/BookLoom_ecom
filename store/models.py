@@ -23,6 +23,8 @@ class Category(models.Model):
     
     def get_url(self):
         return reverse('store_app:products_by_category',args=[self.slug])
+    def get_parent_url(self):
+        return reverse('store_app:products_by_category',args=[self.slug])
     
     def __str__(self):
         return self.category_name
@@ -117,7 +119,7 @@ class ProductVariant(models.Model):
     #sku_id = models.IntegerField()
     short_description = models.CharField(max_length = 255 ,null=True, blank = True)
     long_description = models.TextField(blank=True, null=True)
-    thumbnail_image = models.ImageField(upload_to='photos/product-variant/thumbnail')
+    thumbnail_image = models.ImageField(upload_to='photos/product-variant/thumbnail/{product.product_name}/{filename}')
     publication = models.ForeignKey(Publication,on_delete=models.CASCADE,related_name = "published_books")
     max_price = models.DecimalField(max_digits=6,decimal_places=2, validators=[MinValueValidator(0)])
     sale_price = models.DecimalField(max_digits=6,decimal_places=2, validators=[MinValueValidator(0)])
@@ -146,15 +148,29 @@ class ProductVariant(models.Model):
         return reverse('store_app:product_detail',args=[self.product.category.slug,self.product_variant_slug])
         
 
+    # def get_product_name(self):
+    #     return f'{self.product.product_name}-{", ".join([value[0] for value in self.attribute.all().values_list("attribute_value")])} by {self.product.author.author_name}'
     def get_product_name(self):
-        return f'{self.product.product_name}-{self.sku_id} - {", ".join([value[0] for value in self.attribute.all().values_list("attribute_value")])} by {self.product.publication}'
+        return f'{self.product.product_name} by {self.product.author.author_name}'
 
     def __str__(self):
         return self.product_variant_slug
+    
 
+def upload_path(instance, filename):
+    # Get the name of the product
+    print('product_name')
+    product_name = instance.product.name
+    print(product_name)
+    # Generate the upload path using the product name
+    upload_path = f'photos/product-variant/additional-images{product_name}/{filename}'
+    return upload_path
+
+
+# additional image field for adding extra images of the product according to variations
 class AdditionalProductImages(models.Model):
     product_variant = models.ForeignKey(ProductVariant,on_delete=models.CASCADE,related_name='additional_product_images')
-    image = models.ImageField(upload_to='photos/product-variant/additional-images')
+    image = models.ImageField(upload_to='photos/product-variant/additional-images/{filename}')
     is_active = models.BooleanField(default=True)
 
 

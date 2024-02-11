@@ -189,11 +189,11 @@ def addproducts(request):
   
         thumbnail_image = request.FILES.get('thumbnail_image')  
         
-      
         if request.method == 'POST':
             author_form = AuthorForm(request.POST, request.FILES)
             proform = ProductForm(request.POST)
             form = ProductVariantForm(request.POST, request.FILES)
+            add_img_form = AdditionalProductImages(request.POST, request.FILES)
             print("pro",proform.errors)
             print("var",form.errors)   
             print("author",author_form.errors)   
@@ -207,7 +207,14 @@ def addproducts(request):
                 product.save()
                 product_variant = form.save(commit=False)
                 product_variant.product = product
-                product_variant.save()
+                provar = product_variant.save()
+                # addimg = add_img_form.save = ()
+                # adobj = AdditionalProductImages.objects.all()
+                # adobj.product_variant = provar
+                # adobj.image = addimg
+                # adobj.is_active = True
+                # adobj.save()
+                
 
                 messages.success(request,'product added successfully')
                 return redirect('admin_app:list_products') 
@@ -222,13 +229,14 @@ def addproducts(request):
             authorform = AuthorForm()
             proform = ProductForm()
             form =  ProductVariantForm()
+            add_img_form = AddProImgForm()
         
         
             context = {
                 'proform':proform,
                 'form':form,
                 'authorform':authorform,
-            
+                'addimgfrom':add_img_form
             }       
             return render(request, 'admin_template/product-category/add-products.html',context)
     else:
@@ -243,16 +251,27 @@ def editproducts(request,slug):
      
         form = ProductVariantForm(instance = productvar)
         proform = ProductForm(instance = product)
+        additional_images = AdditionalProductImages.objects.filter(product_variant=productvar)
       
         if request.method == 'POST':
+            
             form = ProductVariantForm(request.POST, request.FILES, instance=productvar)  
+            #additional_image_form = AddProImgForm(request.POST, request.FILES)
+            images = request.FILES.getlist('image')
+            
             proform = ProductForm(request.POST,instance=product)
+            
             if all([form.is_valid(), proform.is_valid()]):
                 product = proform.save(commit=False)
                 product.save()
                 product_variant = form.save(commit=False)
                 product_variant.product = product
                 product_variant.save()
+
+                for image in images:
+                    AdditionalProductImages.objects.create(product_variant=product_variant, image=image)
+                product_variant.save()
+
                 messages.success(request,"Product updated")
                 return redirect('admin_app:list_products')
             else:
@@ -264,7 +283,7 @@ def editproducts(request,slug):
         context = {
             'form': form,
             'proform':proform,
-            #'product_variants':product_variants, 
+            #'additional_images': additional_images,
             'slug': slug,
         }
         return render(request,'admin_template/product-category/edit-products.html',context)   

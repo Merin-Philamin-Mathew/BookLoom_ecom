@@ -2,7 +2,7 @@ from django.db import models
 from django.utils.translation import gettext as _
 from django.contrib.auth.models import AbstractUser
 from phonenumber_field.modelfields import PhoneNumberField
-
+from django_countries.fields import CountryField
 #from django_otp.models import TimeBasedOTP
 # Create your models here.
 
@@ -28,13 +28,108 @@ class NewUser(AbstractUser):
 
     USERNAME_FIELD = "email"
     REQUIRED_FIELDS = ['username','phone_number']
-    
+
     # def verify_otp(self, otp):
     #     return self.verify_otp_value(otp)
 
     def __str__(self):
         return self.email
     
+    
+
+    
+def upload_path(instance, filename):
+    # Get the username of the associated user
+    username = instance.user.username
+
+    # Construct the upload path
+    upload_path = f'profile-pic/user/{username}/{filename}' 
+    return upload_path
+
+#--------------------------user page----------------------------
+#-------------------------user details--------------------------
+class Profile(models.Model):
+    GENDER_CHOICES = [
+        ('male', 'Male'),
+        ('female', 'Female'),
+        ('other', 'Other'),
+    ]
+    user = models.OneToOneField(NewUser, on_delete=models.CASCADE, related_name="profile")
+    first_name = models.CharField(max_length=30,null = True)
+    last_name = models.CharField(max_length=30,null = True)
+    profile_image = models.ImageField(null=True, blank=True, upload_to=upload_path)
+    date_of_birth = models.DateField(null=True)
+    gender = models.CharField(max_length=10, choices=GENDER_CHOICES, null=True)
+
+    def __str__(self):
+        return self.user.username
+
+class Addresses(models.Model):
+    COUNTRY_CHOICES = [('IN', 'India')]  # Add more countries if needed
+    STATE_CHOICES = [
+        ('Andhra Pradesh', 'Andhra Pradesh'),
+        ('Arunachal Pradesh', 'Arunachal Pradesh'),
+        ('Assam', 'Assam'),
+        ('Bihar', 'Bihar'),
+        ('Chhattisgarh', 'Chhattisgarh'),
+        ('Goa', 'Goa'),
+        ('Gujarat', 'Gujarat'),
+        ('Haryana', 'Haryana'),
+        ('Himachal Pradesh', 'Himachal Pradesh'),
+        ('Jharkhand', 'Jharkhand'),
+        ('Karnataka', 'Karnataka'),
+        ('Kerala', 'Kerala'),
+        ('Madhya Pradesh', 'Madhya Pradesh'),
+        ('Maharashtra', 'Maharashtra'),
+        ('Manipur', 'Manipur'),
+        ('Meghalaya', 'Meghalaya'),
+        ('Mizoram', 'Mizoram'),
+        ('Nagaland', 'Nagaland'),
+        ('Odisha', 'Odisha'),
+        ('Punjab', 'Punjab'),
+        ('Rajasthan', 'Rajasthan'),
+        ('Sikkim', 'Sikkim'),
+        ('Tamil Nadu', 'Tamil Nadu'),
+        ('Telangana', 'Telangana'),
+        ('Tripura', 'Tripura'),
+        ('Uttar Pradesh', 'Uttar Pradesh'),
+        ('Uttarakhand', 'Uttarakhand'),
+        ('West Bengal', 'West Bengal'),
+    ]
+    user = models.ForeignKey(NewUser,on_delete=models.CASCADE)
+    name = models.CharField(max_length=30)
+    phone_number = models.CharField(max_length=20)
+    address_line_1 = models.CharField(max_length=50)
+    address_line_2 = models.CharField(max_length=50,blank=True,null=True)
+    city = models.CharField(max_length=50)
+    country = models.CharField(max_length=2, choices=COUNTRY_CHOICES, default='IN')
+    state = models.CharField(max_length=50, choices=STATE_CHOICES)
+    pincode = models.CharField(max_length=20)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    is_default = models.BooleanField(default=False)
+    is_active = models.BooleanField(default=True)    
+    
+    
+    def save(self, *args, **kwargs):
+        if self.is_default:
+            Addresses.objects.filter(user = self.user).exclude(pk=self.pk).update(is_default=False)
+        super(Addresses, self).save(*args, **kwargs)
+        
+    def get_user_full_address(self):
+        address_parts = f"{self.name}, {self.phone_number}, {self.address_line_1}"
+        
+        if self.address_line_2:
+            address_parts += (', '+self.address_line_2)
+        
+        address_parts += (f", Pin: {self.pincode}, {self.city}, {self.state}, {self.country}")
+        
+        
+        return address_parts
+        # return f'{self.name},{self.phone},Pin:{self.pincode},Address:{self.address_line_1},{self.address_line_2},{self.city},{self.state},{self.country}'
+    
+    def __str__(self):
+        return self.name    
 
 """ 
 from django.db.models.signals import post_save

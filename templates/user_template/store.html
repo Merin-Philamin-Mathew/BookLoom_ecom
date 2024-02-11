@@ -101,20 +101,42 @@ signup
                                 </div>
                                 <div class="product-content-wrap">
                                     <div class="product-category">
-                                        <a href="shop-grid-right.html">{{product.author}}</a>
+                                        {% if product.translator %}
+                                            <div class="pro-details-brand">
+                                                <a href="">{{product.product.author.author_name}}</a>
+                                                <a href=""> & {{product.translator}}</a>
+                                            </div>
+                                            {% else %}
+                                            <div class="pro-details-brand">
+                                                <a href="shop-grid-right.html">{{product.product.author.author_name}}</a>
+                                            </div>
+                                            {% endif %}
+                                        
                                     </div>
-                                    <h2><a href="{{product.get_url}}">{{product.product_name}}</a></h2>
+                                    {% if product.translator %}
+                                    <div class=''>
+                                        <h2><a href="{{product.get_url}}">{{product.product.product_name}} - {{product.language}}</h2></a>
+                                    </div>
+                                    {% else %}
+                                    <h2><a href="{{product.get_url}}">{{product.product.product_name}}</a></h2>
+                                    {% endif %}
                                     <div class="rating-result" title="90%">
                                         <span>
                                             <span>90%</span>
                                         </span>
                                     </div>
-                                    <div class="product-price">
-                                        <span>{{product.sale_price}}</span>
-                                        <span class="old-price">{{product.max_price}}</span>
+                                        <input type="hidden" value="1" class="product-quantity-{{product.id}}" name="" id="">
+                                        <input type="hidden" value="{{product.id}}" class="product-id-{{product.id}}" name="" id="">
+                                        <input type="hidden" value="{{product.product.category.slug}}/{{product.product_variant_slug}}" class="product-slug-{{product.id}}" name="" id="">
+                                        <input type="hidden" value="{{product.product.product_name}}" class="product-name-{{product.id}}" name="" id="">
+                                        <input type="hidden" value="{{product.thumbnail_image.url}}" class="product-image-{{product.id}}" name="" id="">
+                                        
+                                        <div class="product-price">
+                                            <span class="current-price current-product-price-{{product.id}}">Rs.{{product.sale_price}}</span>
+                                            <span class="old-price">{{product.max_price}}</span>
                                     </div>
                                     <div class="product-action-1 show">
-                                        <a aria-label="Add To Cart" class="action-btn hover-up" href="shop-cart.html"><i class="fi-rs-shopping-bag-add"></i></a>
+                                        <button aria-label="Add To Cart" class="action-btn hover-up add-to-cart-btn" id="add-to-cart-btn" data-index="{{ product.id }}"><i class="fi-rs-shopping-bag-add"></i></button>
                                     </div>
                                 </div>
                             </div>
@@ -124,7 +146,7 @@ signup
                 </div>
 
 <!--pagination starts-->
-                <div class="pagination-area mt-15 mb-sm-5 mb-lg-0">
+               {% comment %}  <div class="pagination-area mt-15 mb-sm-5 mb-lg-0">
                     <nav aria-label="Page navigation example">
                         <ul class="pagination justify-content-start">
                             <li class="page-item active"><a class="page-link" href="#">01</a></li>
@@ -135,8 +157,8 @@ signup
                             <li class="page-item"><a class="page-link" href="#"><i class="fi-rs-angle-double-small-right"></i></a></li>
                         </ul>
                     </nav>
-                </div>
-<!--pagination starts-->
+                </div> {% endcomment %}
+<!--pagination ends-->
 
             </div>
 <!--filter sidebar starts-->
@@ -334,7 +356,59 @@ signup
     <script src="{% static 'assets/js/main.js' %}"></script>
     <script src="{% static 'assets/js/shop.js' %}"></script>
 <!---->
-   
+<script>
+    // AJAX request for adding product to cart
+$('.add-to-cart-btn').on('click',  function () {
+let this_val = $(this);
+let index = this_val.attr("data-index")
+let quantity = $(".product-quantity-"+index).val();
+let product_id = $(".product-id-"+index).val();
+let product_name = $(".product-name-"+index).val();
+let product_slug = $(".product-slug-"+index).val();
+let product_image = $(".product-image-"+index).val();
+let product_price = $(".current-product-price-"+index).text();
+
+console.log("Index:", index);
+console.log("Quantity:", quantity);
+console.log("Title:", product_name);
+console.log("Price:", product_price);
+console.log("image:", product_image);
+console.log("Slug:", product_slug);
+console.log("ID:", product_id);
+console.log("Current Element:", this_val);
+
+$.ajax({
+    //url: 'http://127.0.0.1:8000/add-to-cart/',
+    url: "{% url 'store_app:add_to_cart' %}",
+    method: 'GET',
+    data: {
+        'id': product_id,
+        'slug': product_slug,
+        'image':product_image,
+        'qty': quantity,
+        'title': product_name,
+        'price': product_price,
+        //'csrf_token': csrftoken,
+    },
+    dataType: 'json',
+    beforeSend: function (xhr, settings) {
+        // Set the CSRF token in the request headers
+        //xhr.setRequestHeader('X-CSRFToken', csrftoken);
+        console.log("Adding Product to Cart...");
+    },
+    success: function (response) {
+        this_val.html("✔");
+        console.log("Added Product to Cart!");
+        $(".cart-items-count").text(response.totalcartitems)
+    },
+    error: function (xhr, status, error) {
+        console.log("Error adding product to cart:", error);
+    }
+});
+
+});
+</script>   
+
 </body>
 
 {% endblock content %}

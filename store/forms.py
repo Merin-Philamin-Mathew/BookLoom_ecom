@@ -55,10 +55,10 @@ class AddProImgForm(forms.ModelForm):
         for field_name, field in self.fields.items():
             field.widget.attrs['class'] = 'form-check'
             
-        self.fields['is_active'].widget.attrs['class'] = ''
+        #self.fields['is_active'].widget.attrs['class'] = ''
     class Meta:
         model = AdditionalProductImages
-        fields = ('image','is_active')
+        fields = ('image',)
 
 class CombinedForm(forms.Form):
     product_form = ProductForm()

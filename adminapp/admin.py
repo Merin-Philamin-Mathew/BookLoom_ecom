@@ -1,5 +1,5 @@
 from django.contrib import admin
-from . models import NewUser
+from . models import NewUser,Profile,Addresses
 
 # Register your models here.
 
@@ -19,7 +19,8 @@ class CustomAdmin(admin.ModelAdmin):
     model = NewUser
                     #User    #UserAdmin
 admin.site.register(NewUser, CustomAdmin)
-
+admin.site.register(Profile)
+admin.site.register(Addresses)
 
 
 

@@ -41,11 +41,14 @@ INSTALLED_APPS = [
 
     'phonenumber_field',
     'babel',
+    'django_countries',
+    #'django_countries', #uncomment if error
 
     #custom apps
     'adminapp',
     'userapp',
     'store',
+    'cart',
 ]
 
 MIDDLEWARE = [
@@ -73,6 +76,7 @@ TEMPLATES = [
                 'django.contrib.messages.context_processors.messages',
                 #for category links
                 'store.context_processors.category_links',
+                'cart.context_processors.counter',
             ],
         },
     },

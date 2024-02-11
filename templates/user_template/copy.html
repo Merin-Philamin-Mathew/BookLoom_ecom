@@ -1,0 +1,8 @@
+<input type="hidden" value="{{product.id}}" class="product-id-{{product.id}}" name="" id="">
+<input type="hidden" value="{{product.product.category.slug}}/{{product.product_variant_slug}}" class="product-slug-{{product.id}}" name="" id="">
+<input type="hidden" value="{{product.product.product_name}}" class="product-name" name="" id="">
+<input type="hidden" value="{{product.thumbnail_image.url}}" class="product-image-{{product.id}}" name="" id="">
+
+<div class="product-price">
+<span class="current-price current-product-price-{{product.id}}">Rs.{{product.sale_price}}</span>
+<span class="old-price">Rs.{{product.max_price}}</span>

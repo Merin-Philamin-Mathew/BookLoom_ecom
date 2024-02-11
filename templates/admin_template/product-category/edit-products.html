@@ -119,10 +119,8 @@ Edit Products
                                     <div class="">
                                         <label class="form-label">Additional Images</label>
                                         <div class="row gx-2 ">
-                                            {{ form.thumbnail_image }}
-                                            {% if error %}
-                                                <label class="text-danger">{{error.thumbnail_image}}</label>
-                                            {% endif %}
+                                            <input class="form-control" name="image" id="image" type="file" multiple>
+                                            
                                         </div>
                                     </div>
                                    

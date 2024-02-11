@@ -391,14 +391,14 @@ signup
                                 <div class="hero-slider-content-2">
                                     <h4 class="animated">Hot Releases</h4>
                                     <h2 class="animated fw-900">Trending Book Collection</h2>
-                                    <h1 class="animated fw-900 text-7">Must-Read Titles</h1>
+                                    <h1 style="font-color:#f82307" class="animated fw-900 text-7">Must-Read Titles</h1>
                                     <p class="animated">Save more with exclusive book promotions.</p>
                                     <a class="animated btn btn-brush btn-brush-2" href="shop-product-right.html"> Discover Now </a>
                                 </div>
                             </div>
                             <div class="col-lg-7 col-md-6">
                                 <div class="single-slider-img single-slider-img-1">
-                                    <img class="animated slider-1-3" src="{% static 'assets/imgs/slider/slider-c.png' %}" alt="">
+                                    <img class="animated slider-1-3" src="{% static 'assets/imgs/slider/slider-c.WEPG' %}" alt="">
                                 </div>
                             </div>
                         </div>
@@ -482,7 +482,7 @@ signup
                                 <div class="product-cart-wrap mb-30">
                                     <div class="product-img-action-wrap">
                                         <div class="product-img product-img-zoom">
-                                            <a href="{% comment %} {{product.get_url}} {% endcomment %}">
+                                            <a href="{{product.get_url}}">
                                                 <img class="default-img" src="{{product.thumbnail_image.url}}" alt="">
                                                 {% comment %} <img class="hover-img" src="{% static 'assets/imgs/shop/product-1-2.jpg' %}" alt=""> {% endcomment %}
                                             </a>
@@ -498,20 +498,43 @@ signup
                                     </div>
                                     <div class="product-content-wrap">
                                         <div class="product-category">
-                                            <a href="authors_page.html">{{product.product.author.author_name}}</a>
+                                            {% if product.translator %}
+                                                <div class="pro-details-brand">
+                                                    <a href="">{{product.product.author.author_name}}</a>
+                                                    <a href=""> & {{product.translator}}</a>
+                                                </div>
+                                                {% else %}
+                                                <div class="pro-details-brand">
+                                                    <a href="shop-grid-right.html">{{product.product.author.author_name}}</a>
+                                                </div>
+                                                {% endif %}
+                                            
                                         </div>
-                                        <h2><a href="{{product.get_url}}">{{product.product.product_name}}</a></h2>
-                                        <div class="rating-result" title="90%">
-                                            <span>
-                                                <span>90%</span>
-                                            </span>
-                                        </div>
+                                        {% if product.translator %}
+                                    <div class=''>
+                                        <h2><a href="{{product.get_url}}">{{product.product.product_name}} - {{product.language}}</h2></a>
+                                    </div>
+                                    {% else %}
+                                    <h2><a href="{{product.get_url}}">{{product.product.product_name}}</a></h2>
+                                    {% endif %}
+                                    <div class="rating-result" title="90%">
+                                        <span>
+                                            <span>90%</span>
+                                        </span>
+                                    </div>
+
+                                        <input type="hidden" value="1" class="product-quantity-{{product.id}}" name="" id="">
+                                        <input type="hidden" value="{{product.id}}" class="product-id-{{product.id}}" name="" id="">
+                                        <input type="hidden" value="{{product.product.category.slug}}/{{product.product_variant_slug}}" class="product-slug-{{product.id}}" name="" id="">
+                                        <input type="hidden" value="{{product.product.product_name}}" class="product-name-{{product.id}}" name="" id="">
+                                        <input type="hidden" value="{{product.thumbnail_image.url}}" class="product-image-{{product.id}}" name="" id="">
+                                        
                                         <div class="product-price">
-                                            <span>Rs.{{product.sale_price}}</span>
+                                            <span class="current-price current-product-price-{{product.id}}">Rs.{{product.sale_price}}</span>
                                             <span class="old-price">Rs.{{product.max_price}}</span>
                                         </div>
                                         <div class="product-action-1 show">
-                                            <a aria-label="Add To Cart" class="action-btn hover-up" href="shop-cart.html"><i class="fi-rs-shopping-bag-add"></i></a>
+                                            <a href="{% url 'cart_app:add_cart' product.id %}"><button aria-label="Add To Cart" class="action-btn hover-up add-to-cart-btn" id="add-to-cart-btn" data-index="{{ product.id }}"><i class="fi-rs-shopping-bag-add"></i></button></a>
                                         </div>
                                     </div>
                                 </div>
@@ -568,7 +591,6 @@ signup
         </div>
     </section>
 <!--FEATURED AUTHORS-->
-
 
 <!--Promotions-->
         {% comment %}<section class="banners mb-15">
@@ -1117,7 +1139,7 @@ signup
     </div> {% endcomment %}
 <!-- Preloader end -->
 
-<!-- Vendor JS-->
+    <!-- Vendor JS-->
     <script src="{% static 'assets/js/vendor/modernizr-3.6.0.min.js' %}"></script>
     <script src="{% static 'assets/js/vendor/jquery-3.6.0.min.js' %}"></script>
     <script src="{% static 'assets/js/vendor/jquery-migrate-3.3.0.min.js' %}"></script>
@@ -1138,12 +1160,64 @@ signup
     <script src="{% static 'assets/js/plugins/jquery.vticker-min.js' %}"></script>
     <script src="{% static 'assets/js/plugins/jquery.theia.sticky.js' %}"></script>
     <script src="{% static 'assets/js/plugins/jquery.elevatezoom.js' %}"></script>
-<!---->
-
-<!-- Template  JS -->
+    <!-- Template  JS -->
     <script src="{% static 'assets/js/main.js' %}"></script>
     <script src="{% static 'assets/js/shop.js' %}"></script>
 <!---->
+    {% comment %} <script src="{% static 'assets/js/function.js' %}"></script> {% endcomment %}
+    {% comment %} <script>
+            // AJAX request for adding product to cart
+    $('.add-to-cart-btn').on('click',  function () {
+        let this_val = $(this);
+        let index = this_val.attr("data-index")
+        let quantity = $(".product-quantity-"+index).val();
+        let product_id = $(".product-id-"+index).val();
+        let product_name = $(".product-name-"+index).val();
+        let product_slug = $(".product-slug-"+index).val();
+        let product_image = $(".product-image-"+index).val();
+        let product_price = $(".current-product-price-"+index).text();
+    
+        console.log("Index:", index);
+        console.log("Quantity:", quantity);
+        console.log("Title:", product_name);
+        console.log("Price:", product_price);
+        console.log("image:", product_image);
+        console.log("Slug:", product_slug);
+        console.log("ID:", product_id);
+        console.log("Current Element:", this_val);
+     
+        $.ajax({
+            //url: "{% url 'cart_app:add_cart'%}",
+            //url: "{% url 'store_app:add_to_cart' %}",
+            method: 'GET',
+            data: {
+                'id': product_id,
+                'slug': product_slug,
+                'image':product_image,
+                'qty': quantity,
+                'title': product_name,
+                'price': product_price,
+                //'csrf_token': csrftoken,
+            },
+            dataType: 'json',
+            beforeSend: function (xhr, settings) {
+                // Set the CSRF token in the request headers
+                //xhr.setRequestHeader('X-CSRFToken', csrftoken);
+                console.log("Adding Product to Cart...");
+            },
+            success: function (response) {
+                this_val.html("✔");
+                console.log("Added Product to Cart!");
+                $(".cart-items-count").text(response.totalcartitems)
+            },
+            error: function (xhr, status, error) {
+                console.log("Error adding product to cart:", error);
+            }
+        });
+    
+        });
+    </script> {% endcomment %}
+
    
 </body>
 

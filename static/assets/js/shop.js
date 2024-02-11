@@ -85,6 +85,42 @@
         $('.dropdown-menu .cart_list').on('click', function (event) {
             event.stopPropagation();
         });
+        
+        //ADD TO CART
+        // ADD TO CART
+$('#add-to-cart-btn').on('click', function () {
+    let quantity = $("#product-quantity").text()
+    let product_id = $(".product-id").val()
+    let product_name = $(".product-name").val()
+    let product_price = $("#current-product-price").text()
+    let this_val = $(this)
+
+    console.log("Quantity:", quantity);
+    console.log("Title:", product_name);
+    console.log("Price:", product_price);
+    console.log("ID:", product_id);
+    console.log("Current Element:", this_val);
+
+    $.ajax({
+        url: '/add-to-cart',
+        data: {
+            'id': product_id,
+            'qty': quantity,
+            'title': product_name,
+            'price': product_price,
+        },
+        dataType: 'json',
+        beforeSend: function () {
+            console.log("Adding Product to Cart...");
+        },
+        success: function (res) {
+            this_val.html("Item added to cart")
+            console.log("Added Product to Cart!");
+        }
+    });
+});
+
+
     };
     /* WOW active */
     new WOW().init();
