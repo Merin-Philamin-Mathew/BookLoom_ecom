@@ -5,9 +5,12 @@ from django.core.validators import MinValueValidator
 from django.urls import reverse
 
 # Create your models here.
+class Offer(models.Model):
+    offer_name = models.CharField(max_length=50,unique=True)
 
 class Category(models.Model):
     category_name = models.CharField(max_length=50,unique=True)
+    cat_discount = models.IntegerField( null=True, blank=True)
     slug = models.SlugField(max_length=100, unique=True)
     parent_cat = models.ForeignKey('self',null=True,blank=True,on_delete=models.CASCADE,related_name = 'subcategories')
     is_active = models.BooleanField(default = True)
@@ -122,7 +125,8 @@ class ProductVariant(models.Model):
     thumbnail_image = models.ImageField(upload_to='photos/product-variant/thumbnail/{product.product_name}/{filename}')
     publication = models.ForeignKey(Publication,on_delete=models.CASCADE,related_name = "published_books")
     max_price = models.DecimalField(max_digits=6,decimal_places=2, validators=[MinValueValidator(0)])
-    sale_price = models.DecimalField(max_digits=6,decimal_places=2, validators=[MinValueValidator(0)])
+    sale_price = models.DecimalField(max_digits=6,decimal_places=2, validators=[MinValueValidator(0)], null = True, blank = True)
+    pro_discount = models.IntegerField(null=True, blank=True)
     translator = models.ForeignKey(Author,blank=True,null=True,on_delete=models.CASCADE, related_name = 'translated_books')
     language = models.ForeignKey(Language, on_delete=models.CASCADE)
     product_variant_slug = models.SlugField(blank = True,max_length=255,unique=True)
@@ -130,9 +134,8 @@ class ProductVariant(models.Model):
     is_active = models.BooleanField(default=True)
     created_date = models.DateTimeField(auto_now_add=True)
     modified_date = models.DateTimeField(auto_now = True)
-    """ def get_url(self):
-        return reverse('store_app:product_detail',args=[self.product.category.slug,self.product_variant_slug])
- """
+
+
     def save(self, *args, **kwargs):   #self.product.publication.name 
         product_variant_slug_name = f'{self.product}-{self.language}-{self.product.category.category_name}'
         base_slug = slugify(product_variant_slug_name)
@@ -141,7 +144,24 @@ class ProductVariant(models.Model):
             self.product_variant_slug = f'{base_slug}-{counter}'
         else:
             self.product_variant_slug = base_slug
+        
+        if self.pro_discount != None:
+            self.sale_price = self.max_price - (self.max_price*(self.pro_discount)/100)
+        elif self.product.category.cat_discount != None:
+            self.sale_price = self.max_price - (self.max_price*(self.product.category.cat_discount)/100)
+        else:
+            self.sale_price = self.max_price
+
         super(ProductVariant, self).save(*args, **kwargs)
+
+    def cat_sale_price(self):
+        cat_sale_price = self.max_price - (self.max_price*(self.product.category.cat_discount)/100)
+        return cat_sale_price
+    
+    def pro_sale_price(self):
+        pro_sale_price = self.max_price - (self.max_price*(self.pro_discount)/100)
+        return pro_sale_price
+    
 
 
     def get_url(self):

@@ -122,7 +122,7 @@ class Addresses(models.Model):
         if self.address_line_2:
             address_parts += (', '+self.address_line_2)
         
-        address_parts += (f", Pin: {self.pincode}, {self.city}, {self.state}, {self.country}")
+        address_parts += (f", Pin: {self.pincode}, {self.city}, {self.state}, India")
         
         
         return address_parts

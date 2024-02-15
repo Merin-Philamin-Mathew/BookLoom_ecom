@@ -2,11 +2,13 @@ from django import forms
 from . models import Product,ProductVariant, AdditionalProductImages, Category, Author, Publication, Language
 
 class CategoryForm(forms.ModelForm):
+    cat_discount = forms.IntegerField(widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Percentage discount of max_price'}), required=False)
     class Meta:
         model = Category
         fields = [
             'category_name',
             'parent_cat',
+            'cat_discount',
             'is_active',
             ]
         
@@ -18,6 +20,7 @@ class CategoryForm(forms.ModelForm):
             }
 
 class ProductForm(forms.ModelForm):
+    pro_discount = forms.IntegerField(widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Percentage discount of max_price'}), required=False)
     
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

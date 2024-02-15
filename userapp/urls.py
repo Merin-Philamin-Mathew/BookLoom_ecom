@@ -24,6 +24,7 @@ urlpatterns = [
     path('editaddress/<int:pk>', views.editaddress, name='edit_address'),
     path('deleteaddress/<int:pk>', views.deleteaddress, name='delete_address'),
     path('defaultaddress/<int:pk>', views.defaultaddress, name='default_address'),
+    path('myorders', views.myorders, name='my_orders'),
 
 
 ]

@@ -74,9 +74,8 @@
                     <span class="text">Orders</span>
                 </a>
                 <div class="submenu">
-                    <a href="page-orders-1.html">Order list 1</a>
-                    <a href="page-orders-2.html">Order list 2</a>
-                    <a href="page-orders-detail.html">Order detail</a>
+                    <a href="{% url "admin_app:list_order" %}">Order list 1</a>
+                    {% comment %} <a href="page-orders-detail.html">Order detail</a> {% endcomment %}
                 </div>
             </li>
             <li class="menu-item has-submenu">

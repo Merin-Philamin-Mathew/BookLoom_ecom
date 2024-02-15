@@ -9,6 +9,8 @@ from django.http import JsonResponse,HttpResponse
 from .models import *
 from django.core.exceptions import ObjectDoesNotExist
 from django.contrib.auth.decorators import login_required
+from userapp.forms import UserRegisterForm,AddressForm
+from adminapp.models import Addresses
 
 # Create your views here.
 
@@ -21,19 +23,19 @@ def _cart_id(request):
 
 def cart(request, total=0, quantity=0, cart_items = None):
     try:
-        print("entered try")
+        print("cart/cart/entered try")
         tax=0
         grand_total = 0
         if request.user.is_authenticated:
-            print("user is authenticated")
+            print("cart/cart/user is authenticated")
             cart_items = CartItem.objects.filter(user=request.user, is_stock=True)
         else:
-            print("user is not authenticated")
+            print("cart/cart/user is not authenticated")
             cart = Cart.objects.get(cart_id = _cart_id(request))
             cart_items = CartItem.objects.filter(cart=cart, is_stock=True)
 
-        print("item",cart_items)
-        # print("cart",cart)
+        print("cart/cart/item",cart_items)
+        # print("cart/cart",cart)
         for cart_item in cart_items:
             total += (cart_item.product.sale_price * cart_item.quantity)
             quantity += cart_item.quantity
@@ -53,15 +55,17 @@ def cart(request, total=0, quantity=0, cart_items = None):
     return render(request, 'user_template/cart-order-payment/cart.html', context)
 
 def add_cart(request, product_id):
-    print("entered to add_cart")
+    print("cart/entered to add_cart")
     product = ProductVariant.objects.get(id=product_id) 
     current_user = request.user
     if current_user.is_authenticated:
         try:
+            print("cart/add_cart,authenticated,cartitem increasing quantity")
             cart_item = CartItem.objects.get(product = product, user = current_user)
             cart_item.quantity += 1 #cart_item.quantity = cart_item.quantity+1
             cart_item.save()
         except CartItem.DoesNotExist:
+            print("cart/add_cart,authenticated,cartitem adding for first time")
             cart_item = CartItem.objects.create(
                 product = product,
                 quantity = 1,
@@ -71,20 +75,24 @@ def add_cart(request, product_id):
             cart_item.save()
     else:
         try:
+            print("cart/add_cart,not authenticated,cart retrieving")
             cart = Cart.objects.get(cart_id = _cart_id(request))#get the cart using the cart_id present
-            print("cart", cart, cart.cart_id)
+            print("cart/cart", cart, cart.cart_id)
         except Cart.DoesNotExist:
+            print("cart/add_cart,not authenticated,cart adding for first time")
             cart = Cart.objects.create(
                 cart_id = _cart_id(request),
             )
-            print("new session",cart.cart_id)
+            print("cart/add_cart/new session",cart.cart_id)
         cart.save()
 
         try:
+            print("cart/add_cart,not authenticated,cartitem adding for first time")
             cart_item = CartItem.objects.get(product = product, cart = cart)
             cart_item.quantity += 1 #cart_item.quantity = cart_item.quantity+1
             cart_item.save()
         except CartItem.DoesNotExist:
+            print("cart/add_cart,not authenticated,cartitem adding for first time")
             cart_item = CartItem.objects.create(
                 product = product,
                 quantity = 1,
@@ -122,15 +130,29 @@ def remove_cart_item(request, product_id):
     return redirect('cart_app:cart')
 
 @login_required(login_url='userapp_app:login')
+def delivery_address(request):
+    current_user = request.user
+    form = AddressForm(user=current_user)
+    addresses = Addresses.objects.filter(user=current_user, is_active=True).order_by('-is_default')
+    
+    context = {
+        'form' : form,
+        'addresses' : addresses, 
+    }
+    return render(request, 'user_template/cart-order-payment/delivery-address.html', context)
+
+
+
+@login_required(login_url='userapp_app:login')
 def checkout(request, total=0, quantity=0, cart_items = None):
     try:
         tax=0
         grand_total = 0
         if request.user.is_authenticated:
-            print("user is authenticated")
+            print("cart/checkout/user is authenticated")
             cart_items = CartItem.objects.filter(user=request.user, is_stock=True)
         else:
-            print("user is not authenticated")
+            print("cart/checkout/user is not authenticated")
             cart = Cart.objects.get(cart_id = _cart_id(request))
             cart_items = CartItem.objects.filter(cart=cart, is_stock=True)
         
@@ -142,11 +164,17 @@ def checkout(request, total=0, quantity=0, cart_items = None):
     except ObjectDoesNotExist:
         pass
 
+    addresses = Addresses.objects.filter(user=request.user, is_active=True).order_by('-is_default')
+    form = AddressForm(user=request.user)
     context = {
         'total': total,
         'quantity':quantity,
         'cart_items':cart_items,
         'tax':tax,
-        'grand_total':grand_total
+        'grand_total':grand_total,
+        'form':form,
+        'addresses' : addresses, 
     }
     return render(request, 'user_template/cart-order-payment/checkout.html',context)
+
+

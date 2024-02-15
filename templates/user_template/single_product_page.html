@@ -423,9 +423,32 @@ signup
                                         </div>
                                         <div class="clearfix product-price-cover">
                                             <div class="product-price primary-color float-left">
+                                                <!--price-->
+                                                {% if single_product.pro_discount or single_product.product.category.cat_discount %} 
+                                                <ins><span class="text-brand" id="current-product-price">₹{{single_product.sale_price}}</span></ins>
+                                                <ins><span class="old-price font-md ml-15">₹{{single_product.max_price}}</span></ins>
+                                                {% comment %} <div class="product-price">
+                                                    <span class="current-price current-product-price-{{single_product.id}}">Rs.{{single_product.sale_price}}</span>
+                                                    <span class="old-price">Rs.{{single_product.max_price}}</span>
+                                                </div> {% endcomment %}
+                                                {% else %}
                                                 <ins><span class="text-brand" id="current-product-price">{{single_product.sale_price}}</span></ins>
-                                                <ins><span class="old-price font-md ml-15">{{single_product.max_price}}</span></ins>
-                                                <span class="save-price  font-md color3 ml-15">25% Off</span>
+                                                {% comment %} <div class="product-price">
+                                                    <span class="current-price current-product-price-{{single_product.id}}">Rs.{{single_product.max_price}}</span>
+                                                </div> {% endcomment %}
+                                                {% endif %}
+                                                <!--price-->
+                                                <!--discount percent-->
+                                                    {% if single_product.pro_discount or single_product.product.category.cat_discount %}
+                                                    {% if single_product.pro_discount %} 
+                                                    <span class="save-price  font-md color3 ml-15">{{single_product.pro_discount}}% Off</span>
+                                                    
+                                                    {% else %}
+                                                    <span class="save-price  font-md color3 ml-15">{{single_product.product.category.cat_discount}}% Off</span>
+                                                        
+                                                        {% endif %}
+                                                    {% endif %}
+                                                <!--discount percent-->
                                             </div>
                                         </div>
                                         <div class="bt-1 border-color-1 mt-15 mb-15"></div>

@@ -149,8 +149,8 @@ users info
                                         {% endif %}
                                     </div>
                                 </div>
-                                <div class="row justify-content-between">
-                                    <div class="col-lg-3">
+                                <div class="row justify-content-around">
+                                    <div class="col-lg-4">
                                         <div class="mb-4">
                                             <label class="form-label">MRP</label>
                                             <div class="row gx-2">
@@ -161,18 +161,7 @@ users info
                                             </div>
                                         </div>
                                     </div>
-                                    <div class="col-lg-3">
-                                        <div class="mb-4">
-                                            <label class="form-label">Sale Price</label>
-                                            <div class="row gx-2">
-                                                {{ form.sale_price }}
-                                                {% if error %}
-                                                    <label class="text-danger">{{error.sale_price}}</label>
-                                                {% endif %}
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="col-lg-3">
+                                    <div class="col-lg-4">
                                         <div class="mb-4">
                                             <label class="form-label">Stock</label>
                                             <div class="row gx-2">

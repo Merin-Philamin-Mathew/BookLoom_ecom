@@ -1,0 +1,166 @@
+
+{% extends "user_base.html" %}
+{% load static %}
+
+{% block title %}
+Username's profile
+{% endblock %}
+
+{% block content %}
+<style>
+    .modal-custom{
+        position: fixed;
+        top: 120px;
+        right: 0;
+        bottom: 0;
+        left: 0;
+    }
+   </style>
+
+<body>
+    
+{% include "includes/alerts.html" %}
+ 
+{% include "includes/user_navbar.html" %}
+
+<!--=========Main start==========-->
+<main class="main">  
+<!--===================--> 
+    <div class="page-header breadcrumb-wrap">
+        <div class="container">
+            <div class="breadcrumb">
+                <a href="index.html" rel="nofollow">Home</a>
+                <span></span> Pages
+                <span></span> Account
+            </div>
+        </div>
+    </div>
+    <section class="pt-70 pb-100">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-10 m-auto">
+                    <div class="row">
+                        <div class="col-md-4">
+                            {% include "profile/profile-menu.html" %}
+                        </div>
+                        <div class="col-md-8">
+                    <!--============= AdressBook ============-->
+                   
+                        <div class="card">
+                            <div class="card-header">
+                                <h5>My Orders</h5>
+                            </div>
+                            <div class="card-body">
+                            {% if all_orders %}
+                            <!--============= Listing Orders ============-->
+                            <div class="card-header d-flex justify-content-between align-items-center">
+                                <h6 class="mb-0 ml-4">Orders</h6>
+                            </div>
+                            
+                            <div class="row">
+                                {% for order in all_orders %}
+                                <div class="table-responsive">
+                                    <table class="table shopping-summery text-center clean">
+                                        <thead>
+                                            <tr class="main-heading">  
+                                            <th colspan="2">Product</th>
+                                            <th>Quantity</th>
+                                            <th>Price</th>
+                                            <th>Order Status</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td class="image product-thumbnail"><img src="{{order.product.thumbnail_image.url}}" alt="#"></td>
+                                                <td class="product-des product-name">
+                                                    <h5 class="product-name"><a href="{{order.product.get_url}}">{{order.product.product}}{% if order.product.translator %}({{order.product.language}}){% endif %}</a></h5>
+                                                    <p class="font-xs">by {{order.product.product.author.author_name}}<br> {% if order.product.translator %}{{order.product.translator}}(translator){% endif %}
+                                                    </p>
+                                                </td>
+                                                <td class="quantity" data-title="Quantity"><span>{{order.quantity}}</span></td>
+                                                <td class="price" data-title="Price"><span>Rs.{{order.product.sale_price}} </span></td>
+                                                <td class="status" data-title="status"><span>{{order.order.status}} </span></td>
+                                            </tr>
+                                            <!--Cart-Subtotal, Tax, Total-->
+                                            
+                                            <!--Cart-Subtotal, Tax, Total-->
+                                        </tbody>
+                                    </table>
+                                </div>
+                                {% endfor %}
+                            </div>
+                                               
+                            <!--============= Listing Orders ============-->
+                            {% else %}
+                               <div>
+                                You have not ordered anything yet...
+                                </div>
+                               <div>
+                                <a href="{% url 'store_app:view_store' %}" class=" mt-4 btn ont-sm hover-up">Continue Shopping</a>
+                                </div>
+                            {% endif %}
+                            </div>
+                        </div>
+                 
+                    <!--============= Adress Book ============-->
+                        </div>
+                    </div>
+                </div>
+        </div>
+    </section>
+
+
+<!--=========Main end==========-->
+</main>
+<!--===================--> 
+
+{% include "includes/user_footer.html" %}
+<!--========= Preloader Start ==========-->
+{% comment %}     <div id="preloader-active">
+        <div class="preloader d-flex align-items-center justify-content-center">
+            <div class="preloader-inner position-relative">
+                <div class="text-center">
+                    <h5 class="mb-10">Now Loading</h5>
+                    <div class="loader">
+                        <div class="bar bar1"></div>
+                        <div class="bar bar2"></div>
+                        <div class="bar bar3"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div> {% endcomment %}
+<!--========= Preloader end ==========-->
+
+<!--========= Vendor JS==========-->
+<script src="{% static 'assets/js/vendor/modernizr-3.6.0.min.js' %}"></script>
+<script src="{% static 'assets/js/vendor/jquery-3.6.0.min.js' %}"></script>
+<script src="{% static 'assets/js/vendor/jquery-migrate-3.3.0.min.js' %}"></script>
+<script src="{% static 'assets/js/vendor/bootstrap.bundle.min.js' %}"></script>
+<script src="{% static 'assets/js/plugins/slick.js' %}"></script>
+<script src="{% static 'assets/js/plugins/jquery.syotimer.min.js' %}"></script>
+<script src="{% static 'assets/js/plugins/wow.js' %}"></script>
+<script src="{% static 'assets/js/plugins/jquery-ui.js' %}"></script>
+<script src="{% static 'assets/js/plugins/perfect-scrollbar.js' %}"></script>
+<script src="{% static 'assets/js/plugins/magnific-popup.js' %}"></script>
+<script src="{% static 'assets/js/plugins/select2.min.js' %}"></script>
+<script src="{% static 'assets/js/plugins/waypoints.js' %}"></script>
+<script src="{% static 'assets/js/plugins/counterup.js' %}"></script>
+<script src="{% static 'assets/js/plugins/jquery.countdown.min.js' %}"></script>
+<script src="{% static 'assets/js/plugins/images-loaded.js' %}"></script>
+<script src="{% static 'assets/js/plugins/isotope.js' %}"></script>
+<script src="{% static 'assets/js/plugins/scrollup.js' %}"></script>
+<script src="{% static 'assets/js/plugins/jquery.vticker-min.js' %}"></script>
+<script src="{% static 'assets/js/plugins/jquery.theia.sticky.js' %}"></script>
+<script src="{% static 'assets/js/plugins/jquery.elevatezoom.js' %}"></script>
+<!--===================-->
+
+<!--========= Template  JS ==========-->
+    <script src="{% static 'assets/js/main.js' %}"></script>
+    <script src="{% static 'assets/js/shop.js' %}"></script>
+<!--===================-->
+   
+</body>
+
+            </div>
+{% endblock content %}

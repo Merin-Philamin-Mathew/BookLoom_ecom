@@ -518,9 +518,17 @@ signup
                                     <h2><a href="{{product.get_url}}">{{product.product.product_name}}</a></h2>
                                     {% endif %}
                                     <div class="rating-result" title="90%">
-                                        <span>
-                                            <span>90%</span>
-                                        </span>
+                                        {% if product.pro_discount or product.product.category.cat_discount %}
+                                            {% if product.pro_discount %} 
+                                            <span>
+                                                <span>{{product.pro_discount}}%</span>
+                                            </span>
+                                            {% else %}
+                                            <span>
+                                                <span>{{product.product.category.cat_discount}}% </span>
+                                            </span>
+                                            {% endif %}
+                                        {% endif %}
                                     </div>
 
                                         <input type="hidden" value="1" class="product-quantity-{{product.id}}" name="" id="">
@@ -528,11 +536,18 @@ signup
                                         <input type="hidden" value="{{product.product.category.slug}}/{{product.product_variant_slug}}" class="product-slug-{{product.id}}" name="" id="">
                                         <input type="hidden" value="{{product.product.product_name}}" class="product-name-{{product.id}}" name="" id="">
                                         <input type="hidden" value="{{product.thumbnail_image.url}}" class="product-image-{{product.id}}" name="" id="">
-                                        
+                                      
+                                        {% if product.pro_discount or product.product.category.cat_discount %} 
                                         <div class="product-price">
-                                            <span class="current-price current-product-price-{{product.id}}">Rs.{{product.sale_price}}</span>
-                                            <span class="old-price">Rs.{{product.max_price}}</span>
+                                            <span class="current-price current-product-price-{{product.id}}">₹{{product.sale_price}}</span>
+                                            <span class="old-price">₹{{product.max_price}}</span>
                                         </div>
+                                        {% else %}
+                                        <div class="product-price">
+                                            <span class="current-price current-product-price-{{product.id}}">₹{{product.max_price}}</span>
+                                        </div>
+                                        {% endif %}
+                                        
                                         <div class="product-action-1 show">
                                             <a href="{% url 'cart_app:add_cart' product.id %}"><button aria-label="Add To Cart" class="action-btn hover-up add-to-cart-btn" id="add-to-cart-btn" data-index="{{ product.id }}"><i class="fi-rs-shopping-bag-add"></i></button></a>
                                         </div>

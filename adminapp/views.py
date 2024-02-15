@@ -4,10 +4,11 @@ from django.contrib.auth.decorators import login_required
 from django.views.decorators.cache import never_cache
 from django.contrib.auth.hashers import make_password
 from django.contrib import messages
+from django.utils import timezone
 from . models import NewUser
 from store.models import Product,Category, Author, Publication, ProductVariant, AdditionalProductImages, Language
 from store.forms import ProductForm, ProductVariantForm, AddProImgForm, CategoryForm, AuthorForm, PublicationForm, LanguageForm
-
+from orders.models import Order, Payment, OrderProduct
 
 # Create your views here.
 def is_superuser(request):
@@ -625,6 +626,7 @@ def addpublication(request):
 
 #________________________language_management_______________________________________
 #_____________________________________________________________________________________
+
 @login_required(login_url='admin_app:admin_login')
 def listlanguage(request):
     if not request.user.is_superuser:
@@ -762,3 +764,47 @@ def addlanguage(request):
 #         return render(request,'admin_template/product-category/edit-products.html',context)   
 #     else:
 #         return redirect('user_app:home') 
+
+#________________________order_management_______________________________________
+#_____________________________________________________________________________________
+@login_required(login_url='admin_app:admin_login')
+def listorder(request):
+    if not request.user.is_superuser:
+        return redirect('user_app:home')
+    orders = Order.objects.all().order_by('-id')
+
+    context = {
+        'all_orders':orders
+    }
+    return render(request, 'admin_template/order_management/list-orders.html',context) 
+
+@login_required(login_url='admin_app:admin_login')
+def change_order_status(request, id):
+    if not is_superuser(request):
+        return redirect('store:home')
+    order_ = Order.objects.get(order_number=id)
+    status = request.POST.get('status')
+    user = order_.user
+    if status == "Delivered":
+        order_.deliverd_at = timezone.now()
+        total = order_.order_total
+    elif status == "Returned":
+        order_.returned_at = timezone.now()
+        total = order_.order_total
+       
+    else:
+        order_.deliverd_at = None
+
+    if status:
+        order_.status = status
+    order_.save()
+
+    # Add success message for successful status change
+    messages.success(request, 'Order status updated successfully.')
+
+    return redirect('admin_app:list_order')
+
+
+
+
+

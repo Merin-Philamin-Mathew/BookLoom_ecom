@@ -11,6 +11,7 @@ import random
 from django.core.mail import send_mail
 from store.models import Product, ProductVariant, Author
 from adminapp.models import NewUser, Profile, Addresses
+from orders.models import Order, OrderProduct, Payment
 from . forms import ProfileForm
 from datetime import timedelta, datetime
 from django.utils import timezone
@@ -282,7 +283,16 @@ def update_address(request):
             
               
   """   
- 
+@login_required(login_url='userapp_app:login')
+def myorders(request):
+    current_user = request.user
+    all_orders = OrderProduct.objects.filter(user=current_user, ordered=True)
+    
+    context = {
+        'all_orders' : all_orders,
+    }
+    return render(request, 'profile/my-orders.html',context)
+
 
 @never_cache
 def user_logout(request):

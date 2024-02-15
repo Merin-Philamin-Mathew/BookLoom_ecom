@@ -47,6 +47,11 @@ urlpatterns = [
     path('addlanguage',views.addlanguage,name='add_language'),
     path('editlanguage/<int:id>',views.editlanguage,name='edit_language'),
     path('controllanguage/<int:id>',views.controllanguage,name='control_language'),
+   
+    #order management____________________________________________________________
+    path('listorder',views.listorder,name='list_order'),
+    path('change-order-status/<int:id>/', views.change_order_status, name='change_order_status'),
+
 ]
 if settings.DEBUG:
     urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

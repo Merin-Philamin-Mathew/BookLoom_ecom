@@ -6,3 +6,99 @@
 <div class="product-price">
 <span class="current-price current-product-price-{{product.id}}">Rs.{{product.sale_price}}</span>
 <span class="old-price">Rs.{{product.max_price}}</span>
+
+
+<!-- checkout -->
+    <div class="col-md-6">
+                            
+        <div class="toggle_info mb-3">
+            <span><i class="fi-rs-label mr-10"></i><span class="text-muted">Have a coupon?</span> <a href="#coupon" data-bs-toggle="collapse" class="collapsed" aria-expanded="false">Click here to enter your code</a></span>
+        </div>
+        <div class="panel-collapse collapse coupon_form " id="coupon">
+            <div class="panel-body">
+                <p class="mb-30 font-sm">If you have a coupon code, please apply it below.</p>
+                <form method="post">
+                    <div class="form-group">
+                        <input type="text" placeholder="Enter Coupon Code...">
+                    </div>
+                    <div class="form-group">
+                        <button class="btn  btn-md" name="login">Apply Coupon</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        <div class="order_review">
+            <div class="mb-20">
+                <h4>Your Orders</h4>
+            </div>
+            <div class="table-responsive order_table text-center">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th colspan="2">Product</th>
+                            <th>Total</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for cart_item in cart_items %}
+                        <tr>
+                            <td class="image product-thumbnail"><img src="{{cart_item.product.thumbnail_image.url}}" alt="#"></td>
+                            <td class="product-des product-name">
+                                <h5 class="product-name"><a href="{{cart_item.product.get_url}}">{{cart_item.product.product}}{% if cart_item.product.translator %}({{cart_item.product.language}}){% endif %}</a> x {{cart_item.quantity}}</h5>
+                                <p class="font-xs">by {{cart_item.product.product.author.author_name}}<br> {% if cart_item.product.translator %}{{cart_item.product.translator}}(translator){% endif %}
+                                </p>
+                            </td>
+                            <td class="price" data-title="Price"><span>Rs.{{cart_item.product.sale_price}} </span></td>
+                        </tr>
+                        {% endfor %}
+                        <!--Cart-Subtotal, Tax, Total-->
+                        <tr>
+                            <td class="cart_total_label">Cart Subtotal</td>
+                            <td class="cart_total_amount"><span class="font-lg fw-900 text-brand">Rs.{{total}}</span></td>
+                        </tr>
+                        <tr>
+                            <td class="cart_total_label">Tax</td>
+                            <td class="cart_total_amount"> <i class="ti-gift mr-5"></i>{{tax}}</td>
+                        </tr>
+                        <tr>
+                            <td class="cart_total_label">Total</td>
+                            <td class="cart_total_amount"><strong><span class="font-xl fw-900 text-brand">Rs.{{grand_total}}</span></strong></td>
+                        </tr>
+                        <!--Cart-Subtotal, Tax, Total-->
+                    </tbody>
+                </table>
+            </div>
+            <div class="bt-1 border-color-1 mt-30 mb-30"></div>
+            <div class="payment_method">
+                <div class="mb-25">
+                    <h5>Payment</h5>
+                </div>
+                <div class="payment_option">
+                    <div class="custome-radio">
+                        <input class="form-check-input" required="" type="radio" name="payment_option" id="exampleRadios3" checked="">
+                        <label class="form-check-label" for="exampleRadios3" data-bs-toggle="collapse" data-target="#cashOnDelivery" aria-controls="cashOnDelivery">Cash on Delivery</label>
+                        <div class="form-group collapse in" id="cashOnDelivery">
+                            <p class="text-muted mt-5">There are many variations of passages of Lorem Ipsum available, but the majority have suffered alteration. </p>
+                        </div>
+                    </div>
+                    {% comment %} <div class="custome-radio">
+                        <input class="form-check-input" required="" type="radio" name="payment_option" id="exampleRadios4" checked="">
+                        <label class="form-check-label" for="exampleRadios4" data-bs-toggle="collapse" data-target="#checkPayment" aria-controls="checkPayment">Check Payment</label>
+                        <div class="form-group collapse in" id="checkPayment">
+                            <p class="text-muted mt-5">Please send your cheque to Store Name, Store Street, Store Town, Store State / County, Store Postcode. </p>
+                        </div>
+                    </div> {% endcomment %}
+                    {% comment %} <div class="custome-radio">
+                        <input class="form-check-input" required="" type="radio" name="payment_option" id="exampleRadios5" checked="">
+                        <label class="form-check-label" for="exampleRadios5" data-bs-toggle="collapse" data-target="#paypal" aria-controls="paypal">Paypal</label>
+                        <div class="form-group collapse in" id="paypal">
+                            <p class="text-muted mt-5">Pay via PayPal; you can pay with your credit card if you don't have a PayPal account.</p>
+                        </div>
+                    </div> {% endcomment %}
+                </div>
+            </div>
+            <button type = "submit" name="submit" class="btn btn-block">Place Order</button>
+        </div>
+
+    </div>
+<!-- checkout -->           
