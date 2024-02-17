@@ -58,18 +58,18 @@ Username's profile
                             </div>
                             
                             <div class="row">
-                                {% for order in all_orders %}
                                 <div class="table-responsive">
                                     <table class="table shopping-summery text-center clean">
                                         <thead>
                                             <tr class="main-heading">  
-                                            <th colspan="2">Product</th>
-                                            <th>Quantity</th>
-                                            <th>Price</th>
-                                            <th>Order Status</th>
+                                                <th colspan="2">Product</th>
+                                                <th>Quantity</th>
+                                                <th>Price</th>
+                                                <th>Order Status</th>
                                             </tr>
                                         </thead>
                                         <tbody>
+                                            {% for order in all_orders %}
                                             <tr>
                                                 <td class="image product-thumbnail"><img src="{{order.product.thumbnail_image.url}}" alt="#"></td>
                                                 <td class="product-des product-name">
@@ -81,13 +81,13 @@ Username's profile
                                                 <td class="price" data-title="Price"><span>Rs.{{order.product.sale_price}} </span></td>
                                                 <td class="status" data-title="status"><span>{{order.order.status}} </span></td>
                                             </tr>
+                                            {% endfor %}
                                             <!--Cart-Subtotal, Tax, Total-->
                                             
                                             <!--Cart-Subtotal, Tax, Total-->
                                         </tbody>
                                     </table>
                                 </div>
-                                {% endfor %}
                             </div>
                                                
                             <!--============= Listing Orders ============-->

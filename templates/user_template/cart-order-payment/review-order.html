@@ -5,7 +5,7 @@
 {% load static %}
 
 {% block title %}
-{{user}}'s cart
+Payment
 {% endblock %}
 
 {% block content %}
@@ -15,30 +15,27 @@
  
 {% include "includes/user_navbar.html" %}
 
-    <!--=========Main start==========-->
-    <main class="main">  
-    <!--===================--> 
+<!--=========Main start==========-->
+<main class="main">  
+<!--===================--> 
 
-        <!--================== checkout =====================-->
-        
-            <div class="page-header breadcrumb-wrap">
-                <div class="container">
-                    <div class="breadcrumb">
-                        <a href="index.html" rel="nofollow">Home</a>
-                        <span></span> Shop
-                        <span></span> Shipping Address
-                        <span></span> Payment                        
-                        <span></span> Order Success
-                    </div>
-                </div>
-            </div>
-            <section class="mt-50 mb-50 ">
-                <div class="container">
-                    <div class="row">
-                        <h3 class="text-center mb-50 "  style="color: #088178;">Order placed, thank you!</h3>
+                     <!--================== Payment =====================-->
+                 
+                        <div class="page-header breadcrumb-wrap">
+                            <div class="container">
+                                <div class="breadcrumb">
+                                    <a href="index.html" rel="nofollow">Home</a>
+                                    <span></span> Checkout
+                                    <span></span> Payment
+                                </div>
+                            </div>
+                        </div>
+                        <section class="mt-50 mb-50">
+                            <div class="container">
+                                <h3 class="text-center mb-50">Review Your Order and Make Payment</h3>
                                 <div class="row  d-flex justify-content-between">
                                     
-                                    <div class="col-5">
+                                    <div class="col-7">
                                         <!--Billing Address-->
                                         <div class="border p-md-4 p-30 border-radius cart-totals">
                                             <div class="heading_s1 mb-3">
@@ -89,7 +86,7 @@
                                                         <!--products in cart-->
                                                         
                                                         <tr>
-                                                            <td class="">{{payment.payment_method}}</td>
+                                                            <td class="">{{payment_method}}</td>
                                                         </tr>
                                                     <!--products in cart-->
                                                     </tbody>
@@ -98,10 +95,6 @@
                                         </div>
                                         <!-- Payment Method -->
 
-                                        
-                                    </div>
-                                    <!--cart total-->
-                                    <div class="col-7">
                                         <!-- Review Orders -->
                                         <div class="border p-md-4 p-30 border-radius cart-totals">
                                             <div class="heading_s1 mb-3">
@@ -113,68 +106,141 @@
                                                         <tr class="main-heading">  
                                                         <th colspan="2">Product</th>
                                                         <th>Quantity</th>
-                                                        <th></th>
+                                                        <th>Price</th>
                                                         </tr>
                                                     </thead>
                                                     <tbody>
-                                                        {% for products in order.ordered_products.all %}
+                                                        {% for cart_item in cart_items %}
                                                         <tr>
-                                                            <td class="image product-thumbnail"><img src="{{products.product.thumbnail_image.url}}" alt="#"></td>
+                                                            <td class="image product-thumbnail"><img src="{{cart_item.product.thumbnail_image.url}}" alt="#"></td>
                                                             <td class="product-des product-name">
-                                                                <h5 class="product-name"><a href="{{products.product.get_url}}">{{products.product.product}}{% if products.product.translator %}({{products.product.language}}){% endif %}</a></h5>
-                                                                <p class="font-xs">by {{products.product.product.author.author_name}}<br> {% if products.product.translator %}{{products.product.translator}}(translator){% endif %}
+                                                                <h5 class="product-name"><a href="{{cart_item.product.get_url}}">{{cart_item.product.product}}{% if cart_item.product.translator %}({{cart_item.product.language}}){% endif %}</a></h5>
+                                                                <p class="font-xs">by {{cart_item.product.product.author.author_name}}<br> {% if cart_item.product.translator %}{{cart_item.product.translator}}(translator){% endif %}
                                                                 </p>
                                                             </td>
-                                                            <td class="quantity" data-title="Quantity"><span>{{products.quantity}}</span></td>
-                                                            <td class="price" data-title="Price"><span>Rs.{{products.product.sale_price}} </span></td>
+                                                            <td class="quantity" data-title="Quantity"><span>{{cart_item.quantity}}</span></td>
+                                                            <td class="price" data-title="Price"><span>Rs.{{cart_item.product.sale_price}} </span></td>
                                                         </tr>
                                                         {% endfor %}
                                                         <!--Cart-Subtotal, Tax, Total-->
                                                         <tr>
-                                                            <td class="cart_total_label">Cart Subtotal</td>
-                                                            <td colspan="3" class="cart_total_amount"><span class="font-lg fw-900 text-brand">Rs.{{total}}</span></td>
+                                                            <td class="cart_total_label ">Cart Subtotal</td>
+                                                            <td class="cart_total_amount"><span class="font-lg fw-900 text-brand">Rs.{{total}}</span></td>
                                                         </tr>
                                                         <tr>
                                                             <td class="cart_total_label">Tax</td>
-                                                            <td colspan="3" class="cart_total_amount"> <i class="ti-gift mr-5"></i>{{tax}}</td>
+                                                            <td class="cart_total_amount"> <i class="ti-gift mr-5"></i>{{tax}}</td>
                                                         </tr>
                                                         <tr>
                                                             <td class="cart_total_label">Total</td>
-                                                            <td colspan="3" class="cart_total_amount"><strong><span class="font-xl fw-900 text-brand">Rs.{{order.order_total}}</span></strong></td>
+                                                            <td class="cart_total_amount"><strong><span class="font-xl fw-900 text-brand">Rs.{{grand_total}}</span></strong></td>
                                                         </tr>
                                                         <!--Cart-Subtotal, Tax, Total-->
                                                     </tbody>
                                                 </table>
-        
                                             </div>
                                         </div>
                                         <!-- Review Orders -->
                                     </div>
+                                    <!--cart total-->
+                                    <div class="col-5">
+                                        <div class="border p-md-4 p-30 border-radius cart-totals">
+                                            <div class="heading_s1 mb-3">
+                                                <h4>Cart Totals</h4>
+                                            </div>
+                                            <div class="table-responsive">
+                                                <table class="table">
+                                                    <tbody>
+                                                        <tr>
+                                                            <td class="cart_total_label">Cart Subtotal</td>
+                                                            <td class="cart_total_amount"><span class="font-lg fw-900 text-brand">Rs.{{total}}</span></td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td class="cart_total_label">Tax</td>
+                                                            <td class="cart_total_amount"> <i class="ti-gift mr-5"></i>{{tax}}</td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td class="cart_total_label">Total</td>
+                                                            <td class="cart_total_amount"><strong><span class="font-xl fw-900 text-brand">Rs.{{grand_total}}</span></strong></td>
+                                                        </tr>
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                            <a href="{% url 'order_app:order_success' %}" class="btn text-center"> <i class="fi-rs-box-alt mr-10"></i>Place Your Order</a>
+                                        </div>
+                                    </div>
                                     
                         <!--cart total-->
-                        <div class="d-flex justify-content-center align-items-center mt-4">
-                            <a class="btn btn-primary mx-2 d-flex align-items-center" href="{% url 'store_app:view_store' %}">
-                                <span class="me-2">Continue Shopping</span>
-                                <i class="fi-rs-shopping-bag "></i>
-                                
-                            </a>
-                            <a class="btn btn-primary mx-2 d-flex align-items-center px-5" href="{% url 'user_app:my_orders' %}">
-                                <span class="me-2">View Orders</span>
-                                <i class="fi-rs-eye mt-1"></i>
-                            </a>
-                        </div>
-                        
-                        </div> 
-                    </div>
-                </div>
-            </section>
-            
-        <!--================== checkout =====================-->
-                    
+                                </div>
+                            </div>
+                        </section>
 
-    <!--========= Main end ==========-->
-    </main>
-    <!--===================--> 
+                        <!--shipping charge-->
+                        {% comment %} <div class="row mb-50">
+                            <div class="col-lg-6 col-md-12">
+                                <div class="heading_s1 mb-3">
+                                    <h4>Calculate Shipping</h4>
+                                </div>
+                                <p class="mt-15 mb-30">Flat rate: <span class="font-xl text-brand fw-900">5%</span></p>
+                                <form class="field_form shipping_calculator">
+                                    <div class="form-row">
+                                        <div class="form-group col-lg-12">
+                                            <div class="custom_select">
+                                                <select class="form-control select-active">
+                                                    <option value="">Choose a option...</option>
+                                                    <option value="AX">Aland Islands</option>
+                                                   <option value="ZW">Zimbabwe</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="form-row row">
+                                        <div class="form-group col-lg-6">
+                                            <input required="required" placeholder="State / Country" name="name" type="text">
+                                        </div>
+                                        <div class="form-group col-lg-6">
+                                            <input required="required" placeholder="PostCode / ZIP" name="name" type="text">
+                                        </div>
+                                    </div>
+                                    <div class="form-row">
+                                        <div class="form-group col-lg-12">
+                                            <button class="btn  btn-sm"><i class="fi-rs-shuffle mr-10"></i>Update</button>
+                                        </div>
+                                    </div>
+                                </form>
+                            <!--apply coupon-->
+                                <div class="mb-30 mt-50">
+                                    <div class="heading_s1 mb-3">
+                                        <h4>Apply Coupon</h4>
+                                    </div>
+                                    <div class="total-amount">
+                                        <div class="left">
+                                            <div class="coupon">
+                                                <form action="#" target="_blank">
+                                                    <div class="form-row row justify-content-center">
+                                                        <div class="form-group col-lg-6">
+                                                            <input class="font-medium" name="Coupon" placeholder="Enter Your Coupon">
+                                                        </div>
+                                                        <div class="form-group col-lg-6">
+                                                            <button class="btn  btn-sm"><i class="fi-rs-label mr-10"></i>Apply</button>
+                                                        </div>
+                                                    </div>
+                                                </form>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            <!--apply coupon-->
+                            </div> 
+                        </div> {% endcomment %}
+                        <!--shipping charge-->
+                    <!--================== Payment =====================-->
+                     
+
+
+<!--========= Main end ==========-->
+</main>
+<!--===================--> 
 
 {% include "includes/user_footer.html" %}
 <!--========= Preloader Start ==========-->

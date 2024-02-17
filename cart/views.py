@@ -131,15 +131,20 @@ def remove_cart_item(request, product_id):
 
 @login_required(login_url='userapp_app:login')
 def delivery_address(request):
+    print('cart/delivery_address')
     current_user = request.user
     form = AddressForm(user=current_user)
     addresses = Addresses.objects.filter(user=current_user, is_active=True).order_by('-is_default')
-    
+    # if request.method == 'POST':
+    #     print('cart/delivery_address/post')
+    #     return redirect('order_app:place_order')
+      
     context = {
         'form' : form,
         'addresses' : addresses, 
     }
     return render(request, 'user_template/cart-order-payment/delivery-address.html', context)
+
 
 
 

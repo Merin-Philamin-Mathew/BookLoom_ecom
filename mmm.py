@@ -76,4 +76,35 @@ def add_cart(request):
         cart_item.save()
     return JsonResponse(response_data)
 
+#----------------checkout initial code
+def checkout(request, total=0, quantity=0, cart_items = None):
+    try:
+        tax=0
+        grand_total = 0
+        if request.user.is_authenticated:
+            print("cart/checkout/user is authenticated")
+            cart_items = CartItem.objects.filter(user=request.user, is_stock=True)
+        else:
+            print("cart/checkout/user is not authenticated")
+            cart = Cart.objects.get(cart_id = _cart_id(request))
+            cart_items = CartItem.objects.filter(cart=cart, is_stock=True)
+        
+        for cart_item in cart_items:
+            total += (cart_item.product.sale_price * cart_item.quantity)
+            quantity += cart_item.quantity
+        tax = (2*total)/100
+        grand_total = total+tax
+    except ObjectDoesNotExist:
+        pass
 
+    addresses = Addresses.objects.filter(user=request.user, is_active=True).order_by('-is_default')
+    form = AddressForm(user=request.user)
+    context = {
+        'total': total,
+        'quantity':quantity,
+        'cart_items':cart_items,
+        'tax':tax,
+        'grand_total':grand_total,
+        'form':form,
+        'addresses' : addresses, 
+    }

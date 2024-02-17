@@ -40,13 +40,13 @@
             
                             {% if addresses %}
                             <div class="mt-5">
-                                <h3 class="fs-5 mt-5  mb-4 border-bottom pb-4">Select Shipping Address <span><a href="#createaddress"id="createAddressLink"><u>  Or Create New</u></a></span></h3>
+                                <h3 class="fs-5 mt-5  mb-4 border-bottom pb-4">Select Shipping Address <span id="createAddressLink"><u>  Or Create New</u></span></h3>
                                 <!-- Checkout Panel Information-->
                             
                                 <div class="row">
                                 <!-- saved addresses-->
                                     {% for add in addresses %}
-                                    <form method="post" action="{% comment %} {% url 'store:payment_with_existing_address'%} {% endcomment %}">
+                                    
                                         {% csrf_token %}
                                     <div class="form-check form-group form-check-custom form-radio-custom form-radio-highlight mb-3">
                                         {% comment %} <input class="form-check-input"  name="checkoutShippingMethod" id="checkoutShippingMethod{{ forloop.counter }}" {% if forloop.first %}checked{% endif %}>
@@ -74,7 +74,8 @@
                                                             color: #ffff;
                                                         }
                                                         </style>
-                                                    <button class="btn w-100 custom-button">select</button>
+                                                        <a href="{% url 'order_app:place_order' add.id %}" class="btn w-100 custom-button btn-block">Select</a>
+
                                                 </span>
                                             </span>
                                         {% comment %} </label> {% endcomment %}
@@ -88,9 +89,10 @@
                         </div>
                         <!--============= Listing Address ============-->
                         <div class="col-md-6 create-address-column">
-                            <h3 class="fs-5 mt-5  mb-4 border-bottom pb-4">Create Shipping Address</h3>
-                            <form action="" method="post" name="add-address-form">
-                                <div class="row">
+                            <h3 class="fs-5 mt-5  mb-4 border-bottom pb-4">Create Shipping Address</h3>                                                               
+                            <form action="{% url 'order_app:place_order' 0 %}" method="post" name="add-address-form">
+                                    <div class="row">
+                                {% csrf_token %}
                                     {% if form.errors %}
                                     {% for error in form.errors %}{{error}}{% endfor %}
                                     {% endif %}
@@ -114,64 +116,65 @@
                                                 <label class="text-danger">{{ form.errors.phone_number.0 }}</label>
                                             {% endif %}
                                         </div>
+                                        </div>
+                                        <div class="form-group col-md-12">
+                                            <label>Address line1 <span class="required">*</span></label>
+                                            {{ form.address_line_1 }}
+                                            {% if form.errors.address_line_1 %}
+                                                <label class="text-danger">{{ form.errors.address_line_1.0 }}</label>
+                                            {% endif %}
+                                        </div>
+                                        <div class="form-group col-md-12">
+                                            <label>Address line 2<span class="required">*</span></label>
+                                            {{ form.address_line_2 }}
+                                            {% if form.errors.address_line_2 %}
+                                                <label class="text-danger">{{ form.errors.address_line_2.0 }}</label>
+                                            {% endif %}
+                                        </div>
+                                        <div class="form-group col-md-4">
+                                            <label>Country<span class="required">*</span></label>
+                                            {{ form.country }}
+                                            {% if form.errors.country %}
+                                                <label class="text-danger">{{ form.errors.country.0 }}</label>
+                                            {% endif %}
+                                        </div>
+                                        <div class="form-group col-md-4">
+                                            <label>State<span class="required">*</span></label>
+                                            {{ form.state }}
+                                            {% if form.errors.state %}
+                                                <label class="text-danger">{{ form.errors.state.0 }}</label>
+                                            {% endif %}
+                                        </div>
+                                        <div class="form-group col-md-4">
+                                            <label>City<span class="required">*</span></label>
+                                            {{ form.city }}
+                                            {% if form.errors.city %}
+                                                <label class="text-danger">{{ form.errors.city.0 }}</label>
+                                            {% endif %}
+                                        </div>
+                                        <div class="form-group col-md-4">
+                                            <label>PIN<span class="required">*</span></label>
+                                            {{ form.pincode }}
+                                            {% if form.errors.pincode %}
+                                                <label class="text-danger">{{ form.errors.pincode.0 }}</label>
+                                            {% endif %}
+                                        </div>
                                     </div>
-                                    <div class="form-group col-md-12">
-                                        <label>Address line1 <span class="required">*</span></label>
-                                        {{ form.address_line_1 }}
-                                        {% if form.errors.address_line_1 %}
-                                            <label class="text-danger">{{ form.errors.address_line_1.0 }}</label>
-                                        {% endif %}
+                                    <div class="row mt-4">
+                                        <div class="">
+                                            <h5>Additional information</h5>
+                                        </div>
+                                        <div class="form-group mb-30">
+                                            <textarea rows="5" placeholder="Order notes" name="order_note"></textarea>
+                                        </div>
+                                        <!-- Add other address fields here as needed -->
+                                        <!-- ... -->
                                     </div>
-                                    <div class="form-group col-md-12">
-                                        <label>Address line 2<span class="required">*</span></label>
-                                        {{ form.address_line_2 }}
-                                        {% if form.errors.address_line_2 %}
-                                            <label class="text-danger">{{ form.errors.address_line_2.0 }}</label>
-                                        {% endif %}
-                                    </div>
-                                    <div class="form-group col-md-4">
-                                        <label>Country<span class="required">*</span></label>
-                                        {{ form.country }}
-                                        {% if form.errors.country %}
-                                            <label class="text-danger">{{ form.errors.country.0 }}</label>
-                                        {% endif %}
-                                    </div>
-                                    <div class="form-group col-md-4">
-                                        <label>State<span class="required">*</span></label>
-                                        {{ form.state }}
-                                        {% if form.errors.state %}
-                                            <label class="text-danger">{{ form.errors.state.0 }}</label>
-                                        {% endif %}
-                                    </div>
-                                    <div class="form-group col-md-4">
-                                        <label>City<span class="required">*</span></label>
-                                        {{ form.city }}
-                                        {% if form.errors.city %}
-                                            <label class="text-danger">{{ form.errors.city.0 }}</label>
-                                        {% endif %}
-                                    </div>
-                                    <div class="form-group col-md-4">
-                                        <label>PIN<span class="required">*</span></label>
-                                        {{ form.pincode }}
-                                        {% if form.errors.pincode %}
-                                            <label class="text-danger">{{ form.errors.pincode.0 }}</label>
-                                        {% endif %}
-                                    </div>
-                                </div>
-                                <div class="row mt-4">
-                                    <div class="">
-                                        <h5>Additional information</h5>
-                                    </div>
-                                    <div class="form-group mb-30">
-                                        <textarea rows="5" placeholder="Order notes" name="order_note"></textarea>
-                                    </div>
-                                    <!-- Add other address fields here as needed -->
-                                    <!-- ... -->
-                                </div>
+                                    <div class="text-center">
+                                        <button type= "submit" name="submit" class="btn btn-block">Select Payment option</button>
+                                    </div>    
+                                </div>            
                             </form>
-                            <div class="text-center">
-                                <button type = "submit" name="submit" class="btn btn-block">Select Payment option</button>
-                            </div>                
                         </div>
                     </div>
                 </div>
@@ -214,6 +217,7 @@
     <script src="{% static 'assets/js/main.js' %}"></script>
     <script src="{% static 'assets/js/shop.js' %}"></script>
 <!--===================-->
+<!--create new button-->
 <script>
     $(document).ready(function() {
         // Hide the create address column initially
@@ -225,6 +229,8 @@
         });
     });
 </script>
+<!--create new button-->
+
    
 </body>
 

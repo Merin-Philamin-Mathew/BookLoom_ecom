@@ -8,12 +8,21 @@ from store.models import Product,ProductVariant
 
 # Create your models here.
 class Payment(models.Model):
-    user        = models.ForeignKey(NewUser, on_delete=models.CASCADE)
+    PAYMENT_STATUS_CHOICES =(
+    ("PENDING", "Pending"),
+    ("FAILED", "Failed"),
+    ("SUCCESS", "Success"),
+    )
     payment_id  = models.CharField(max_length=200)
     payment_method = models.CharField(max_length=200)
     amount_paid = models.CharField(max_length=50)
-    status      = models.CharField(max_length=100)
+    payment_status      = models.CharField(default='PENDING', choices = PAYMENT_STATUS_CHOICES,max_length=20)
     created_at  = models.DateTimeField(auto_now_add=True)
+    #is_paid             = models.BooleanField(default=False)
+    
+    def __str__(self):
+        return self.payment_order_id
+
     """ spike_use = models.BooleanField(default=False)
     spike_discount = models.PositiveBigIntegerField(default = 0)
     coupon_use = models.BooleanField(default = False)
@@ -48,6 +57,9 @@ class Order(models.Model):
     status = models.CharField(max_length=50,choices=STATUS,default='New')
     ip = models.CharField(max_length=50,blank=True)
     is_ordered = models.BooleanField(default= False)
+    razor_pay_order_id = models.CharField(max_length= 100, null=True, blank=True)
+    razor_pay_payment_id = models.CharField(max_length= 100, null=True, blank=True)
+    razor_pay_payment_signature = models.CharField(max_length= 100, null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     deliverd_at = models.DateTimeField(null=True)
@@ -55,9 +67,7 @@ class Order(models.Model):
     
 
     def __str__(self):
-        if self.address:
-            return self.address.name
-        return f"Order {self.id} (No Address)"
+        return self.order_number
 
     
     def can_return_products(self):
@@ -67,7 +77,7 @@ class Order(models.Model):
         return False
     
 class OrderProduct(models.Model):
-    order = models.ForeignKey(Order, on_delete=models.CASCADE)
+    order = models.ForeignKey(Order, on_delete=models.CASCADE,related_name= 'ordered_products')
     payment = models.ForeignKey(Payment, on_delete=models.SET_NULL,blank=True, null=True)
     user = models.ForeignKey(NewUser, on_delete=models.CASCADE)
     product = models.ForeignKey(ProductVariant, on_delete=models.CASCADE)

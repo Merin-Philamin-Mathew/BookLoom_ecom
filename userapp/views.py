@@ -111,8 +111,6 @@ def accountdetails(request):
 from django.db import transaction
 @transaction.atomic
 @login_required(login_url='userapp_app:login')
-
-@login_required(login_url='userapp_app:login')
 def editprofile(request):
 
     user = request.user
@@ -283,6 +281,9 @@ def update_address(request):
             
               
   """   
+
+
+###################### ORDER MANAGEMENT #######################
 @login_required(login_url='userapp_app:login')
 def myorders(request):
     current_user = request.user
@@ -292,6 +293,50 @@ def myorders(request):
         'all_orders' : all_orders,
     }
     return render(request, 'profile/my-orders.html',context)
+
+""" def order_details(request, order_id):
+    order = Order.objects.get(id=order_id)
+    order_products = OrderProduct.objects.filter(order=order)
+    payment = Payment.objects.all()
+    for i in payment:
+        print(i.payment_order_id)
+        print(i.payment_id,i.payment_method)
+   
+    order_status = Order.ORDER_STATUS_CHOICES
+
+
+
+    context = {
+        'order': order,
+        'order_products': order_products,
+        'order_status': order_status,
+    }
+    return render(request, 'admin_templates/order_details.html', context)
+    
+ """
+
+#################### CANCEL ORDER ########################
+def cancel_order(request):
+    order_id = request.GET.get('order_id')
+    order = Order.objects.get(id=order_id,user=request.user)
+    if order.order_status != 'Cancelled' and order.order_status != 'Delivered':
+        order.order_status = 'Cancelled'
+        
+    else:
+        if order.order_status == 'Delivered':
+            order.order_status = 'Returned'
+    order.save()       
+    
+    # if order.created_at < datetime.datetime.now() - datetime.timedelta(days=7):
+    print(order.order_status)
+    return redirect('user_app:myorder')    
+
+################### RETURN ORDER #################
+# def return_order(request):
+#     order_id = request.GET.get('order_id')
+#     order = Order.objects.get(id=order_id,user=request.user)
+#     if order.created_at
+
 
 
 @never_cache

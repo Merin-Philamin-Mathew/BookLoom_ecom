@@ -174,6 +174,9 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 #mer configuring the new usermodel
 AUTH_USER_MODEL = 'adminapp.NewUser'
 
+RAZOR_PAY_KEY_ID = 'rzp_test_fGwLaAdAhjOjbm'
+KEY_SECRET = '7qO0FhI7y3SZGPpikcUEvVf1'
+
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_USE_TLS = True
