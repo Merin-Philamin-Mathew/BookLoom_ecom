@@ -12,6 +12,7 @@ from django.core.mail import send_mail
 from store.models import Product, ProductVariant, Author
 from adminapp.models import NewUser, Profile, Addresses
 from orders.models import Order, OrderProduct, Payment
+from wallet.models import Wallet, Transaction
 from . forms import ProfileForm
 from datetime import timedelta, datetime
 from django.utils import timezone
@@ -287,10 +288,12 @@ def update_address(request):
 @login_required(login_url='userapp_app:login')
 def myorders(request):
     current_user = request.user
-    all_orders = OrderProduct.objects.filter(user=current_user, ordered=True)
+    all_orders = Order.objects.filter(user=current_user, is_ordered=True)
+    all_products = OrderProduct.objects.filter(user=current_user, ordered=True)
     
     context = {
         'all_orders' : all_orders,
+        'all_products' : all_products,
     }
     return render(request, 'profile/my-orders.html',context)
 
@@ -302,14 +305,14 @@ def myorders(request):
         print(i.payment_order_id)
         print(i.payment_id,i.payment_method)
    
-    order_status = Order.ORDER_STATUS_CHOICES
+    status = Order.ORDER_STATUS_CHOICES
 
 
 
     context = {
         'order': order,
         'order_products': order_products,
-        'order_status': order_status,
+        'status': status,
     }
     return render(request, 'admin_templates/order_details.html', context)
     
@@ -317,19 +320,58 @@ def myorders(request):
 
 #################### CANCEL ORDER ########################
 def cancel_order(request):
+    print("user_app/cancel_order")
     order_id = request.GET.get('order_id')
     order = Order.objects.get(id=order_id,user=request.user)
+    orderproducts = OrderProduct.objects.filter(order=order,user=request.user)
     if order.order_status != 'Cancelled' and order.order_status != 'Delivered':
+        # Use a transaction to ensure atomicity
+        with transaction.atomic():
+            for product in order.ordered_products.all():
+                # Add the canceled product quantity back to stock
+                product.product.stock += product.quantity
+                product.product.save()
+
+                # Set the quantity of the canceled product to 0
+                product.quantity = 0
+                product.save() 
         order.order_status = 'Cancelled'
-        
+        order.save()
+        if order.payment.payment_method == 'Razor-pay':
+            amount = order.order_total
+            wallet=Wallet.objects.get(user=request.user)
+            wallet.balance+=amount
+            Transaction.objects.create(wallet=wallet, amount=amount, transaction_type='CREDIT')
+            wallet.save()
+            messages.success(request, f"your cancelled products amount, ₹{amount} has been credited to the wallet!")
+            return redirect('user_app:wallet')  
     else:
         if order.order_status == 'Delivered':
+             # Use a transaction to ensure atomicity
+            with transaction.atomic():
+                for product in order.ordered_products.all():
+                    # Add the canceled product quantity back to stock
+                    product.product.stock += product.quantity
+                    product.product.save()
+
+                    # Set the quantity of the canceled product to 0
+                    product.quantity = 0
+                    product.save()
             order.order_status = 'Returned'
+            order.save()
+            if order.payment.payment_method == 'Razor-pay':
+                """ amount = order.order_total
+                wallet=Wallet.objects.get(user=request.user)
+                wallet.balance+=amount
+                Transaction.objects.create(wallet=wallet, amount=amount, transaction_type='CREDIT')
+                wallet.save()
+                messages.success(request, f"your returned products amount, ₹{amount} has been credited to the wallet!")
+                return redirect('user_app:wallet') """ 
     order.save()       
     
     # if order.created_at < datetime.datetime.now() - datetime.timedelta(days=7):
     print(order.order_status)
-    return redirect('user_app:myorder')    
+    return redirect('user_app:my_orders')    
 
 ################### RETURN ORDER #################
 # def return_order(request):

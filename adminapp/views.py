@@ -5,7 +5,8 @@ from django.views.decorators.cache import never_cache
 from django.contrib.auth.hashers import make_password
 from django.contrib import messages
 from django.utils import timezone
-from . models import NewUser
+from . models import NewUser, Coupon
+from . forms import CouponForm 
 from store.models import Product,Category, Author, Publication, ProductVariant, AdditionalProductImages, Language
 from store.forms import ProductForm, ProductVariantForm, AddProImgForm, CategoryForm, AuthorForm, PublicationForm, LanguageForm
 from orders.models import Order, Payment, OrderProduct
@@ -796,7 +797,7 @@ def change_order_status(request, id):
         order_.deliverd_at = None
 
     if status:
-        order_.status = status
+        order_.order_status = status
     order_.save()
 
     # Add success message for successful status change
@@ -805,6 +806,62 @@ def change_order_status(request, id):
     return redirect('admin_app:list_order')
 
 
+#________________________language_management_______________________________________
+#_____________________________________________________________________________________
 
+@login_required(login_url='admin_app:admin_login')
+def coupons(request):
+    print("admin_app/coupon")
+    if not is_superuser(request):
+        return redirect('user_app:home')
+    coupon = Coupon.objects.all().order_by('-created_at')
+    context = {
+        'coupon': coupon,
+    }
+    
+    return render(request, 'admin_template/coupon_management/coupon.html',context)
+
+@login_required(login_url='admin_app:admin_login')
+def add_coupons(request):
+    if not is_superuser(request):
+        return redirect('user_app:home')
+    if request.method == "POST":
+        form = CouponForm(request.POST, request.FILES)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Coupon added successfully.')
+            return redirect('admin_app:coupons')
+        else:
+            messages.error(request, 'Error: Invalid data. Please check the form.')
+    else:
+        form = CouponForm()
+    coupon = Coupon.objects.all().order_by('-created_at')
+    context = {
+        "form": form,
+        'coupon': coupon,
+    }
+    return render(request, 'admin_template/coupon_management/coupon.html', context)
+
+@login_required(login_url='admin_app:admin_login')
+def activate_coupon(request, id):
+    if not is_superuser(request):
+        return redirect('store:home')
+    if request.method == 'POST':
+        pi = Coupon.objects.get(id=id)
+        pi.active = True
+        pi.save()
+        messages.success(request, 'Coupon activated successfully.')
+    return redirect('admin_app:coupons')
+
+@login_required(login_url='accounts:signin')
+def disable_coupon(request, id):
+    if not is_superuser(request):
+        return redirect('store:home')
+    if request.method == 'POST':
+        pi = Coupon.objects.get(id=id)
+        pi.active = False
+        pi.save()
+        messages.success(request, 'Coupon disabled successfully.')
+    return redirect('admin_app:coupons')
 
 

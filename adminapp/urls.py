@@ -52,6 +52,14 @@ urlpatterns = [
     path('listorder',views.listorder,name='list_order'),
     path('change-order-status/<int:id>/', views.change_order_status, name='change_order_status'),
 
+    #coupon management____________________________________________________________
+    path('coupons', views.coupons, name='coupons'),
+    path('add_coupons', views.add_coupons, name='add_coupons'),
+    path('activate_coupon/<int:id>/', views.activate_coupon, name='activate_coupon'),
+    path('disable_coupon/<int:id>/', views.disable_coupon, name='disable_coupon'),
+    
+
+
 ]
 if settings.DEBUG:
     urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

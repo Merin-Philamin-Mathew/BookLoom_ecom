@@ -1,5 +1,5 @@
 from django.contrib import admin
-from . models import NewUser,Profile,Addresses
+from . models import NewUser,Profile,Addresses,Coupon,Verify_coupon
 
 # Register your models here.
 
@@ -21,6 +21,8 @@ class CustomAdmin(admin.ModelAdmin):
 admin.site.register(NewUser, CustomAdmin)
 admin.site.register(Profile)
 admin.site.register(Addresses)
+admin.site.register(Coupon)
+admin.site.register(Verify_coupon)
 
 
 

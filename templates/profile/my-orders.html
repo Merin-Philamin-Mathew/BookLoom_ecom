@@ -16,6 +16,7 @@ Username's profile
         left: 0;
     }
    </style>
+   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>
 
 <body>
     
@@ -32,18 +33,19 @@ Username's profile
                 <a href="index.html" rel="nofollow">Home</a>
                 <span></span> Pages
                 <span></span> Account
+                <span></span> My Orders
             </div>
         </div>
     </div>
     <section class="pt-70 pb-100">
         <div class="container">
             <div class="row">
-                <div class="col-lg-10 m-auto">
+                <div class="col-lg-12 m-auto">
                     <div class="row">
-                        <div class="col-md-4">
+                        <div class="col-md-2">
                             {% include "profile/profile-menu.html" %}
                         </div>
-                        <div class="col-md-8">
+                        <div class="col-md-10">
                     <!--============= AdressBook ============-->
                    
                         <div class="card">
@@ -53,38 +55,73 @@ Username's profile
                             <div class="card-body">
                             {% if all_orders %}
                             <!--============= Listing Orders ============-->
-                            <div class="card-header d-flex justify-content-between align-items-center">
-                                <h6 class="mb-0 ml-4">Orders</h6>
-                            </div>
                             
                             <div class="row">
                                 <div class="table-responsive">
                                     <table class="table shopping-summery text-center clean">
                                         <thead>
-                                            <tr class="main-heading">  
+                                            <tr class="main-heading"> 
+                                                <th>Order ID</th> 
                                                 <th colspan="2">Product</th>
                                                 <th>Quantity</th>
                                                 <th>Price</th>
                                                 <th>Order Status</th>
+                                                <th>Ordered date</th>
                                             </tr>
                                         </thead>
                                         <tbody>
                                             {% for order in all_orders %}
                                             <tr>
-                                                <td class="image product-thumbnail"><img src="{{order.product.thumbnail_image.url}}" alt="#"></td>
+                                                <td  rowspan="{{ order.ordered_products.count }}"> <!-- Set rowspan to the number of products in the order -->
+                                                    <a href="cart.html" class="view ">{{ order.order_number }}</a>
+                                                    <br>
+                                                    {% if order.order_status == 'Delivered' %}
+                                                        <a href="#" class="return-order " data-order-id="{{ order.id }}" data-order-created-at='{{ order.created_at|date:"Y-m-d\TH:i:s" }}'>Return</a>
+                                                        {% elif order.order_status == 'Cancelled' %}
+                                                        <strong  class="view text-danger">Cancelled</strong>
+                                                        {% elif order.order_status == 'Returned' %}
+                                                        <strong  class="view text-secondary">Returned</strong>
+                                                        {% else %}
+                                                        <a href="#" class="view text-secondary btn-link" onclick="cancelOrderConfirmation('{{ order.id }}')">Cancel Order</a>
+                                                        {% endif %}
+                                                </td>
+                                                {% for product in order.ordered_products.all %}
+                                                {% if product.order_product_status != "Cancelled" %}
+                                                <td class="image product-thumbnail"><img src="{{product.product.thumbnail_image.url}}" alt="#"></td>
                                                 <td class="product-des product-name">
-                                                    <h5 class="product-name"><a href="{{order.product.get_url}}">{{order.product.product}}{% if order.product.translator %}({{order.product.language}}){% endif %}</a></h5>
-                                                    <p class="font-xs">by {{order.product.product.author.author_name}}<br> {% if order.product.translator %}{{order.product.translator}}(translator){% endif %}
+                                                    <h5 class="product-name"><a href="{{product.product.get_url}}">{{product.product.product}}{% if product.product.translator %}({{product.product.language}}){% endif %}</a></h5>
+                                                    <p class="font-xs">by {{product.product.product.author.author_name}}<br> {% if product.product.translator %}{{product.product.translator}}(translator){% endif %}
                                                     </p>
                                                 </td>
-                                                <td class="quantity" data-title="Quantity"><span>{{order.quantity}}</span></td>
-                                                <td class="price" data-title="Price"><span>Rs.{{order.product.sale_price}} </span></td>
-                                                <td class="status" data-title="status"><span>{{order.order.status}} </span></td>
-                                            </tr>
+                                                <td class="quantity" data-title="Quantity"><span>{{product.quantity}}</span></td>
+                                                <td class="price" data-title="Price"><span>Rs.{{product.product.sale_price}} </span></td>
+
+                                                <strong>  
+                                                {% if order.order_status == "New" %}
+                                                        <td>New</td>
+                                                    {% elif order.order_status == "Pending" %}
+                                                        <td>Pending</td>
+                                                    {% elif order.order_status == "Confirmed" %}
+                                                        <td>Confirmed</td>
+                                                    {% elif order.order_status == "Shipped" %}
+                                                        <td>Shipped</td>
+                                                    {% elif order.order_status == "Delivered" %}
+                                                        <td>Delivered</td>
+                                                    {% elif order.order_status == "Cancelled" %}
+                                                    <td>Cancelled</td>
+                                                    {% elif order.order_status == "Returned" %}
+                                                        <td>Returned</td>
+                                                {% endif %}
+                                                </strong> 
+                                                
+                                                    
+                                                    <td>{{ order.created_at|date:"j M Y" }}</td>
+                                                    
+                                                    
+                                                    </tr>
+                                                    {% endif %}
+                                                    {% endfor %}
                                             {% endfor %}
-                                            <!--Cart-Subtotal, Tax, Total-->
-                                            
-                                            <!--Cart-Subtotal, Tax, Total-->
                                         </tbody>
                                     </table>
                                 </div>
@@ -115,23 +152,6 @@ Username's profile
 <!--===================--> 
 
 {% include "includes/user_footer.html" %}
-<!--========= Preloader Start ==========-->
-{% comment %}     <div id="preloader-active">
-        <div class="preloader d-flex align-items-center justify-content-center">
-            <div class="preloader-inner position-relative">
-                <div class="text-center">
-                    <h5 class="mb-10">Now Loading</h5>
-                    <div class="loader">
-                        <div class="bar bar1"></div>
-                        <div class="bar bar2"></div>
-                        <div class="bar bar3"></div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div> {% endcomment %}
-<!--========= Preloader end ==========-->
-
 <!--========= Vendor JS==========-->
 <script src="{% static 'assets/js/vendor/modernizr-3.6.0.min.js' %}"></script>
 <script src="{% static 'assets/js/vendor/jquery-3.6.0.min.js' %}"></script>
@@ -159,6 +179,68 @@ Username's profile
     <script src="{% static 'assets/js/main.js' %}"></script>
     <script src="{% static 'assets/js/shop.js' %}"></script>
 <!--===================-->
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        document.querySelectorAll('.return-order').forEach(item => {
+            item.addEventListener('click', function(event) {
+                event.preventDefault();
+                const orderId = this.dataset.orderId;
+                const returnDateStr = this.dataset.orderCreatedAt;
+                console.log(returnDateStr);
+                const returnDate = new Date(returnDateStr);
+
+                const currentDate = new Date();
+                const daysDiff = Math.floor((currentDate - returnDate) / (1000 * 60 * 60 * 24));
+                console.log(daysDiff,orderId,returnDate,currentDate);
+                if (daysDiff <= 7) {
+                    Swal.fire({
+                        title: 'Return Order',
+                        text: 'Are you sure you want to return this order?',
+                        icon: 'question',
+                        showCancelButton: true,
+                        confirmButtonText: 'Yes, return it',
+                        cancelButtonText: 'No, keep it',
+                        customClass: {
+                        confirmButton: 'return-button-class'
+                    }
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            // Perform the return action
+                            window.location.href = '{% url "user_app:cancel_order" %}?order_id=' + orderId;
+                        }
+                    });
+                } else {
+                    Swal.fire({
+                        title: 'Return Order',
+                        text: 'You can only return the order within 7 days of purchase.',
+                        icon: 'warning',
+                        confirmButtonText: 'Got it'
+                    });
+                }
+            });
+        });
+    });
+</script>
+
+<script>
+    function cancelOrderConfirmation(orderId) {
+        Swal.fire({
+            title: 'Are you sure?',
+            text: 'Do you want to cancel the order?',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Yes, cancel it!',
+            cancelButtonText: 'No',
+        }).then((result) => {
+            if (result.isConfirmed) {
+                window.location.href = "{% url 'user_app:cancel_order' %}?order_id=" + orderId;
+            }
+        });
+    }
+</script>
+
    
 </body>
 

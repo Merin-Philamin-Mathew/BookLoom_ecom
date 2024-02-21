@@ -3,6 +3,10 @@ from django.utils.translation import gettext as _
 from django.contrib.auth.models import AbstractUser
 from phonenumber_field.modelfields import PhoneNumberField
 from django_countries.fields import CountryField
+import random
+import string
+
+# Create your models here.
 #from django_otp.models import TimeBasedOTP
 # Create your models here.
 
@@ -131,6 +135,31 @@ class Addresses(models.Model):
     def __str__(self):
         return self.name    
 
+
+def generate_coupon_code():
+    letters_and_digits = string.ascii_letters + string.digits
+    return ''.join(random.choices(letters_and_digits, k=10))
+
+class Coupon(models.Model):
+    code = models.CharField(max_length=50, unique=True, null=True)
+    discount = models.PositiveIntegerField(null=True)
+    max_discount = models.PositiveIntegerField(null=True)
+    min_amount = models.IntegerField()
+    active = models.BooleanField(default=True)
+    uses = models.IntegerField(default=1)
+    active_date = models.DateField()
+    expiry_date = models.DateField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def save(self, *args, **kwargs):
+        if not self.code:
+            self.code = generate_coupon_code()
+        super(Coupon, self).save(*args, **kwargs)
+
+class Verify_coupon(models.Model):
+    coupon = models.ForeignKey(Coupon, on_delete=models.CASCADE)
+    user = models.ForeignKey(NewUser, on_delete=models.CASCADE,null=True)
+    uses = models.PositiveIntegerField(default=0)
 """ 
 from django.db.models.signals import post_save
 from django.dispatch import receiver

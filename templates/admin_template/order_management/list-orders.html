@@ -15,7 +15,7 @@ List orders
     <section class="content-main">
             <div class="content-header">
                 <div>
-                    <h2 class="content-title card-title">Products List</h2>
+                    <h2 class="content-title card-title">Order List</h2>
                     {% include "includes/alerts.html" %}
                 </div>
               {% comment %}   <div>
@@ -76,7 +76,7 @@ List orders
                                 <td><b>{{ order.user.username }}</b></td>
                                 <td>{{order.user.email}}</td>
                                 <td>₹{{order.order_total}}</td>
-                                <td><span class="badge rounded-pill alert-success">{{order.status}}</span></td>
+                                <td><span class="badge rounded-pill alert-success">{{order.order_status}}</span></td>
                                 <td>{{order.created_at}}</td>
                                 <td>
                                     {% comment "" %}{% url 'order_details' order.id %}{% endcomment %}

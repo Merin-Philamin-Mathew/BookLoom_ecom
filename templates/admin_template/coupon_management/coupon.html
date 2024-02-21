@@ -1,0 +1,163 @@
+{% extends "admin_base.html" %}
+{% load static %}
+
+{% block title %}
+Coupon
+{% endblock %}
+
+{% block content %}
+
+<div class="screen-overlay"></div>
+{% include "includes/admin_sidebar.html" %}
+
+<main class="main-wrap">
+    {% include "includes/admin_navbar.html" %}
+    <section class="content-main">
+            <div class="content-header">
+                <div>
+                    <h2 class="content-title card-title">Coupon Management</h2>
+                    {% include "includes/alerts.html" %}
+                </div>
+                {% if messages %}
+                <script>
+                    window.onload = function () {
+                        {% for message in messages %}
+                            alert("{{ message.message }}");
+                        {% endfor %}
+                    }
+                </script>
+                {% endif %}
+            </div>
+            <div class="card">
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <form action="{% url 'admin_app:add_coupons' %}" method="post" enctype="multipart/form-data">
+                                {% csrf_token %}
+                                <div class="mb-4">
+                                    <label for="code" class="form-label">Code</label>
+                                    <input type="text" placeholder="Enter the coupon code" class="form-control" id="code" name="code" />
+                                </div>
+                                <div class="mb-4">
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <label for="discount" class="form-label">Discount </label>
+                                            <input type="number" placeholder="Discount in %" class="form-control" id="id_min_amount" name="discount" />
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label for="max_discount" class="form-label">Maximum Discount</label>
+                                            <input type="number" placeholder="Maximum discount amount in Rs." class="form-control" id="max_discount" name="max_discount" />
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="mb-4">
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <label for="id_min_amount" class="form-label">Minimum Amount </label>
+                                            <input type="number" placeholder="Minm" class="form-control" id="id_min_amount" name="min_amount" />
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label for="uses" class="form-label">Uses Per User</label>
+                                            <input type="number" placeholder="Type here" class="form-control" id="uses" name="uses" />
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="mb-4">
+                                    <label for="id_active_date" class="form-label">Active Date</label>
+                                    <input type="date" class="form-control" id="id_active_date" name="active_date" />
+                                </div>
+                                <div class="mb-4">
+                                    <label for="id_expiry_date" class="form-label">Expiry Date</label>
+                                    <input type="date" class="form-control" id="id_expiry_date" name="expiry_date" />
+                                </div>
+                                <div class="d-grid">
+                                    <button class="btn btn-primary" type="submit">Create coupon</button>
+                                </div>
+                            </form> 
+                        </div>
+                        
+                        <div class="col-md-8">
+                            <div class="table-responsive" style="max-height: 400px; overflow-y: auto;">
+                                <!-- Add the search bar -->
+                                <input type="text" id="couponSearch" class="form-control" placeholder="Search for Coupon">
+                        
+                                <table class="table table-hover">
+                                    <thead>
+                                        <tr>
+                                            <th>Id</th>
+                                            <th>Code</th>
+                                            <th>Discount</th>
+                                            <th>Active Date</th>
+                                            <th>Expiry Date</th>
+                                            <th class="text-end">Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for coupon in coupon %}
+                                        <tr>
+                                            <td>{{ coupon.id }}</td>
+                                            <td>{{ coupon.code }}</td>
+                                            <td>{{ coupon.discount }}%</td>
+                                            <td>{{ coupon.active_date }}</td>
+                                            <td>{{ coupon.expiry_date }}</td>
+                                            <td>
+                                                {% if coupon.active %}
+                                                <form action="{% url 'admin_app:disable_coupon' coupon.id %}" method="post" class="d-inline">
+                                                    {% csrf_token %}
+                                                    <button class="btn btn-primary block-user" data-user-id="">Active</button>
+                                                </form>
+                                                {% else %}
+                                                <form action="{% url 'admin_app:activate_coupon' coupon.id %}" method="post" class="d-inline">
+                                                    {% csrf_token %}
+                                                    <button class="btn btn-danger block-user" data-user-id="">Disable</button>
+                                                </form>
+                                                {% endif %}
+                                            </td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        
+                        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+                        <script>
+                            $(document).ready(function () {
+                                // Function to handle the search functionality
+                                $("#couponSearch").on("input", function () {
+                                    var value = $(this).val().toLowerCase();
+                                    $("tbody tr").filter(function () {
+                                        $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1);
+                                    });
+                                });
+                            });
+                        </script>
+                        
+                    </div> <!-- .row // -->
+                </div> <!-- card body .// -->
+            </div> <!-- card .// -->
+    </section>
+    
+   <!-- content-main end// -->
+    {% include "includes/admin_footer.html" %}
+</main>
+<script src="{% static 'assets/js/vendors/jquery-3.6.0.min.js' %}"></script>
+<script src="{% static 'assets/js/vendors/bootstrap.bundle.min.js' %}"></script>
+<script src="{% static 'assets/js/vendors/select2.min.js' %}"></script>
+<script src="{% static 'assets/js/vendors/perfect-scrollbar.js' %}"></script>
+<script src="{% static 'assets/js/vendors/jquery.fullscreen.min.js' %}"></script>
+<script src="{% static 'assets/js/vendors/chart.js' %}"></script>
+<!-- Main Script -->
+<script src="{% static 'assets/js/main.js' %}" type="text/javascript"></script>
+<script src="{% static 'assets/js/custom-chart.js' %}" type="text/javascript"></script>
+</body>
+
+
+<!-- Mirrored from wp.alithemes.com/html/evara/evara-backend/index.html by HTTrack Website Copier/3.x [XR&CO'2014], Sun, 01 Aug 2021 15:32:57 GMT -->
+</html>
+
+{% endblock content %}
+
+
+                    

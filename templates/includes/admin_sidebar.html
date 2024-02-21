@@ -69,6 +69,14 @@
                     <a href="{% url "admin_app:add_language" %}">Add Language</a>
                 </div>
             </li>
+            <li class="menu-item ">
+                <a class="menu-link"  href="{% url "admin_app:coupons" %} {% if request.path in '/coupons' %} active {% endif %}"> <i class="icon material-icons md-shopping_cart"></i>
+                    <span class="text">Coupon</span>
+                </a>
+                {% comment %} <div class="submenu">
+                    <a href="{% url "admin_app:coupons" %}"></a>
+                </div> {% endcomment %}
+            </li>
             <li class="menu-item has-submenu">
                 <a class="menu-link" href="page-orders-1.html"> <i class="icon material-icons md-shopping_cart"></i>
                     <span class="text">Orders</span>

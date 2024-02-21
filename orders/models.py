@@ -38,12 +38,12 @@ class Order(models.Model):
         ('Accepted','Accepted'),
         ('Completed','Completed'),
         ('Cancelled','Cancelled'),
-        # ('Confirmed','Confirmed'),
-        # ('shipping','shipping'),
-        # ('Delivered','Delivered'),
-        # ('Cancelled','Cancelled'),
-        # ('Return initiated','Return initiated'),
-        # ('Returned','Returned'),
+        ('Confirmed','Confirmed'),
+        ('shipping','shipping'),
+        ('Delivered','Delivered'),
+        ('Cancelled','Cancelled'),
+        ('Return initiated','Return initiated'),
+        ('Returned','Returned'),
     )
     
     
@@ -54,7 +54,7 @@ class Order(models.Model):
     order_note = models.CharField(max_length=50, blank=True)
     order_total = models.FloatField( )
     tax = models.FloatField( )
-    status = models.CharField(max_length=50,choices=STATUS,default='New')
+    order_status = models.CharField(max_length=50,choices=STATUS,default='New')
     ip = models.CharField(max_length=50,blank=True)
     is_ordered = models.BooleanField(default= False)
     razor_pay_order_id = models.CharField(max_length= 100, null=True, blank=True)
@@ -77,10 +77,23 @@ class Order(models.Model):
         return False
     
 class OrderProduct(models.Model):
+    # STATUS = (
+    #     ('Nefw','Nefw'),
+    #     ('Accepted','Accepted'),
+    #     ('Completed','Completed'),
+    #     ('Cancelled','Cancelled'),
+    #     ('Confirmed','Confirmed'),
+    #     ('shipping','shipping'),
+    #     ('Delivered','Delivered'),
+    #     ('Cancelled','Cancelled'),
+    #     ('Return initiated','Return initiated'),
+    #     ('Returned','Returned'),
+    # )
     order = models.ForeignKey(Order, on_delete=models.CASCADE,related_name= 'ordered_products')
     payment = models.ForeignKey(Payment, on_delete=models.SET_NULL,blank=True, null=True)
     user = models.ForeignKey(NewUser, on_delete=models.CASCADE)
     product = models.ForeignKey(ProductVariant, on_delete=models.CASCADE)
+    # order_product_status = models.CharField(max_length=50,choices=STATUS,default='New')
     quantity = models.IntegerField()
     product_price = models.FloatField()
     ordered = models.BooleanField(default=False)
