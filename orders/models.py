@@ -5,6 +5,7 @@ from django.db import models
 from cart.models import Cart,CartItem
 from adminapp.models import Addresses,Profile,NewUser
 from store.models import Product,ProductVariant
+from adminapp.models import Coupon
 
 # Create your models here.
 class Payment(models.Model):
@@ -56,6 +57,8 @@ class Order(models.Model):
     tax = models.FloatField( )
     order_status = models.CharField(max_length=50,choices=STATUS,default='New')
     ip = models.CharField(max_length=50,blank=True)
+    coupon_code = models.ForeignKey(Coupon,on_delete=models.SET_NULL,null=True,blank=True)
+    additional_discount = models.DecimalField(max_digits=50, decimal_places=2, default=0,null=True)
     is_ordered = models.BooleanField(default= False)
     razor_pay_order_id = models.CharField(max_length= 100, null=True, blank=True)
     razor_pay_payment_id = models.CharField(max_length= 100, null=True, blank=True)

@@ -21,11 +21,11 @@ from django.conf.urls.static import static
 
 urlpatterns = [
     path('django_admin/', admin.site.urls),
-    path('',include("adminapp.urls", namespace='admin_app') ),
     path('',include("userapp.urls", namespace='userapp_app') ),
-    path('',include("cart.urls", namespace='cart_app') ),
-    path('',include("orders.urls", namespace='order_app') ),
-    path('',include("store.urls", namespace='store_app') ),
+    path('admin/',include("adminapp.urls", namespace='admin_app') ),
+    path('cart/',include("cart.urls", namespace='cart_app') ),
+    path('order/',include("orders.urls", namespace='order_app') ),
+    path('store/',include("store.urls", namespace='store_app') ),
 ]
 urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

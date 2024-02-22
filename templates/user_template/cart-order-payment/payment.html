@@ -11,7 +11,6 @@
 {% block content %}
 <body>
     
-{% include "includes/alerts.html" %}
  
 {% include "includes/user_navbar.html" %}
 
@@ -116,25 +115,7 @@
                             
                         </div>
                          <div class="col-md-6">
-                        <!-- Coupon -->
-                            <div class="toggle_info mb-3">
-                                <span><i class="fi-rs-label mr-10"></i><span class="text-muted">Have a coupon?</span> <a href="#coupon" data-bs-toggle="collapse" class="collapsed" aria-expanded="false">Click here to enter your code</a></span>
-                            </div>
-                            <div class="panel-collapse collapse coupon_form " id="coupon">
-                                <div class="panel-body">
-                                    <p class="mb-30 font-sm">If you have a coupon code, please apply it below.</p>
-                                    <form method="post">
-                                        <div class="form-group">
-                                            <input type="text" placeholder="Enter Coupon Code...">
-                                        </div>
-                                        <div class="form-group">
-                                            <button class="btn  btn-md" name="login">Apply Coupon</button>
-                                        </div>
-                                    </form>
-                                </div>
-                            </div>
-                        <!-- Coupon -->
-                        
+                       
                         <!-- list order-->
                             <div class="order_review">
                                 <div class="mb-20">
@@ -170,13 +151,38 @@
                                                 <td colspan="2" class="cart_total_amount"> <i class="ti-gift mr-5"></i>{{tax}}</td>
                                             </tr>
                                             <tr>
+                                                <td class="cart_total_label">Coupon Discount</td>
+                                                <td colspan="2" class="cart_total_amount"> <i class="ti-gift mr-5"></i>{{order.additional_discount}}</td>
+                                            </tr>
+                                            <tr>
                                                 <td class="cart_total_label">Total</td>
-                                                <td colspan="2" class="cart_total_amount"><strong><span class="font-xl fw-900 text-brand">{{order.order_total}}</span></strong></td>
+                                                <td colspan="2"  class="cart_total_amount"><strong><span id = "orderTotal" class="font-xl fw-900 text-brand">{{order.order_total}}</span></strong></td>
                                             </tr>
                                             <!--Cart-Subtotal, Tax, Total-->
                                         </tbody>
                                     </table>
                                 </div>
+                                 <!-- Coupon -->
+                                    <div class="toggle_info mb-3">
+                                        <span><i class="fi-rs-label mr-10"></i><span class="text-muted">Have a coupon?</span> <a href="#coupon" data-bs-toggle="collapse" class="collapsed" aria-expanded="false">Click here to enter your code</a></span>
+                                    </div>
+                                    <div class="panel-collapse collapse coupon_form " id="coupon">
+                                            <div class="row">
+                                                <div class="col-md-5">
+                                                    <div class="form-group">
+                                                        <input type="text" id="couponCode" name="coupon_code" placeholder="Enter Coupon Code...">
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-7">
+                                                    <div class="form-group d-flex justify-content-end">
+                                                        <button class="btn btn-md mx-1 px-2" onclick="applyCoupon('{{order.order_number}}')" name="">Apply Coupon</button>
+                                                        <button class="btn btn-secondary px-3"  onclick="clearCoupon('{{order.order_number}}')" name="login">Clear Coupon</button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                    </div>
+                                <!-- Coupon -->
+                        
                                 <div class="bt-1 border-color-1 mt-30 mb-30"></div>                       
                             </div>
                         <!-- list order-->
@@ -195,22 +201,6 @@
     <!--===================--> 
 
 {% include "includes/user_footer.html" %}
-<!--========= Preloader Start ==========-->
-{% comment %}     <div id="preloader-active">
-        <div class="preloader d-flex align-items-center justify-content-center">
-            <div class="preloader-inner position-relative">
-                <div class="text-center">
-                    <h5 class="mb-10">Now Loading</h5>
-                    <div class="loader">
-                        <div class="bar bar1"></div>
-                        <div class="bar bar2"></div>
-                        <div class="bar bar3"></div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div> {% endcomment %}
-<!--========= Preloader end ==========-->
 
 <!--========= Vendor JS==========-->
 <script src="{% static 'assets/js/vendor/modernizr-3.6.0.min.js' %}"></script>
@@ -238,7 +228,110 @@
 <!--========= Template  JS ==========-->
     <script src="{% static 'assets/js/main.js' %}"></script>
     <script src="{% static 'assets/js/shop.js' %}"></script>
-<!--===================-->
+<!--========== coupon =========-->
+<script>
+
+// Function to retrieve the CSRF token from the cookie
+function getCookie(name) {
+    var cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        var cookies = document.cookie.split(';');
+        for (var i = 0; i < cookies.length; i++) {
+            var cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+
+
+    function applyCoupon(orderId) {
+        var couponCode = $('#couponCode').val();
+        var data = {
+            coupon: couponCode,
+            order_id: orderId
+        }
+        $.ajax({
+            type: 'POST',
+            url: '/order/apply-coupon/',
+            data: JSON.stringify(data),
+            contentType: 'application/json;charset=UTF-8',
+            headers: {
+                "X-Requested-With": "XMLHttpRequest",
+                "X-CSRFToken": getCookie("csrftoken"), 
+              },
+
+            // response
+            success:  (response) => {
+                // Handle the response, update the UI as needed
+                console.log(response);
+
+            // Check if there are error messages
+            if (response.error_messages && response.error_messages.length > 0) {
+                // Display each error message
+                response.error_messages.forEach(message => {
+                    // You can display the message in an alert, toast, or any other way you prefer
+                    console.error('Error:', message);
+                });
+            } else {
+                // No errors, update the UI
+                document.getElementById('orderTotal').innerHTML = response.order_total;
+            }
+        },
+        error: function (error) {
+            console.error(error);
+        }
+    });
+    }
+
+    
+    function clearCoupon(orderId) {
+        var couponCode = $('#couponCode').val();
+        var data = {
+            coupon: couponCode,
+            order_id: orderId
+        }
+        $.ajax({
+            type: 'POST',
+            url: '/order/clear-coupon/',
+            data: JSON.stringify(data),
+            contentType: 'application/json;charset=UTF-8',
+            headers: {
+                "X-Requested-With": "XMLHttpRequest",
+                "X-CSRFToken": getCookie("csrftoken"), 
+              },
+
+            // response
+            success:  (response) => {
+                // Handle the response, update the UI as needed
+                console.log(response);
+
+            // Check if there are error messages
+            if (response.error_messages && response.error_messages.length > 0) {
+                // Display each error message
+                response.error_messages.forEach(message => {
+                    // You can display the message in an alert, toast, or any other way you prefer
+                    console.error('Error:', message);
+                });
+            } else {
+                // No errors, update the UI
+                document.getElementById('orderTotal').innerHTML = response.order_total;
+            }
+        },
+        error: function (error) {
+            console.error(error);
+        }
+    });
+    }
+
+    
+</script>
+<!--========== coupon ========-->
+
+<!--========== payment ========-->
 <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 <script>
     var options = {
@@ -249,7 +342,7 @@
         "description": "Test Transaction",
         "image": "{% static '/assets/imgs/theme/logom.png' %}",
         "order_id": "{{payment.id}}",
-        "callback_url": "http://127.0.0.1:8000/payment-handler/?amount={{payment.amount}}",
+        "callback_url": "http://127.0.0.1:8000/order/payment-handler/?amount={{payment.amount}}",
         "prefill": {
             "name": "{{order.address.name}}",
             //"email": "{{email}}",

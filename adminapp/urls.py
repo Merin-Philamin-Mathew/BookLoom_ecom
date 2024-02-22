@@ -6,9 +6,9 @@ from django.conf.urls.static import static
 app_name = 'admin_app'
 
 urlpatterns = [
-    path('admin/',views.admin_login,name='admin_login'),
-    path('dashboard/',views.admin_dashboard,name='admin_dashboard'),
-    path('adminlogout/',views.admin_logout,name='admin_logout'),
+    path('login/',views.admin_login,name='admin_login'),
+    path('',views.admin_dashboard,name='admin_dashboard'),
+    path('logout/',views.admin_logout,name='admin_logout'),
 
     #user management_________________________________________________________________
     path('userinfo',views.userinfo,name='userinfo'),

@@ -3,6 +3,7 @@ from django.utils.translation import gettext as _
 from django.contrib.auth.models import AbstractUser
 from phonenumber_field.modelfields import PhoneNumberField
 from django_countries.fields import CountryField
+from django.utils import timezone
 import random
 import string
 
@@ -149,17 +150,47 @@ class Coupon(models.Model):
     uses = models.IntegerField(default=1)
     active_date = models.DateField()
     expiry_date = models.DateField()
+    is_expired  = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
 
     def save(self, *args, **kwargs):
         if not self.code:
             self.code = generate_coupon_code()
-        super(Coupon, self).save(*args, **kwargs)
+        # Get the current date
+        current_date = timezone.now().date()
+        
+        # Compare expire_date with current_date
+        if  self.expiry_date < current_date:
+            self.is_expired = True
+        else:
+            self.is_expired = False
+        # Save the instance
+        super().save(*args, **kwargs)
+
+
+    def __str__(self):
+        return self.code
 
 class Verify_coupon(models.Model):
     coupon = models.ForeignKey(Coupon, on_delete=models.CASCADE)
     user = models.ForeignKey(NewUser, on_delete=models.CASCADE,null=True)
+    # order = models.ForeignKey(Order, on_delete=models.CASCADE,related_name= 'applied_coupon')
     uses = models.PositiveIntegerField(default=0)
+   
+    def apply_coupon(self):
+        if self.coupon.is_expired:
+            print('Coupon is expired')
+            return False  # Coupon i
+        if self.uses >= self.coupon.uses:
+            print('Maximum uses reached')
+            return False
+        
+        self.uses += 1
+        self.save()
+        print('Coupon applied successfully In UserCoupon')
+        return True
+
+
 """ 
 from django.db.models.signals import post_save
 from django.dispatch import receiver

@@ -357,6 +357,7 @@ def cancel_order(request):
                     # Set the quantity of the canceled product to 0
                     product.quantity = 0
                     product.save()
+            messages.success(request, f"Order return initiated successfully , Our pickup team will be at the deliverd address shortly")
             order.order_status = 'Returned'
             order.save()
             if order.payment.payment_method == 'Razor-pay':

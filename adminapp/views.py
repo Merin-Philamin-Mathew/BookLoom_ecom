@@ -48,8 +48,9 @@ def admin_login(request):
 def admin_dashboard(request):
     if not is_superuser(request):
         return redirect('user_app:home')
-    if request.user.is_superuser:
-        return render(request, 'admin_template\index.html')
+    return render(request, 'admin_template\index.html')
+
+
 
 
 #________________________User_management___________________________________________

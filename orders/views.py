@@ -1,12 +1,15 @@
 from django.shortcuts import render
 from cart.models import CartItem, Cart
 from .models import Order, OrderProduct, Payment
+from adminapp.models import Coupon, Verify_coupon
 from adminapp.models import Addresses
 from django.shortcuts import render, get_object_or_404, redirect
 from userapp.forms import AddressForm
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
 from datetime import datetime as dt
+import json
 from django.db import transaction
+from django.contrib import messages
 
 import razorpay
 from django.http import JsonResponse,HttpResponseBadRequest
@@ -42,11 +45,12 @@ def order_success(request, total=0, quantity=0):
         payment = Payment.objects.create(
             payment_id=f'COD-{current_user.pk:05d}-{custom_datetime.strftime("%Y%m%d%H%M%S")}',
             payment_method='Cash on Delivery',
-            amount_paid=grand_total,
+            amount_paid=order.order_total,
             payment_status='PENDING',
         )
         order.payment = payment
     order.save()
+
 
     # Save ordered products
     for cart_item in cart_items:
@@ -82,6 +86,15 @@ def order_success(request, total=0, quantity=0):
 
     # Clear the user's cart after placing the order
     cart_items.delete()
+    if 'discount_price' in request.session:
+        del request.session['discount_price']
+    if 'coupon' in request.session:
+        del request.session['coupon']
+    if 'coupon_total' in request.session:
+        del request.session['coupon_total']
+    if 'grand_total' in request.session:
+        del request.session['grand_total']
+    
     return render(request, 'user_template/cart-order-payment/order-success.html', context)
  
 
@@ -100,15 +113,26 @@ def place_order(request, address_id, total=0, quantity=0):
 
     for cart_item in cart_items:
         total += (cart_item.product.sale_price * cart_item.quantity)
-        quantity += cart_item.quantity
+        quantity += cart_item.quantity 
 
     tax = (2 * total) / 100
-    grand_total = total + tax
-
+    grand_total = float(total + tax)
+    print("grand_total",grand_total)
+    request.session['grand_total']=grand_total
     # Common code for creating an order
     data = Order()
     data.user = current_user
     data.order_total = grand_total
+    if 'discount_price' in request.session:
+        data.additional_discount = request.session['discount_price']
+        data.order_total = grand_total - float(data.additional_discount)
+    if 'coupon' in request.session:
+        coupon_id = request.session['coupon']
+        try:
+            coupon = Coupon.objects.get(id=float(coupon_id))
+        except Exception as e:
+            print(e)
+        data.coupon_code = coupon
     data.tax = tax
     data.ip = request.META.get('REMOTE_ADDR')
 
@@ -182,13 +206,98 @@ def place_order(request, address_id, total=0, quantity=0):
             'grand_total': grand_total,
             'payment': payment
         }
-        
         return render(request, 'user_template/cart-order-payment/payment.html', context)
 
     else:
         return redirect('cart_app:delivery_address')
     
+
     
+def apply_coupon(request):
+    print("order_app/apply_coupon")
+    data = json.load(request)
+    try:
+        order = Order.objects.filter(order_number = data['order_id']).first()
+        coupon = Coupon.objects.get(code__iexact= data['coupon'], is_expired=False)
+        order_total = order.order_total
+        print("order.order_total",order_total)#354.96
+    except Exception as e:
+        print("noooo")
+        return JsonResponse({
+            'status':'error',
+            'reason':'Coupon expired!'
+            })
+    
+    if coupon == order.coupon_code:
+        request.session['coupon_total'] = order_total
+    else:
+        min_amount = coupon.min_amount
+        discount_percent = coupon.discount
+        discount_price = round(order_total * (discount_percent / 100), 2)
+        print("discount",discount_percent,"%  &  Rs.",discount_price)
+        #discount 10 %  &  Rs. 35.496
+
+        try:
+            check_coupon,created = Verify_coupon.objects.get_or_create(user=order.user, coupon=coupon)
+        except Exception as e:
+            print(e)
+            
+        print("check_coupon",check_coupon.user,check_coupon.uses)
+        if check_coupon.uses >= coupon.uses:
+            print("kore aayi coupon use cheyyane")
+            return JsonResponse({
+            'status':'error',
+            'reason':f'You already used this coupon {coupon.uses} !'
+            })
+        
+        print("fdkjls",order_total)
+        if order_total >= min_amount:
+            print("order_total >= min_amount")
+            if discount_price <= coupon.max_discount:
+                order_total -= discount_price
+            else:
+                order_total -= coupon.max_discount
+            order_total =order_total
+            # check_coupon.uses += 1
+            print("check_coupon",check_coupon.user,check_coupon.uses)
+            check_coupon.save()
+            request.session['discount_price']=discount_price
+            request.session['coupon']=coupon.pk
+        else:
+            print(f"Coupon applied only for order above Rs.{min_amount} ")
+            messages.warning(request,f'Coupon applied only for order above Rs.{min_amount} ')
+    return JsonResponse({
+        'order_total': order_total,
+        'coupon_discount': discount_price
+    })
+
+
+def clear_coupon(request):
+    print("order_app/clear_coupon")
+    print(request.session.values())
+    data = json.load(request)
+    if 'discount_price' in request.session:
+        del request.session['discount_price']
+    if 'coupon' in request.session:
+        del request.session['coupon']
+    if 'coupon_total' in request.session:
+        del request.session['coupon_total']
+    grand_total = request.session['grand_total']
+    return JsonResponse({
+        'order_total': grand_total
+    })
+    
+
+
+
+
+
+
+
+
+
+
+
 
 @csrf_exempt
 def paymenthandler(request):
@@ -217,7 +326,6 @@ def paymenthandler(request):
             result = client.utility.verify_payment_signature(params_dict)
 
             if not result :
-                print("mmmmmmmmmmm")
                 # Payment signature verification failed
                 # return render(request, 'paymentfail.html')
                 return JsonResponse({'message': 'Payment signature verification failed'})
