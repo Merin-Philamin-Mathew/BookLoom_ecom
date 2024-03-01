@@ -29,13 +29,16 @@ def cart(request, total=0, quantity=0, cart_items = None):
         if request.user.is_authenticated:
             print("cart/cart/user is authenticated")
             cart_items = CartItem.objects.filter(user=request.user, is_stock=True)
+            discount = 0
+            for cart_item in cart_items:
+                discount += (cart_item.product.discount())*(cart_item.quantity)
+                
         else:
             print("cart/cart/user is not authenticated")
             cart = Cart.objects.get(cart_id = _cart_id(request))
             cart_items = CartItem.objects.filter(cart=cart, is_stock=True)
 
         print("cart/cart/item",cart_items)
-        # print("cart/cart",cart)
         for cart_item in cart_items:
             total += (cart_item.product.sale_price * cart_item.quantity)
             quantity += cart_item.quantity
@@ -49,7 +52,8 @@ def cart(request, total=0, quantity=0, cart_items = None):
         'quantity':quantity,
         'cart_items':cart_items,
         'tax':tax,
-        'grand_total':grand_total
+        'grand_total':grand_total,
+        'discount':discount
     }
 
     return render(request, 'user_template/cart-order-payment/cart.html', context)

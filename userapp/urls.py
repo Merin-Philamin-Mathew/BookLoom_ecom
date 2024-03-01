@@ -22,9 +22,7 @@ urlpatterns = [
     path('myaccountmanager/',views.myaccountmanager,name='my_account_manager'),
     path('accountdetails/',views.accountdetails,name='account_details'),
     path('editprofile/',views.editprofile,name='edit_profile'),
-    path('wallet/',WalletView, name='wallet'),
-    path('paymenthandler2/',paymenthandlerView,name='paymenthandler2'),
-
+    path('profile/change-password',views.update_password, name='update_password'),
 
     path('addressbook/',views.addressbook,name='address_book'),
     path('addaddress/', views.addaddress, name='add_address'),
@@ -32,6 +30,8 @@ urlpatterns = [
     path('deleteaddress/<int:pk>', views.deleteaddress, name='delete_address'),
     path('defaultaddress/<int:pk>', views.defaultaddress, name='default_address'),
     
+    path('wallet/',WalletView, name='wallet'),
+    path('paymenthandler2/',paymenthandlerView,name='paymenthandler2'),
     path('myorders', views.myorders, name='my_orders'),
     path('cancelorder', views.cancel_order, name='cancel_order'),
 

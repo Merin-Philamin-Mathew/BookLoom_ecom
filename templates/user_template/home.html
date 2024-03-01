@@ -657,32 +657,47 @@ signup
                         
             <!--End product-cart-wrap-2-->
             {% for newpro in newproducts %}
-                                        <div class="product-cart-wrap small hover-up">
-                                            <div class="product-img-action-wrap">
-                                                <div class="product-img product-img-zoom">
-                                                    <a href="{% comment %} {{newpro.get_url}} {% endcomment %}">
-                                                        <img class="default-img" src="{{newpro.thumbnail_image.url}}" alt="">
-                                                        {% comment %} <img class="hover-img" src="{% static 'assets/imgs/shop/product-7-2.jpg' %}" alt=""> {% endcomment %}
-                                                    </a>
-                                                </div>
-                                                <div class="product-action-1">
-                                                    <a aria-label="Quick view" class="action-btn small hover-up" data-bs-toggle="modal" data-bs-target="#quickViewModal"><i class="fi-rs-eye"></i></a>
-                                                    <a aria-label="Add To Wishlist" class="action-btn small hover-up" href="shop-wishlist.html" tabindex="0"><i class="fi-rs-heart"></i></a>
-                                                    <a aria-label="Compare" class="action-btn small hover-up" href="shop-compare.html" tabindex="0"><i class="fi-rs-shuffle"></i></a>
-                                                </div>
-                                            </div>
-                                            <div class="product-content-wrap">
-                                                <h2><a href="{% comment %} {{newpro.get_url}} {% endcomment %}">{{newpro.product_name}}</a></h2>
-                                                <div class="rating-result" title="90%">
-                                                    <span>
-                                                    </span>
-                                                </div>
-                                                <div class="product-price">
-                                                    <span>{{newpro.sale_price}}</span>
-                                                    <span class="old-price">${{newpro.max_price}}</span>
-                                                </div>
-                                            </div>
-                                        </div>
+                        <div class="product-cart-wrap small hover-up">
+                            <div class="product-img-action-wrap">
+                                <div class="product-img product-img-zoom">
+                                    <a href="{% comment %} {{newpro.get_url}} {% endcomment %}">
+                                        <img class="default-img" src="{{newpro.thumbnail_image.url}}" alt="">
+                                        {% comment %} <img class="hover-img" src="{% static 'assets/imgs/shop/product-7-2.jpg' %}" alt=""> {% endcomment %}
+                                    </a>
+                                </div>
+                                <div class="product-action-1">
+                                    <a aria-label="Quick view" class="action-btn small hover-up" data-bs-toggle="modal" data-bs-target="#quickViewModal"><i class="fi-rs-eye"></i></a>
+                                    <a aria-label="Add To Wishlist" class="action-btn small hover-up" href="shop-wishlist.html" tabindex="0"><i class="fi-rs-heart"></i></a>
+                                    <a aria-label="Compare" class="action-btn small hover-up" href="shop-compare.html" tabindex="0"><i class="fi-rs-shuffle"></i></a>
+                                </div>
+                            </div>
+                            <div class="product-content-wrap">
+                                <h2><a href="{% comment %} {{newpro.get_url}} {% endcomment %}">{{newpro.product_name}}</a></h2>
+                                <div class="rating-result" title="90%">
+                                    {% if newpro.pro_discount or newpro.product.category.cat_discount %}
+                                        {% if newpro.pro_discount %} 
+                                        <span>
+                                            <span>{{newpro.pro_discount}}%</span>
+                                        </span>
+                                        {% else %}
+                                        <span>
+                                            <span>{{newpro.product.category.cat_discount}}% </span>
+                                        </span>
+                                        {% endif %}
+                                    {% endif %}
+                                </div>
+                                {% if newpro.pro_discount or newpro.product.category.cat_discount %} 
+                                <div class="product-price">
+                                    <span class="current-price current-product-price-{{newpro.id}}">₹{{newpro.sale_price}}</span>
+                                    <span class="old-price">₹{{newpro.max_price}}</span>
+                                </div>
+                                {% else %}
+                                <div class="product-price">
+                                    <span class="current-price current-product-price-{{newpro.id}}">₹{{newpro.max_price}}</span>
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
             <!--End product-cart-wrap-2-->
             {% endfor %}  
                         </div>
@@ -769,7 +784,7 @@ signup
 <!--Different brands--> 
 
 <!--MONTHLY BEST SELL-->
-            <section class="bg-grey-9 section-padding">
+            {% comment %} <section class="bg-grey-9 section-padding">
                 <div class="container pt-25 pb-25">
                     <div class="heading-tab d-flex">
                         <div class="heading-tab-left wow fadeIn animated">
@@ -860,7 +875,7 @@ signup
                     <!--End Col-lg-9-->
                 </div>
                 </div>
-            </section>
+            </section> {% endcomment %}
 <!--MONTHLY BEST SELL-->
 
  <!--Blog--> 

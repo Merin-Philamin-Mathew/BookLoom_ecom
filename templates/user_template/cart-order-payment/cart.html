@@ -26,7 +26,7 @@
                                 <div class="breadcrumb">
                                     <a href="index.html" rel="nofollow">Home</a>
                                     <span></span> Shop
-                                    <span></span> Your Cart
+                                    <span></span> Your Cart 
                                 </div>
                             </div>
                         </div>
@@ -64,7 +64,18 @@
                                                             <p class="font-xs">by {{cart_item.product.product.author.author_name}}<br> {% if cart_item.product.translator %}{{cart_item.product.translator}}(translator){% endif %}
                                                             </p>
                                                         </td>
-                                                        <td class="price" data-title="Price"><span>Rs.{{cart_item.product.sale_price}} </span></td>
+                                                        <td class="price" data-title="Price">
+                                                            {% if cart_item.product.pro_discount or cart_item.product.product.category.cat_discount %} 
+                                                            <div >
+                                                                <span class="text-dark"><strong>{{cart_item.product.sale_price}}</strong></span>
+                                                            </div>
+                                                            <span class="text-muted"><s>₹{{cart_item.product.max_price}}</s></span>
+                                                            {% else %}
+                                                            <div class="">
+                                                                <span class=""><strong>₹{{cart_item.product.max_price}}</strong></span>
+                                                            </div>
+                                                            {% endif %}
+                                                        </td>
                                                         <td class="text-center" data-title="Stock">
                                                             <div class="d=flex justify-content-between   m-auto">
                                                                 <a href="{% url 'cart_app:remove_cart' cart_item.product.id %}" class="btn btn-light py-1 px-3" type="button" id="button-minus">-</a>
@@ -73,17 +84,17 @@
                                                             </div>
                                                         </td>
                                                         <td class="text-right" data-title="Cart">
-                                                            <span>Rs.{{cart_item.sub_total}} </span>
+                                                            <span><strong>₹{{cart_item.sub_total}} </strong></span>
                                                         </td>
                                                         <td class="action" data-title="Remove"><a href="{% url 'cart_app:remove_cart_item' cart_item.product.id %}" class="text-muted"><i class="fi-rs-trash"></i></a></td>
                                                     </tr>
                                                     {% endfor %}
                                                    <!--products in cart-->
-                                                    <tr>
+                                                    {% comment %} <tr>
                                                         <td colspan="6" class="text-end">
                                                             <a href="#" class="text-muted"> <i class="fi-rs-cross-small"></i> Clear Cart</a>
                                                         </td>
-                                                    </tr>
+                                                    </tr> {% endcomment %}
                                                 </tbody>
                                             </table>
                                         </div>
@@ -104,15 +115,20 @@
                                                     <tbody>
                                                         <tr>
                                                             <td class="cart_total_label">Cart Subtotal</td>
-                                                            <td class="cart_total_amount"><span class="font-lg fw-900 text-brand">Rs.{{total}}</span></td>
+                                                            <td class="cart_total_amount"><span class="font-lg fw-900 text-brand">₹{{total}}</span></td>
+                                                            
                                                         </tr>
                                                         <tr>
                                                             <td class="cart_total_label">Tax</td>
                                                             <td class="cart_total_amount"> <i class="ti-gift mr-5"></i>{{tax}}</td>
                                                         </tr>
                                                         <tr>
+                                                            <td class="cart_total_label">Discount</td>
+                                                            <td class="cart_total_amount text-danger" > <i class="ti-gift mr-5"></i><strong>₹{{discount}}</strong></td>
+                                                        </tr>
+                                                        <tr>
                                                             <td class="cart_total_label">Total</td>
-                                                            <td class="cart_total_amount"><strong><span class="font-xl fw-900 text-brand">Rs.{{grand_total}}</span></strong></td>
+                                                            <td class="cart_total_amount"><strong><span class="font-xl fw-900 text-brand">₹{{grand_total}}</span></strong></td>
                                                         </tr>
                                                     </tbody>
                                                 </table>

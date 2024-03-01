@@ -97,17 +97,9 @@
                                 <div class="payment_option">
                                     <a href="{% url 'order_app:order_success' %}" class="btn btn-block">Proceed with cash on delivery</a>
                                     <button type="submit" id="rzp-button1"
-                                    class="flex-c-m stext-101 cl0 size-116 bg3 bor14 hov-btn3 p-lr-15 trans-04 pointer">
-                                    Pay &#8377;{{order.order_total}} & Place Order
+                                    class="pt-2">
+                                    <strong>Pay &#8377;<span id="payonline">{{order.order_total}}</span> & Place Orde</strong> 
                                     </button>
-                                    {% comment %}
-                                    <div class="custome-radio">
-                                        <input class="form-check-input" required="" type="radio" name="payment_option" id="exampleRadios5" checked="">
-                                        <label class="form-check-label" for="exampleRadios5" data-bs-toggle="collapse" data-target="#paypal" aria-controls="paypal">Paypal</label>
-                                        <div class="form-group collapse in" id="paypal">
-                                            <p class="text-muted mt-5">Pay via PayPal; you can pay with your credit card if you don't have a PayPal account.</p>
-                                        </div>
-                                    </div> {% endcomment %}
                                 </div>
                             </div>
                         </div>
@@ -151,8 +143,12 @@
                                                 <td colspan="2" class="cart_total_amount"> <i class="ti-gift mr-5"></i>{{tax}}</td>
                                             </tr>
                                             <tr>
+                                                <td class="cart_total_label">Discount</td>
+                                                <td colspan="2" class="cart_total_amount text-danger" > <i class="ti-gift mr-5"></i><strong>₹{{discount}}</strong></td>
+                                            </tr>
+                                            <tr>
                                                 <td class="cart_total_label">Coupon Discount</td>
-                                                <td colspan="2" class="cart_total_amount"> <i class="ti-gift mr-5"></i>{{order.additional_discount}}</td>
+                                                <td colspan="2" id="coupon_discount"> <i class="ti-gift mr-5"></i>{{order.additional_discount}}</td>
                                             </tr>
                                             <tr>
                                                 <td class="cart_total_label">Total</td>
@@ -166,6 +162,7 @@
                                     <div class="toggle_info mb-3">
                                         <span><i class="fi-rs-label mr-10"></i><span class="text-muted">Have a coupon?</span> <a href="#coupon" data-bs-toggle="collapse" class="collapsed" aria-expanded="false">Click here to enter your code</a></span>
                                     </div>
+                                    <div id="coupon_message" class="text-danger"></div>
                                     <div class="panel-collapse collapse coupon_form " id="coupon">
                                             <div class="row">
                                                 <div class="col-md-5">
@@ -269,16 +266,19 @@ function getCookie(name) {
                 // Handle the response, update the UI as needed
                 console.log(response);
 
-            // Check if there are error messages
-            if (response.error_messages && response.error_messages.length > 0) {
-                // Display each error message
-                response.error_messages.forEach(message => {
-                    // You can display the message in an alert, toast, or any other way you prefer
-                    console.error('Error:', message);
-                });
-            } else {
-                // No errors, update the UI
-                document.getElementById('orderTotal').innerHTML = response.order_total;
+            if (response.status && response.status === 'error') {
+                console.error('Error:', response.reason);
+                document.getElementById('coupon_message').innerHTML = response.coupon_message;
+            }
+            else {
+                if (response.order_total !== undefined) {
+                    document.getElementById('orderTotal').innerHTML = response.order_total;
+                    document.getElementById('payonline').innerHTML = response.order_total;
+                }
+                if (response.coupon_discount !== undefined) {
+                    document.getElementById('coupon_discount').innerHTML = response.coupon_discount;
+                }
+                document.getElementById('coupon_message').innerHTML = '';  // Clear previous error messages
             }
         },
         error: function (error) {
@@ -319,6 +319,8 @@ function getCookie(name) {
             } else {
                 // No errors, update the UI
                 document.getElementById('orderTotal').innerHTML = response.order_total;
+                document.getElementById('payonline').innerHTML = response.order_total;
+                document.getElementById('coupon_discount').innerHTML = response.coupon_discount;
             }
         },
         error: function (error) {

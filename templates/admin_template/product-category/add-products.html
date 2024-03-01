@@ -35,15 +35,13 @@ Add product
                             
                         </div>
                         <div class="card-body ">
+
                             <div class="row justify-content-between">
                                 <div class="col-lg-6">
                                     <div class="mb-4">
                                         <label for="product_name" class="form-label">Product Name</label>
                                         {{ proform.product_name }}
-                                        {% if proerror %}
-                                                <label class="text-danger">{{proerror.product.product_name}}</label>
-                                        {% endif %}
-
+                                        <label class="text-danger">{{proform.errors.product_name}}</label>
                                     </div>
                                 </div>
                                 <div class="col-lg-5">
@@ -51,7 +49,7 @@ Add product
                                         <label for="category" class="form-label">Category</label>
                                         {{ proform.category }}
                                         {% if proerror %}
-                                                <label class="text-danger">{{proerror.product.category}}</label>
+                                                <label class="text-danger">{{proerror.category}}</label>
                                         {% endif %}
                                     </div>
                                 </div>
@@ -60,44 +58,22 @@ Add product
                                 <div class="col-lg-6">
                                     
                                     <div class="mb-4">
-                                        <div class="row align-items-center">
-                                            <div class="col-lg-8">
-                                                <label class="form-label">Author</label>
-                                                <div class="input-group">
-                                                    {{ proform.author }}
-                                                    {% if proform.author.errors %}
-                                                        <label class="text-danger">{{proform.author.errors}}</label>
-                                                    {% endif %}
-                                                </div>
-                                            </div>
-                                            <div class="col-lg-4 pt-4">
-                                                <div class="d-flex align-items-center justify-content-end">
-                                                    <!-- Button trigger modal -->
-                                                    <button type="button" class="btn btn-primary px-3 mx-2 add-new d-none d-md-inline" data-bs-toggle="modal" data-bs-target="#addAuthorModal"><i class="bi bi-plus-lg"></i> Add</button>
-                                            
-                                                </div>
-                                            </div>
-                                        </div> 
+                                        <label class="form-label">Author</label>
+                                        <div class="input-group">
+                                            {{ proform.author }}
+                                            {% if proform.author.errors %}
+                                                <label class="text-danger">{{proform.author.errors}}</label>
+                                            {% endif %}
+                                        </div>
                                     </div>
                                     <div class="mb-4">
-                                        <div class="row align-items-center">
-                                            <div class="col-lg-8">
-                                                <label class="form-label">Publication</label>
-                                                <div class="input-group">
-                                                    {{ form.publication }}
-                                                    {% if form.publication.errors %}
-                                                        <label class="text-danger">{{form.publication.errors}}</label>
-                                                    {% endif %}
-                                                </div>
-                                            </div>
-                                            <div class="col-lg-4 pt-4">
-                                                <div class="d-flex align-items-center justify-content-end">
-                                                    <button type="button" class="btn btn-primary px-3 mx-2 add-new d-none d-md-inline"><i class="bi bi-plus-lg"></i> Add</button>
-                                                </div>
-                                            </div>
+                                        <label class="form-label">Publication</label>
+                                        <div class="input-group">
+                                            {{ form.publication }}
+                                            {% if form.publication.errors %}
+                                                <label class="text-danger">{{form.publication.errors}}</label>
+                                            {% endif %}
                                         </div>
-                                        
-                                        
                                     </div>
                                     <div class="mb-4">
                                         <label class="form-label">Short Description</label>
@@ -120,12 +96,11 @@ Add product
                                             </div>
                                         </div>
                                         <div class="mb-4">
-                                            <label class="form-label">Additional Images</label>
-                                            <div class="row gx-2">
-                                                {{ addimgfrom.image }}
-                                                {% if error %}
-                                                    <label class="text-danger"></label>
-                                                {% endif %}
+                                            <div class="">
+                                                <label class="form-label">Additional Images</label>
+                                                <div class="row gx-2 ">
+                                                    <input class="form-control" name="image" id="image" type="file" multiple>
+                                                </div>
                                             </div>
                                         </div>
                                         <div class="mb-4">
@@ -179,13 +154,58 @@ Add product
                                     </div>
                                 </div>
                             </div>
+                            <!--is_active||producct_offer-->
+                            <div class="row justify-content-around">
+                                <div class="col-lg-4">
+                                    <div class="mb-4">
+                                            <label class="form-check my-2 px-4">
+                                                {{form.is_active}}
+                                                <span class="form-check-label"> Is Active </span>
+                                            </label>
+                                    </div>
+                                </div>
+                                
+                                <div class="col-lg-4">
+                                    <div class="mb-4">
+                                        <label class="form-input-check my-2 px-4">
+                                            <input type="checkbox"  {% if form.pro_discount.value %}checked{% endif %} id="toggleProDiscount"> Apply Product Offer
+                                        </label>
+                                    </div>
+                                        <div class="mb-4" id="proDiscountRow" {% if not form.pro_discount.value %}style="display: none;"{% endif %}>
+                                            <label for="pro_discount" class="form-label">Product Discount</label>
+                                            {{ form.pro_discount }}
+                                            {% if error %}
+                                            <label class="text-danger">{{error.pro_discount}}</label>
+                                            {% endif %}                                        
+                                        </div>
+                                    </div>
+                                </div>
+                                <script>
+                                    // Add an event listener to detect changes in the checkbox
+                                    document.getElementById('toggleProDiscount').addEventListener('change', function () {
+                                        // Get the proDiscountRow element
+                                        var proDiscountRow = document.getElementById('proDiscountRow');
+                                
+                                        // Toggle its visibility based on the checkbox state
+                                        proDiscountRow.style.display = this.checked ? 'flex' : 'none';
 
-                            <div class="row">
-                                <label class="form-check my-2 px-4">
-                                    {{form.is_active}}
-                                    <span class="form-check-label"> Is Active </span>
-                                </label>
+                                        // Set value of pro_discount input to 0 or empty based on checkbox state
+                                        proDiscountInput.value = this.checked ? proDiscountInput.value : '';
+                                    });
+                                </script>
+                                
                             </div>
+                            <!--is_active||producct_offer-->
+                            
+                        <div class="row mx-1">
+                            
+                        </div>
+                    
+                            
+                        </div>
+                        
+                    <!--Product offer-->
+                            
 
                             <div class="row mt-4">
                                 <div class="col-lg-6 mb-4">

@@ -6,6 +6,8 @@ from django_countries.fields import CountryField
 from django.utils import timezone
 import random
 import string
+import datetime
+import uuid
 
 # Create your models here.
 #from django_otp.models import TimeBasedOTP
@@ -68,7 +70,7 @@ class Profile(models.Model):
 
     def __str__(self):
         return self.user.username
-
+    
 class Addresses(models.Model):
     COUNTRY_CHOICES = [('IN', 'India')]  # Add more countries if needed
     STATE_CHOICES = [

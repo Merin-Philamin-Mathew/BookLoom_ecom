@@ -86,8 +86,8 @@ def order_success(request, total=0, quantity=0):
 
     # Clear the user's cart after placing the order
     cart_items.delete()
-    if 'discount_price' in request.session:
-        del request.session['discount_price']
+    if 'coupon_dis_price' in request.session:
+        del request.session['coupon_dis_price']
     if 'coupon' in request.session:
         del request.session['coupon']
     if 'coupon_total' in request.session:
@@ -110,10 +110,13 @@ def place_order(request, address_id, total=0, quantity=0):
 
     tax = 0
     grand_total = 0
+    discount = 0
 
     for cart_item in cart_items:
         total += (cart_item.product.sale_price * cart_item.quantity)
         quantity += cart_item.quantity 
+        discount += (cart_item.product.discount())*(cart_item.quantity)
+
 
     tax = (2 * total) / 100
     grand_total = float(total + tax)
@@ -123,8 +126,8 @@ def place_order(request, address_id, total=0, quantity=0):
     data = Order()
     data.user = current_user
     data.order_total = grand_total
-    if 'discount_price' in request.session:
-        data.additional_discount = request.session['discount_price']
+    if 'coupon_dis_price' in request.session:
+        data.additional_discount = request.session['coupon_dis_price']
         data.order_total = grand_total - float(data.additional_discount)
     if 'coupon' in request.session:
         coupon_id = request.session['coupon']
@@ -176,7 +179,8 @@ def place_order(request, address_id, total=0, quantity=0):
                 'total': total,
                 'tax': tax,
                 'grand_total': grand_total,
-                'payment':payment
+                'payment':payment,
+                'discount':discount
             }
             return render(request, 'user_template/cart-order-payment/payment.html', context)
 
@@ -204,7 +208,8 @@ def place_order(request, address_id, total=0, quantity=0):
             'total': total,
             'tax': tax,
             'grand_total': grand_total,
-            'payment': payment
+            'payment': payment,
+            'discount':discount
         }
         return render(request, 'user_template/cart-order-payment/payment.html', context)
 
@@ -220,12 +225,11 @@ def apply_coupon(request):
         order = Order.objects.filter(order_number = data['order_id']).first()
         coupon = Coupon.objects.get(code__iexact= data['coupon'], is_expired=False)
         order_total = order.order_total
-        print("order.order_total",order_total)#354.96
     except Exception as e:
         print("noooo")
+        
         return JsonResponse({
-            'status':'error',
-            'reason':'Coupon expired!'
+            "coupon_message":"This coupon doesn't exist!"
             })
     
     if coupon == order.coupon_code:
@@ -233,9 +237,7 @@ def apply_coupon(request):
     else:
         min_amount = coupon.min_amount
         discount_percent = coupon.discount
-        discount_price = round(order_total * (discount_percent / 100), 2)
-        print("discount",discount_percent,"%  &  Rs.",discount_price)
-        #discount 10 %  &  Rs. 35.496
+        coupon_dis_price = round(order_total * (discount_percent / 100), 2)
 
         try:
             check_coupon,created = Verify_coupon.objects.get_or_create(user=order.user, coupon=coupon)
@@ -246,29 +248,32 @@ def apply_coupon(request):
         if check_coupon.uses >= coupon.uses:
             print("kore aayi coupon use cheyyane")
             return JsonResponse({
-            'status':'error',
-            'reason':f'You already used this coupon {coupon.uses} !'
+            "coupon_message":f'You already used this coupon {coupon.uses} !'
+
             })
         
         print("fdkjls",order_total)
         if order_total >= min_amount:
             print("order_total >= min_amount")
-            if discount_price <= coupon.max_discount:
-                order_total -= discount_price
+            if coupon_dis_price <= coupon.max_discount:
+                order_total -= coupon_dis_price
             else:
                 order_total -= coupon.max_discount
-            order_total =order_total
+            order_total =round(order_total,2)
             # check_coupon.uses += 1
             print("check_coupon",check_coupon.user,check_coupon.uses)
             check_coupon.save()
-            request.session['discount_price']=discount_price
+            request.session['coupon_dis_price']=coupon_dis_price
             request.session['coupon']=coupon.pk
         else:
             print(f"Coupon applied only for order above Rs.{min_amount} ")
-            messages.warning(request,f'Coupon applied only for order above Rs.{min_amount} ')
+            return JsonResponse({
+                'coupon_message':f"Coupon applied only for order above Rs.{min_amount}"
+            })
     return JsonResponse({
         'order_total': order_total,
-        'coupon_discount': discount_price
+        'coupon_discount': coupon_dis_price,
+        
     })
 
 
@@ -276,8 +281,8 @@ def clear_coupon(request):
     print("order_app/clear_coupon")
     print(request.session.values())
     data = json.load(request)
-    if 'discount_price' in request.session:
-        del request.session['discount_price']
+    if 'coupon_dis_price' in request.session:
+        del request.session['coupon_dis_price']
     if 'coupon' in request.session:
         del request.session['coupon']
     if 'coupon_total' in request.session:

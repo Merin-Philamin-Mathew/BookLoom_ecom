@@ -8,7 +8,7 @@ from django.utils import timezone
 from . models import NewUser, Coupon
 from . forms import CouponForm 
 from store.models import Product,Category, Author, Publication, ProductVariant, AdditionalProductImages, Language
-from store.forms import ProductForm, ProductVariantForm, AddProImgForm, CategoryForm, AuthorForm, PublicationForm, LanguageForm
+from store.forms import ProductForm, ProductVariantForm, CategoryForm, AuthorForm, PublicationForm, LanguageForm
 from orders.models import Order, Payment, OrderProduct
 
 # Create your views here.
@@ -193,13 +193,14 @@ def addproducts(request):
         thumbnail_image = request.FILES.get('thumbnail_image')  
         
         if request.method == 'POST':
-            author_form = AuthorForm(request.POST, request.FILES)
+            # author_form = AuthorForm(request.POST, request.FILES)
             proform = ProductForm(request.POST)
+            images = request.FILES.getlist('image')
             form = ProductVariantForm(request.POST, request.FILES)
-            add_img_form = AdditionalProductImages(request.POST, request.FILES)
-            print("pro",proform.errors)
-            print("var",form.errors)   
-            print("author",author_form.errors)   
+            # add_img_form = AdditionalProductImages(request.POST, request.FILES)
+            print("proform.errors",proform.errors)
+            print("form.errors",form.errors)   
+            # print("author",author_form.errors)   
             # if author_form.is_valid():
             #     author = author_form.save()
             
@@ -210,14 +211,16 @@ def addproducts(request):
                 product.save()
                 product_variant = form.save(commit=False)
                 product_variant.product = product
-                provar = product_variant.save()
+                product_variant.save()
                 # addimg = add_img_form.save = ()
                 # adobj = AdditionalProductImages.objects.all()
                 # adobj.product_variant = provar
                 # adobj.image = addimg
                 # adobj.is_active = True
                 # adobj.save()
-                
+                for image in images:
+                    AdditionalProductImages.objects.create(product_variant=product_variant, image=image)
+                product_variant.save()
 
                 messages.success(request,'product added successfully')
                 return redirect('admin_app:list_products') 
@@ -229,17 +232,15 @@ def addproducts(request):
                 print("proerror",proerror)
                 return render(request, 'admin_template/product-category/add-products.html',context)
         else:
-            authorform = AuthorForm()
+            # authorform = AuthorForm()
             proform = ProductForm()
             form =  ProductVariantForm()
-            add_img_form = AddProImgForm()
-        
+    
         
             context = {
                 'proform':proform,
                 'form':form,
-                'authorform':authorform,
-                'addimgfrom':add_img_form
+                # 'authorform':authorform,
             }       
             return render(request, 'admin_template/product-category/add-products.html',context)
     else:
@@ -254,14 +255,13 @@ def editproducts(request,slug):
      
         form = ProductVariantForm(instance = productvar)
         proform = ProductForm(instance = product)
-        additional_images = AdditionalProductImages.objects.filter(product_variant=productvar)
+        # additional_images = AdditionalProductImages.objects.filter(product_variant=productvar)
       
         if request.method == 'POST':
             
             form = ProductVariantForm(request.POST, request.FILES, instance=productvar)  
             #additional_image_form = AddProImgForm(request.POST, request.FILES)
             images = request.FILES.getlist('image')
-            
             proform = ProductForm(request.POST,instance=product)
             
             if all([form.is_valid(), proform.is_valid()]):
@@ -307,13 +307,17 @@ def addproductvariant(request,slug):
         if request.method == 'POST':
             form = ProductVariantForm(request.POST, request.FILES)  
             proform = ProductForm(request.POST)
+            images = request.FILES.getlist('image')
+
             if form.is_valid():
                 product_variant = form.save(commit=False)
                 product_variant.product = product
                 product_variant.save()
-
                 product.is_translated = True
                 product.save()
+                for image in images:
+                    AdditionalProductImages.objects.create(product_variant=product_variant, image=image)
+                product_variant.save()
                 messages.success(request,"Product variant added")
                 return redirect('admin_app:list_products')
             else:
@@ -405,53 +409,6 @@ def editcategory(request,slug):
     }
     return render(request, 'admin_template/product-category/edit-category.html', context)
 
-    if request.user.is_superuser:
-        if request.method == "GET":
-            #checking if there is a slug in the database of the model of Category like the request
-            if Category.objects.filter(slug = slug):
-                #if yes then retriev that object details
-                catinfo = Category.objects.get(id = slug)
-                #and pass it in a variable
-                context = {
-                    'cat_data':catinfo
-                }
-                #pass the details to the front end
-                return render(request, 'admin_template/product-category/edit-category.html', context)
-        elif request.method == 'POST':
-            cat_name = request.POST['category_name']
-            slug = request.POST['slug']
-            description = request.POST['description']
-            parent = request.POST['parent']
-            
-            if Category.objects.filter(id=slug):
-                #checking the userdata before and after editing are not the same
-                #befor saving the post form 
-                #if any data of anyfield is same==changes are not done.
-                #no need to go to that field again
-                catinfo = Category.objects.get(id=slug)
-                if cat_name and catinfo.category_name != cat_name:
-                    if Category.objects.filter(category_name=cat_name):
-                        messages.add_message(request, messages.WARNING, 'category_name exist')
-                        return render(request, 'admin_template/product-category/edit-category.html')
-                    else:
-                        catinfo.category_name = cat_name
-                if description and catinfo.description != description :
-                    if Category.objects.filter(description=description):
-                        messages.add_message(request, messages.WARNING, 'description exist...')
-                        return render(request, 'admin_template/product-category/edit-category.html')
-                    else:
-                        catinfo.description = description
-                if slug and catinfo.slug != slug:
-                    if Category.objects.filter(slug=slug):
-                        messages.add_message(request, messages.WARNING, 'Slug exist')
-                        return render(request, 'admin_template/product-category/edit-category.html')
-                    else:
-                        catinfo.slug = slug
-                if parent and catinfo.parent != parent :
-                    catinfo.parent = parent
-                catinfo.save()                
-    return redirect('store_app:category')
-
 @login_required(login_url='admin_app:admin_login')
 def addcategory(request):
     if not request.user.is_superuser:
@@ -472,6 +429,7 @@ def addcategory(request):
     form = CategoryForm()
     context = {
         'form':form
+        
     }
     return render(request, 'admin_template/product-category/add-category.html', context)
 

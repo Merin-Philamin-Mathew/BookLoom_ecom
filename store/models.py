@@ -154,13 +154,17 @@ class ProductVariant(models.Model):
 
         super(ProductVariant, self).save(*args, **kwargs)
 
-    def cat_sale_price(self):
-        cat_sale_price = self.max_price - (self.max_price*(self.product.category.cat_discount)/100)
-        return cat_sale_price
+    def discount(self):
+        if self.sale_price:
+            return self.max_price - self.sale_price
+
+    # def cat_sale_price(self):
+    #     cat_sale_price = self.max_price - (self.max_price*(self.product.category.cat_discount)/100)
+    #     return cat_sale_price
     
-    def pro_sale_price(self):
-        pro_sale_price = self.max_price - (self.max_price*(self.pro_discount)/100)
-        return pro_sale_price
+    # def pro_sale_price(self):
+    #     pro_sale_price = self.max_price - (self.max_price*(self.pro_discount)/100)
+    #     return pro_sale_price
     
 
 

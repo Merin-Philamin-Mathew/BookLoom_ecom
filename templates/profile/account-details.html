@@ -88,8 +88,8 @@ Username's profile
             
                                                     <span>
                                                         <a class="dash__custom-link btn--e-transparent-brand-b-2" href="{% url 'user_app:edit_profile' %}">Edit Profile</a>
-{% comment %}                                                         <span>|</span>
-                                                        <a class="dash__custom-link btn--e-brand-b-2" href="{% url 'user_app:for' %}">Change Password</a> {% endcomment %}
+                                                         <span>|</span>
+                                                        <a class="dash__custom-link btn--e-brand-b-2" href="{% url 'user_app:update_password' %}">Change Password</a> 
                                                     </span>
                                             </div>
                                         </div>
@@ -109,7 +109,7 @@ Username's profile
                                         <span>
                                             <a class="dash__custom-link btn--e-transparent-brand-b-2" href="{% url 'user_app:edit_profile' %}">Edit Profile</a>
                                             <span>|</span>
-                                            <a class="dash__custom-link btn--e-brand-b-2" href="{% comment %} {% url 'user_app:update_password' %} {% endcomment %}">Change Password</a>
+                                            <a class="dash__custom-link btn--e-brand-b-2" href="{% url 'user_app:update_password' %}">Change Password</a>
                                         </span>
                                 </div>
                             </div>
@@ -131,7 +131,33 @@ Username's profile
 <!--===================--> 
 
 {% include "includes/user_footer.html" %}
+<!--========= Vendor JS==========-->
+<script src="{% static 'assets/js/vendor/modernizr-3.6.0.min.js' %}"></script>
+<script src="{% static 'assets/js/vendor/jquery-3.6.0.min.js' %}"></script>
+<script src="{% static 'assets/js/vendor/jquery-migrate-3.3.0.min.js' %}"></script>
+<script src="{% static 'assets/js/vendor/bootstrap.bundle.min.js' %}"></script>
+<script src="{% static 'assets/js/plugins/slick.js' %}"></script>
+<script src="{% static 'assets/js/plugins/jquery.syotimer.min.js' %}"></script>
+<script src="{% static 'assets/js/plugins/wow.js' %}"></script>
+<script src="{% static 'assets/js/plugins/jquery-ui.js' %}"></script>
+<script src="{% static 'assets/js/plugins/perfect-scrollbar.js' %}"></script>
+<script src="{% static 'assets/js/plugins/magnific-popup.js' %}"></script>
+<script src="{% static 'assets/js/plugins/select2.min.js' %}"></script>
+<script src="{% static 'assets/js/plugins/waypoints.js' %}"></script>
+<script src="{% static 'assets/js/plugins/counterup.js' %}"></script>
+<script src="{% static 'assets/js/plugins/jquery.countdown.min.js' %}"></script>
+<script src="{% static 'assets/js/plugins/images-loaded.js' %}"></script>
+<script src="{% static 'assets/js/plugins/isotope.js' %}"></script>
+<script src="{% static 'assets/js/plugins/scrollup.js' %}"></script>
+<script src="{% static 'assets/js/plugins/jquery.vticker-min.js' %}"></script>
+<script src="{% static 'assets/js/plugins/jquery.theia.sticky.js' %}"></script>
+<script src="{% static 'assets/js/plugins/jquery.elevatezoom.js' %}"></script>
+<!--===================-->
 
+<!--========= Template  JS ==========-->
+    <script src="{% static 'assets/js/main.js' %}"></script>
+    <script src="{% static 'assets/js/shop.js' %}"></script>
+<!--===================-->
    
 </body>
 

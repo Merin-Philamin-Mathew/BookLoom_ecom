@@ -17,7 +17,8 @@ from . forms import ProfileForm
 from datetime import timedelta, datetime
 from django.utils import timezone
 from django.views.decorators.cache import never_cache
-from django.http import JsonResponse
+from django.http import JsonResponse,HttpResponseBadRequest
+from django.contrib.auth.hashers import check_password
 from django.contrib.sites.shortcuts import get_current_site
 from django.template.loader import render_to_string
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
@@ -497,7 +498,6 @@ def user_login(request):
         user = authenticate(username=email, password=password)
         if user is not None:
             try:
-                print("enter try block")
                 cart = Cart.objects.get(cart_id = _cart_id(request))
                 is_cart_item_exists = CartItem.objects.filter(cart = cart). exists()
                 if is_cart_item_exists:
@@ -507,7 +507,6 @@ def user_login(request):
                         item.user = user
                         item.save()
             except:
-                print("except block")
                 pass
             username = user.username
             login(request, user)
@@ -591,6 +590,35 @@ def reset_password(request):
         
     else:
         return render(request, 'user_template/reset-password.html')
+
+
+def update_password(request):  
+    print("userapp/update_password")
+    if request.method == 'POST':
+        print("userapp/update_password/post")
+        try:
+            print("userapp/update_password/post/try")
+            user = request.user
+            user = NewUser.objects.get(id = user.id)
+        except:
+            print("userapp/update_password/post/except")
+            pass
+        old_password = request.POST.get('oldPassword')
+        new_password = request.POST.get('newPassword')
+        print(new_password)
+        if user and check_password(old_password, user.password):
+            print("userapp/update_password/post/user and check_password(old_password, user.password)")
+            user.password = make_password(new_password)
+            user.save()
+            print(user.password)
+            return JsonResponse({'message': 'Password update successful'})
+        else:
+            print("userapp/update_password/post/not equal")
+            print(user.password)
+            return HttpResponseBadRequest('Invalid credentials')
+    context = {}
+    return render(request , 'profile/changepass.html',context)
+
 
 
 """ def user_signup(request):

@@ -1,0 +1,196 @@
+
+{% extends "user_base.html" %}
+{% load static %}
+
+{% block title %}
+{{user.username}}'s profile
+{% endblock %}
+
+{% block content %}
+<body>
+    
+{% include "includes/alerts.html" %}
+ 
+{% include "includes/user_navbar.html" %}
+
+<!--=========Main start==========-->
+<main class="main">  
+<!--===================--> 
+    <div class="page-header breadcrumb-wrap">
+        <div class="container">
+            <div class="breadcrumb">
+                <a href="index.html" rel="nofollow">Home</a>
+                <span></span> Pages
+                <span></span> Account
+            </div>
+        </div>
+    </div>
+    <section class="pt-70 pb-100">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-10 m-auto">
+                    <div class="row">
+                        <div class="col-md-4">
+                            {% include "profile/profile-menu.html" %}
+                        </div>
+                        <div class="col-md-8">
+                     <!--================== dashboard =====================-->
+                        <div class="tab-pane fade active show" id="dashboard" role="tabpanel" aria-labelledby="dashboard-tab">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h5 class="mb-0">Hello {{user.username|title}}! Want to Change Password?</h5>
+                                </div>
+                                <div class="col-lg-12 col-md-12">
+                                    <div class="row p-5">
+                                        <div class="col-lg-12">
+                                            <form class="dash-edit-p">
+                                                {% csrf_token %}
+                                                <div class="gl-inline">
+                                                    
+                                                    <div class="u-s-m-b-30">
+
+                                                        <label class="" for="reg-lname">Current Password</label>
+
+                                                        <input class="input-text mb-3" type="text" id="oldPassword"  placeholder="Current Password"></div>
+                                                </div>
+    
+                                        </div>
+                                        <div class="col-lg-12">
+                                            <span class="text-muted">New password must contain at least 8 characters, one letter, one digit, and one symbol.</span>
+                                        
+                                                <div class="gl-inline">
+                                                    <div class="u-s-m-b-30">
+
+                                                        <label class="" for="reg-fname">New Password</label>
+
+                                                        <input class="input-text mb-3" type="text" id="newPassword"  placeholder="New Password"></div>
+                                                    <div class="u-s-m-b-30">
+
+                                                        <label class="" for="reg-lname">Re-enter New Password</label>
+
+                                                        <input class="input-text mb-3" type="text" id="confirmPassword" placeholder="Re-enter New Password"></div>
+                                                </div>
+
+                                                <button class="btn btn--e-brand-b-2" id="updateBtn" type="submit">SAVE</button>
+                                            </form>
+                                            
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    <!--================== dashboard =====================-->
+                       </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+
+<!--========= Main end ==========-->
+</main>
+<!--===================--> 
+
+{% include "includes/user_footer.html" %}
+<!--========= Vendor JS==========-->
+<script src="{% static 'assets/js/vendor/modernizr-3.6.0.min.js' %}"></script>
+<script src="{% static 'assets/js/vendor/jquery-3.6.0.min.js' %}"></script>
+<script src="{% static 'assets/js/vendor/jquery-migrate-3.3.0.min.js' %}"></script>
+<script src="{% static 'assets/js/vendor/bootstrap.bundle.min.js' %}"></script>
+<script src="{% static 'assets/js/plugins/slick.js' %}"></script>
+<script src="{% static 'assets/js/plugins/jquery.syotimer.min.js' %}"></script>
+<script src="{% static 'assets/js/plugins/wow.js' %}"></script>
+<script src="{% static 'assets/js/plugins/jquery-ui.js' %}"></script>
+<script src="{% static 'assets/js/plugins/perfect-scrollbar.js' %}"></script>
+<script src="{% static 'assets/js/plugins/magnific-popup.js' %}"></script>
+<script src="{% static 'assets/js/plugins/select2.min.js' %}"></script>
+<script src="{% static 'assets/js/plugins/waypoints.js' %}"></script>
+<script src="{% static 'assets/js/plugins/counterup.js' %}"></script>
+<script src="{% static 'assets/js/plugins/jquery.countdown.min.js' %}"></script>
+<script src="{% static 'assets/js/plugins/images-loaded.js' %}"></script>
+<script src="{% static 'assets/js/plugins/isotope.js' %}"></script>
+<script src="{% static 'assets/js/plugins/scrollup.js' %}"></script>
+<script src="{% static 'assets/js/plugins/jquery.vticker-min.js' %}"></script>
+<script src="{% static 'assets/js/plugins/jquery.theia.sticky.js' %}"></script>
+<script src="{% static 'assets/js/plugins/jquery.elevatezoom.js' %}"></script>
+<!--===================-->
+
+<!--========= Template  JS ==========-->
+    <script src="{% static 'assets/js/main.js' %}"></script>
+    <script src="{% static 'assets/js/shop.js' %}"></script>
+<!--===================-->
+<script>
+    $(document).ready(function() {
+        $('#updateBtn').click(function(e) {
+            e.preventDefault();
+            if (validatePasswords()) {
+            // Alert moved inside the AJAX success callback
+            } 
+        });
+        
+        function validatePasswords() {
+            var oldPassword = $('#oldPassword').val();
+            var newPassword = $('#newPassword').val();
+            var confirmPassword = $('#confirmPassword').val();
+        
+            // Check if new password and confirm password match
+            if (newPassword !== confirmPassword) {
+            alert('New password and confirm password do not match.');
+            return false;
+            }
+        
+            // Check if the password meets the required criteria
+            var passwordPattern = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{8,}$/;
+            if (!passwordPattern.test(newPassword)) {
+            alert('New password must contain at least 8 characters, one letter, one digit, and one symbol.');
+            return false;
+            }
+        
+            var token = $("[name='csrfmiddlewaretoken']").val();
+            var requestData = {
+            oldPassword: oldPassword,
+            newPassword: newPassword,
+            csrfmiddlewaretoken: token
+            };
+        
+            var updatePasswordURL = "{% url 'user_app:update_password' %}";
+            $.ajax({
+            type: 'POST',
+            url: updatePasswordURL,
+            data: requestData,
+            success: function(response) {
+                // Handle the success response from the server
+                // Perform any necessary actions here
+                alert('Password changed successfully');
+                setTimeout(function() {
+                window.location.href = "{% url 'user_app:login' %}"; // Replace with the desired URL
+                }, 2000); // 3000
+            },
+            error: function(xhr, textStatus, error) {
+                // Check the status code and handle the error accordingly
+                if (xhr.status === 400) {
+                    alert('Invalid credentials');
+                } else {
+                    console.log('Password update failed:', error);
+                }
+            }
+            });
+        
+            // Return false here to prevent the form from submitting immediately
+            return false;
+        }
+        
+        // Event handler for cancel button click
+        $('#cancelButton').click(function(e) {
+            e.preventDefault(); // Prevent the default form submission
+        
+            // Clear the form or perform any necessary actions
+            $('#passwordForm')[0].reset();
+        });
+        });
+        
+</script>
+</body>
+
+{% endblock content %}
