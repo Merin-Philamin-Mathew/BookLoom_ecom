@@ -16,13 +16,12 @@ class Payment(models.Model):
     )
     payment_id  = models.CharField(max_length=200)
     payment_method = models.CharField(max_length=200)
-    amount_paid = models.CharField(max_length=50)
-    payment_status      = models.CharField(default='PENDING', choices = PAYMENT_STATUS_CHOICES,max_length=20)
+    amount_paid = models.DecimalField(max_digits=10, decimal_places=2)
+    payment_status = models.CharField(default='PENDING', choices = PAYMENT_STATUS_CHOICES,max_length=20)
     created_at  = models.DateTimeField(auto_now_add=True)
-    #is_paid             = models.BooleanField(default=False)
     
     def __str__(self):
-        return self.payment_order_id
+        return self.payment_id
 
     """ spike_use = models.BooleanField(default=False)
     spike_discount = models.PositiveBigIntegerField(default = 0)
@@ -32,7 +31,44 @@ class Payment(models.Model):
      
     def __str__(self):
         return self.payment_id
+
+class Shipping_Addresses(models.Model):
+    user = models.ForeignKey(NewUser,on_delete=models.CASCADE)
+    name = models.CharField(max_length=30)
+    phone_number = models.CharField(max_length=20)
+    address_line_1 = models.CharField(max_length=50)
+    address_line_2 = models.CharField(max_length=50,blank=True,null=True)
+    city = models.CharField(max_length=50)
+    country = models.CharField(max_length=10,)
+    state = models.CharField(max_length=50,)
+    pincode = models.CharField(max_length=20)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    is_default = models.BooleanField(default=False)
+    is_active = models.BooleanField(default=True)    
     
+    
+    def save(self, *args, **kwargs):
+        if self.is_default:
+            Shipping_Addresses.objects.filter(user = self.user).exclude(pk=self.pk).update(is_default=False)
+        super(Shipping_Addresses, self).save(*args, **kwargs)
+        
+    def get_user_full_address(self):
+        address_parts = f"{self.name}, {self.phone_number}, {self.address_line_1}"
+        
+        if self.address_line_2:
+            address_parts += (', '+self.address_line_2)
+        
+        address_parts += (f", Pin: {self.pincode}, {self.city}, {self.state}, India")
+        
+        
+        return address_parts
+        # return f'{self.name},{self.phone},Pin:{self.pincode},Address:{self.address_line_1},{self.address_line_2},{self.city},{self.state},{self.country}'
+    
+    def __str__(self):
+        return self.name    
+
+ 
 class Order(models.Model):
     STATUS = (
         ('New','New'),
@@ -46,12 +82,11 @@ class Order(models.Model):
         ('Return initiated','Return initiated'),
         ('Returned','Returned'),
     )
-    
-    
     user    = models.ForeignKey(NewUser, on_delete=models.SET_NULL,null=True)
     payment = models.ForeignKey(Payment, on_delete=models.SET_NULL, blank=True, null= True) 
     order_number = models.CharField(max_length=50)
     address = models.ForeignKey(Addresses,on_delete=models.SET_NULL,unique=False, null= True ,blank=True,)
+    shipping_address = models.ForeignKey(Shipping_Addresses,on_delete=models.SET_NULL,unique=False, null= True ,blank=True,related_name = 'order_of_shipping')
     order_note = models.CharField(max_length=50, blank=True)
     order_total = models.FloatField( )
     tax = models.FloatField( )
@@ -105,4 +140,5 @@ class OrderProduct(models.Model):
     
     def __str__(self):
         return self.product.product.product_name
-    
+
+

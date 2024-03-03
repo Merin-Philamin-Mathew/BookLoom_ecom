@@ -1,5 +1,5 @@
 from django.contrib import admin
-from . models import NewUser,Profile,Addresses,Coupon,Verify_coupon
+from . models import NewUser,Profile,Addresses,Coupon,Verify_coupon,SiteInfo
 
 # Register your models here.
 
@@ -23,6 +23,7 @@ admin.site.register(Profile)
 admin.site.register(Addresses)
 admin.site.register(Coupon)
 admin.site.register(Verify_coupon)
+admin.site.register(SiteInfo)
 
 
 

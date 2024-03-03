@@ -78,7 +78,10 @@ TEMPLATES = [
                 'django.contrib.messages.context_processors.messages',
                 #for category links
                 'store.context_processors.category_links',
+                #for cart counts
                 'cart.context_processors.counter',
+                #site info
+                'store.context_processors.site_info',
             ],
         },
     },

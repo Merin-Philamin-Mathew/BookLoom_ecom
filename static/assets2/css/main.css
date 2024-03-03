@@ -3735,11 +3735,11 @@ body.offcanvas-active {
     display: inline-block
 }
 
-.navbar-aside .aside-top .logo {
+/* .navbar-aside .aside-top .logon {
     max-width: 120px;
     margin-top: 5px;
     min-width: 120px
-}
+} */
 
 .main-header {
     padding-left: 3%;
@@ -3805,10 +3805,10 @@ body.offcanvas-active {
     align-items: center
 }
 
-.main-header .brand-wrap img.logo {
+/* .main-header .brand-wrap img.logon {
     max-width: 130px;
     margin-top: 5px
-}
+} */
 
 .nav-item img.rounded-circle {
     border: 2px solid #eee
@@ -3861,10 +3861,10 @@ body.aside-mini .navbar-aside .aside-top>div {
     flex-grow: 1
 }
 
-body.aside-mini .navbar-aside .brand-wrap,
-body.aside-mini .navbar-aside .logo {
+/* body.aside-mini .navbar-aside .brand-wrap,
+body.aside-mini .navbar-aside .logon {
     display: none
-}
+} */
 
 body.aside-mini .menu-aside .menu-link {
     text-align: center
@@ -3932,10 +3932,10 @@ body.dark .bg-light {
     background-color: #2f3446 !important
 }
 
-body.dark .brand-wrap .logo {
+/* body.dark .brand-wrap .logon {
     -webkit-filter: brightness(2);
     filter: brightness(2)
-}
+} */
 
 body.dark .navbar-aside {
     background-color: #2f3446;
@@ -4247,10 +4247,10 @@ body.dark .dropdown-menu .dropdown-item.text-danger {
         transition: visibility .2s ease-in-out, transform .2s ease-in-out, -webkit-transform .2s ease-in-out
     }
 
-    .navbar-aside .aside-top .logo {
+/*     .navbar-aside .aside-top .logon {
         height: 40px
     }
-
+ */
     .navbar-aside.show {
         visibility: visible;
         -webkit-transform: translateX(0);
@@ -4375,4 +4375,26 @@ body.dark .dropdown-menu .dropdown-item.text-danger {
     .table-responsive table thead {
         display: none
     }
+}
+
+
+/* custom css */
+.brand-wrap {
+    display: flex;
+    align-items: center;
+    text-decoration: none;  /* Remove underline from the anchor */
+  
+}
+
+.logom {
+    /* Add any styles you want for the logo image */
+    width: 90px;  /* Adjust the width as needed */
+    height: auto; /* Maintain aspect ratio */
+    margin-right: 10px;  /* Add some spacing between the logo and text */
+}
+
+.logom-title {
+    font-size: 24px;  /* Adjust the font size as needed */
+    font-weight: bold;  /* Make it bold if desired */
+    color: #dad4d4;  /* Set the color */
 }

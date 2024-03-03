@@ -1,9 +1,13 @@
 {% load static %}
 
+
 <aside class="navbar-aside" id="offcanvas_aside">
-    <div class="aside-top">
+    <div class="aside-top text-center">
         <a href="" class="brand-wrap">
-            <img src="{% static 'assets2/imgs/theme/logo.svg' %}" class="logo" alt="Evara Dashboard">
+            {% for info in siteinfo %}
+                <img src='{{info.logo.url}}' class="logom" alt="Evara Dashboard">
+            {% endfor %}
+            <div class="logom-title">BookLoom</div>
         </a>
         <div>
             <button class="btn btn-icon btn-aside-minimize"> <i class="text-muted material-icons md-menu_open"></i> </button>
@@ -12,9 +16,11 @@
     <nav>
         <ul class="menu-aside">
             <li class="menu-item {% if request.path in '/dashboard' %} active {% endif %}">
+                {% for info in siteinfo %}
                 <a class="menu-link" href="{% url "admin_app:admin_dashboard" %}"> <i class="icon material-icons md-home"></i>
-                    <span class="text">Dashboard</span>
+                    <span class="text">{{info.sitename}} Dashboard</span>
                 </a>
+                {% endfor %}
             </li>
             <li class="menu-item has-submenu {% if request.path in '/userinfo' or request.path in '/adduser'%} active {% endif %}">
                 <a class="menu-link" href="page-products-list.html"> <i class="icon material-icons md-shopping_bag"></i>

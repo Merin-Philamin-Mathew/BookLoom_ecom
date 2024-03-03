@@ -7,8 +7,10 @@ app_name = 'admin_app'
 
 urlpatterns = [
     path('login/',views.admin_login,name='admin_login'),
-    path('',views.admin_dashboard,name='admin_dashboard'),
     path('logout/',views.admin_logout,name='admin_logout'),
+    
+    path('',views.admin_dashboard,name='admin_dashboard'),
+    path('sales-report-pdf/', views.SalesReportPDFView.as_view(), name='sales_report_pdf'),
 
     #user management_________________________________________________________________
     path('userinfo',views.userinfo,name='userinfo'),

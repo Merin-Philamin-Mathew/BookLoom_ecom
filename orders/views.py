@@ -1,6 +1,6 @@
 from django.shortcuts import render
 from cart.models import CartItem, Cart
-from .models import Order, OrderProduct, Payment
+from .models import Order, OrderProduct, Payment,Shipping_Addresses
 from adminapp.models import Coupon, Verify_coupon
 from adminapp.models import Addresses
 from django.shortcuts import render, get_object_or_404, redirect
@@ -24,20 +24,12 @@ def order_success(request, total=0, quantity=0):
     print('order/order_success')
     current_user = request.user
     cart_items = CartItem.objects.filter(user=current_user)
-    tax = 0
-    grand_total = 0
-    
-    for cart_item in cart_items:
-        total += (cart_item.product.sale_price * cart_item.quantity)
-        quantity += cart_item.quantity
-
-    tax = (2 * total) / 100
-    grand_total = total + tax
 
     # Set your payment ID here
     custom_datetime = dt.now()  # Use a different variable name
     
     order = Order.objects.filter(user=current_user).last()
+    order.order_total=round(order.order_total,2)
     if order.payment != None:
         payment = order.payment
     else:
@@ -49,6 +41,8 @@ def order_success(request, total=0, quantity=0):
             payment_status='PENDING',
         )
         order.payment = payment
+    print("amount_paid",order.payment.amount_paid)
+    print("order_total",order.order_total)
     order.save()
 
 
@@ -67,7 +61,6 @@ def order_success(request, total=0, quantity=0):
 
         cart_item.product.stock -= cart_item.quantity
         cart_item.product.save()
-
     # Mark the order as ordered
 
     order.is_ordered = True
@@ -75,15 +68,36 @@ def order_success(request, total=0, quantity=0):
     dummy_orders = Order.objects.filter(is_ordered = False)
     dummy_orders.delete()
 
+    tax = 0
+    subtotal =0
+    discount =0
+    for item in order.ordered_products.all():
+        subtotal += item.product_price*item.quantity
+        discount += item.product.discount()*item.quantity
+    tax = round((2 * subtotal) / 100,2)
+
+    shipping_address, created = Shipping_Addresses.objects.get_or_create(
+    user=order.address.user,
+    name=order.address.name,
+    phone_number=order.address.phone_number,
+    address_line_1 = order.address.address_line_1 , 
+    address_line_2 = order.address.address_line_2 , 
+    city = order.address.city , 
+    country = order.address.country ,
+    state = order.address.state , 
+    pincode = order.address.pincode , 
+    
+)
+    order.shipping_address = shipping_address
+    order.save()
     context = {
         'order': order,
-        'cart_items': cart_items,
-        'total': total,
+        'total': subtotal,
         'tax': tax,
-        'grand_total': grand_total,
-        'payment':payment
+        'payment':payment,
+        'discount':discount,
     }
-
+    
     # Clear the user's cart after placing the order
     cart_items.delete()
     if 'coupon_dis_price' in request.session:
@@ -119,7 +133,7 @@ def place_order(request, address_id, total=0, quantity=0):
 
 
     tax = (2 * total) / 100
-    grand_total = float(total + tax)
+    grand_total = round(float(total + tax),2)
     print("grand_total",grand_total)
     request.session['grand_total']=grand_total
     # Common code for creating an order
@@ -172,7 +186,7 @@ def place_order(request, address_id, total=0, quantity=0):
             data.save()
 
             order = Order.objects.get(user=current_user, is_ordered=False, order_number=order_number)
-            
+            order.order_total = round(order.order_total,2)
             context = {
                 'order': order,
                 'cart_items': cart_items,
@@ -201,7 +215,8 @@ def place_order(request, address_id, total=0, quantity=0):
         data.save()
 
         order = Order.objects.get(user=current_user, is_ordered=False, order_number=order_number)
-        
+        order.order_total = round(order.order_total,2)
+
         context = {
             'order': order,
             'cart_items': cart_items,
@@ -294,23 +309,12 @@ def clear_coupon(request):
     
 
 
-
-
-
-
-
-
-
-
-
-
 @csrf_exempt
 def paymenthandler(request):
     print("Payment Handler endpoint reached")
  
     # only accept POST request.
     if request.method == "POST":
-        print("dsfsd")
         try:
             # Extract payment details from the POST request
             payment_id        = request.POST.get('razorpay_payment_id', '')
@@ -335,7 +339,6 @@ def paymenthandler(request):
                 # return render(request, 'paymentfail.html')
                 return JsonResponse({'message': 'Payment signature verification failed'})
             else:
-                print("lalalal")
                 # Payment signature verification successful
                 # Perform necessary actions after successful payment
                 # Example: Capture payment, update database, etc.
@@ -368,6 +371,66 @@ def paymenthandler(request):
         return redirect('order_app:place_order')    
     
 
+
+
+
+
+from io import BytesIO
+import uuid
+from django.http import HttpResponse
+from django.template.loader import get_template
+import xhtml2pdf.pisa as pisa
+from django.conf import settings
+
+def save_pdf(params:dict):
+    template = get_template("user_template/cart-order-payment/invoice.html")
+    html = template.render(params)
+    response = BytesIO()
+    pdf =pisa.pisaDocument(BytesIO(html.encode('UTF-8')),response)
+    file_name = uuid.uuid4()
+    
+    if not pdf.err:
+        return HttpResponse(response.getvalue(), content_type='application/pdf'),True
+    return '',None
+    
+
+def download_invoice(request,order_id):
+    print('payment download_invoice')
+    try:
+        order = Order.objects.get(order_number=order_id, is_ordered= True)
+        order.status = 'Confirmed'
+        ordered_product = OrderProduct.objects.filter(order_id= order.id)
+        subtotal =0
+        discount =0
+        for item in ordered_product:
+            subtotal += item.product_price*item.quantity
+            discount += item.product.discount()*item.quantity
+        discount += order.additional_discount
+        payment = Payment.objects.get(payment_id=order.payment)
+        order.save()
+        address = Shipping_Addresses.objects.get(id = order.shipping_address.id)
+        params = {
+            
+            'order':order,
+            'ordered_product':ordered_product,
+            'transID':payment.payment_id,
+            'payment':payment,
+            'subtotal':subtotal,
+            'address' : address,
+            'discount':discount
+        }
+        file_name, success = save_pdf(params)
+        
+    except(Payment.DoesNotExist,Order.DoesNotExist):
+        return redirect('store:home')
+        
+    if success:
+        response = HttpResponse(file_name, content_type='application/pdf')
+        response['Content-Disposition'] = 'attachment; filename="invoice.pdf"'
+        return response
+    else:
+        # Handle error case here, like displaying an error message to the user.
+        return HttpResponse("Failed to generate the invoice.", status=500)
 
 
 

@@ -193,6 +193,18 @@ class Verify_coupon(models.Model):
         return True
 
 
+#-------------------------- site-logo ----------------------------
+
+class SiteInfo(models.Model):
+    sitename = models.CharField(max_length=50, unique=True, null=True)
+    dark_theme_logo = models.ImageField(upload_to='photos/logo/{filename}')
+    logo = models.ImageField(upload_to='photos/logo/{filename}')
+    
+    def __str__(self):
+        return self.sitename
+
+
+
 """ 
 from django.db.models.signals import post_save
 from django.dispatch import receiver

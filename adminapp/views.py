@@ -5,12 +5,20 @@ from django.views.decorators.cache import never_cache
 from django.contrib.auth.hashers import make_password
 from django.contrib import messages
 from django.utils import timezone
+from django.db.models import Sum
 from . models import NewUser, Coupon
 from . forms import CouponForm 
 from store.models import Product,Category, Author, Publication, ProductVariant, AdditionalProductImages, Language
 from store.forms import ProductForm, ProductVariantForm, CategoryForm, AuthorForm, PublicationForm, LanguageForm
 from orders.models import Order, Payment, OrderProduct
 
+from datetime import date
+from django.views import View
+from io import BytesIO
+from django.http import HttpResponse
+from django.template.loader import get_template
+import xhtml2pdf.pisa as pisa
+from django.conf import settings
 # Create your views here.
 def is_superuser(request):
     user = request.user
@@ -48,8 +56,82 @@ def admin_login(request):
 def admin_dashboard(request):
     if not is_superuser(request):
         return redirect('user_app:home')
-    return render(request, 'admin_template\index.html')
+    products = ProductVariant.objects.all()
+    orders = Order.objects.all()
+    categories = Category.objects.all()
+    payments = Payment.objects.filter(payment_status = 'SUCCESS')
+    revenue = 0
+    for payment in payments.all():
+        revenue += payment.amount_paid
+        # Calculate monthly revenue
+    current_month = timezone.now().month
+    monthly_payments = Payment.objects.filter(
+        payment_status='SUCCESS',
+        created_at__month=current_month
+    )
+    monthly_revenue = monthly_payments.aggregate(Sum('amount_paid'))['amount_paid__sum'] or 0
 
+    context = {
+        "revenue":revenue,
+        "monthly_revenue":monthly_revenue,
+        "orders":orders,
+        "order_count":orders.count(),
+        "product_count":products.count(),
+        "category_count":categories.count(),
+    }
+    return render(request, 'admin_template\index.html', context)
+
+
+class SalesReportPDFView(View):
+    def save_pdf(self,params:dict):
+        template = get_template("admin_template/sales_report.html")
+        html = template.render(params)
+        response = BytesIO()
+        pdf =pisa.pisaDocument(BytesIO(html.encode('UTF-8')),response)
+        
+        if not pdf.err:
+            return HttpResponse(response.getvalue(), content_type='application/pdf'),True
+        return '',None
+    # @login_required(login_url='accounts:signin')
+    def get(self, request, *args, **kwargs):
+        # if not is_superuser(request):
+        #     return redirect('store:home')
+        total_users = len(NewUser.objects.all())
+        new_orders = len(Order.objects.all().exclude(order_status="new"))
+        revenue_total = 0
+        delivered_orders = Order.objects.filter(order_status="Delivered")
+        for order in delivered_orders:
+            revenue_total += order.order_total
+        current_date = date.today()
+        delivered_orders_this_month = Order.objects.filter(
+            order_status="Delivered",
+            deliverd_at__year=current_date.year,
+            deliverd_at__month=current_date.month
+        )
+        month_len = len(delivered_orders_this_month)
+        revenue_this_month = delivered_orders_this_month.aggregate(Sum('order_total'))['order_total__sum']
+        # response = HttpResponse(content_type='application/pdf')
+        # response['Content-Disposition'] = 'attachment; filename="sales_report.pdf"'
+
+        # return response
+        params = {
+            'total_users' :total_users,
+            'new_orders' : new_orders,
+            'revenue_total' : revenue_total,
+            'd_month' :delivered_orders_this_month,
+            'd_month_len' : month_len,
+            'revenue_this_month' : revenue_this_month,
+             
+        }
+        file_name, success = self.save_pdf(params)
+        
+        if success:
+            response = HttpResponse(file_name, content_type='application/pdf')
+            response['Content-Disposition'] = 'attachment; filename="sales_report.pdf"'
+            return response
+        else:
+            # Handle error case here, like displaying an error message to the user.
+            return HttpResponse("Failed to generate the invoice.", status=500)
 
 
 
@@ -748,6 +830,9 @@ def change_order_status(request, id):
     if status == "Delivered":
         order_.deliverd_at = timezone.now()
         total = order_.order_total
+        if order_.payment.payment_method == 'Cash on Delivery':
+            order_.payment.payment_status = 'SUCCESS'
+
     elif status == "Returned":
         order_.returned_at = timezone.now()
         total = order_.order_total
