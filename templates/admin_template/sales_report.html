@@ -57,39 +57,50 @@
 <body>
     <main>
         <div>
-            <h2>CACTUS PLANTS</h2>
+            <h2>BookLoom</h2>
            
         </div>
         <div>
-            <h2>Sales Report.</h2>
-            <p>
-                : Recent Orders<br>
-                
-            </p>
+            <h2>Sales Report</h2>
         </div>
        
-        <table>
-            <tr>
-                <th>USER</th>
-                <th>#NO</th>
-                <th>PRICE</th>
-                <th>DATE</th>
-            </tr>
-            {% for d in d_month %}
-            <tr>
-                <td>{{d.user}}</td>
-                <td>{{d.order_number}}</td>
-                <td>{{d.order_total}}</td>
-                <td>{{d.deliverd_at}}</td>
-            </tr>
-            {% endfor %}
-            <tr>
-                <td>-</td>
-                <td>-</td>
-                <td>-</td>
-                <td class='invoice-total'>{{revenue_this_month}}</td>
-            </tr>
-        </table>
+        <div class="table-responsive">
+            <table class="table table-bordered table-hover">
+                <thead>
+                    <tr>
+                        <th>#ID</th>
+                        <th scope="col">Name</th>
+                        <th scope="col">Email</th>
+                        <th scope="col">Total</th>
+                        <th scope="col">Status</th>
+                        <th scope="col">Date</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <p id="noResultsMessage" style="display: none;">No results found</p>
+                    {% for order in all_orders %}
+                    <tr>
+                        <td>{{order.order_number}}</td>
+                        <td><b>{{ order.user.username }}</b></td>
+                        <td>{{order.user.email}}</td>
+                        <td>Rs. {{order.order_total}}</td>
+                        <td><span class="badge rounded-pill alert-success">{{order.order_status}}</span></td>
+                        <td>{{order.created_at}}</td>
+                        
+                    </tr>
+                    <script>
+                        function handleStatusChange{{order.order_number}}(status) {
+                            var form = document.getElementById("statusForm1{{order.order_number}}");
+                            form.elements["status"].value = status;
+                            form.submit();
+                        }
+                    </script>
+                    {% endfor %}
+                </tbody>
+                        </tr>
+                        <!--single row with translated books finish-->  
+            </table>
+        </div> 
         <div>
             <h3>Total user : {{total_users}}</h3>
             <h3>Total orders : {{new_orders}}</h3>

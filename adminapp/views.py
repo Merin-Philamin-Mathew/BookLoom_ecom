@@ -5,6 +5,7 @@ from django.views.decorators.cache import never_cache
 from django.contrib.auth.hashers import make_password
 from django.contrib import messages
 from django.utils import timezone
+from datetime import datetime
 from django.db.models import Sum
 from . models import NewUser, Coupon
 from . forms import CouponForm 
@@ -12,7 +13,7 @@ from store.models import Product,Category, Author, Publication, ProductVariant, 
 from store.forms import ProductForm, ProductVariantForm, CategoryForm, AuthorForm, PublicationForm, LanguageForm
 from orders.models import Order, Payment, OrderProduct
 
-from datetime import date
+from datetime import date,timedelta
 from django.views import View
 from io import BytesIO
 from django.http import HttpResponse
@@ -51,13 +52,29 @@ def admin_login(request):
     return render(request, 'admin_template/admin-login.html')
 
 
+def get_month_name(month):
+    months_in_english = {
+        1: 'January',
+        2: 'February',
+        3: 'March',
+        4: 'April',
+        5: 'May',
+        6: 'June',
+        7: 'July',
+        8: 'August',
+        9: 'September',
+        10: 'October',
+        11: 'November',
+        12: 'December'
+    }
+    return months_in_english[month]
 @never_cache
 @login_required(login_url='admin_app:admin_login')
 def admin_dashboard(request):
     if not is_superuser(request):
         return redirect('user_app:home')
     products = ProductVariant.objects.all()
-    orders = Order.objects.all()
+    orders = Order.objects.filter(is_ordered = True)
     categories = Category.objects.all()
     payments = Payment.objects.filter(payment_status = 'SUCCESS')
     revenue = 0
@@ -71,13 +88,43 @@ def admin_dashboard(request):
     )
     monthly_revenue = monthly_payments.aggregate(Sum('amount_paid'))['amount_paid__sum'] or 0
 
+    current_datetime = timezone.now()
+    start_date = current_datetime - timedelta(days=180)
+    data = [['Month', 'New User Signups', 'New Orders']]
+    while start_date < current_datetime:
+        end_date = start_date.replace(day=1) + timedelta(days=31)
+        new_user_signups = NewUser.objects.filter(date_joined__gte=start_date, date_joined__lt=end_date).count()
+        new_orders = Order.objects.filter(created_at__gte=start_date, created_at__lt=end_date).count()
+        month_name = get_month_name(start_date.month)
+        data.append([month_name, new_user_signups, new_orders])
+        start_date = end_date
+    start_date = request.GET.get('start_date')
+    end_date = request.GET.get('end_date')
+    status = request.GET.get('status')
+    print("dfds",start_date,end_date,)
+    # Filter orders based on date range and status
+    all_orders = Order.objects.all().order_by('-id')
+    if start_date and end_date:
+        all_orders = all_orders.filter(created_at__gte=start_date, created_at__lt=end_date)
+    elif start_date:
+        all_orders = all_orders.filter(created_at__gte=start_date)
+    elif end_date:
+        all_orders = all_orders.filter(created_at__lt=end_date)
+    if status and status != 'Status':
+        print("0000000000000000000000000000",status)
+        all_orders = all_orders.filter(order_status=status)
+
+    
     context = {
         "revenue":revenue,
         "monthly_revenue":monthly_revenue,
         "orders":orders,
+        "all_orders":all_orders,
         "order_count":orders.count(),
         "product_count":products.count(),
         "category_count":categories.count(),
+        'data': data,
+
     }
     return render(request, 'admin_template\index.html', context)
 
@@ -99,29 +146,59 @@ class SalesReportPDFView(View):
         total_users = len(NewUser.objects.all())
         new_orders = len(Order.objects.all().exclude(order_status="new"))
         revenue_total = 0
-        delivered_orders = Order.objects.filter(order_status="Delivered")
-        for order in delivered_orders:
-            revenue_total += order.order_total
+        payments = Payment.objects.filter(payment_status = 'SUCCESS')
+        revenue_total = 0
+        for payment in payments.all():
+            revenue_total += payment.amount_paid    
         current_date = date.today()
-        delivered_orders_this_month = Order.objects.filter(
-            order_status="Delivered",
-            deliverd_at__year=current_date.year,
-            deliverd_at__month=current_date.month
+
+        current_month = timezone.now().month
+        monthly_payments = Payment.objects.filter(
+        payment_status='SUCCESS',
+        created_at__month=current_month
         )
-        month_len = len(delivered_orders_this_month)
-        revenue_this_month = delivered_orders_this_month.aggregate(Sum('order_total'))['order_total__sum']
-        # response = HttpResponse(content_type='application/pdf')
+        monthly_revenue = monthly_payments.aggregate(Sum('amount_paid'))['amount_paid__sum'] or 0
+
+        start_date = request.GET.get('start_date')
+        end_date = request.GET.get('end_date')
+        status = request.GET.get('status')
+        print("dfds",start_date,end_date,)
+        # Convert start_date and end_date to timezone-aware datetime objects
+        start_date = timezone.make_aware(datetime.strptime(start_date, '%Y-%m-%d')) if start_date else None
+        end_date = timezone.make_aware(datetime.strptime(end_date, '%Y-%m-%d')) if end_date else None
+
+        # Filter orders based on date range and status
+        all_orders = Order.objects.all()
+        if start_date and end_date:
+            all_orders = all_orders.filter(created_at__gte=start_date, created_at__lt=end_date)
+        elif start_date:
+            all_orders = all_orders.filter(created_at__gte=start_date)
+        elif end_date:
+            all_orders = all_orders.filter(created_at__lt=end_date)
+        if status and status != 'Status':
+            all_orders = all_orders.filter(order_status=status)
+      
+        # delivered_orders_this_month = Order.objects.filter(
+        #     payment=payments,
+        #     deliverd_at__year=current_date.year,
+        #     deliverd_at__month=current_date.month
+        # )
+        # month_len = len(delivered_orders_this_month)
+        # revenue_this_month = delivered_orders_this_month.aggregate(Sum('order_total'))['order_total__sum']
+        # # response = HttpResponse(content_type='application/pdf')
         # response['Content-Disposition'] = 'attachment; filename="sales_report.pdf"'
 
         # return response
+        print("dfsddfsfsdsdfsdf",all_orders)
         params = {
             'total_users' :total_users,
             'new_orders' : new_orders,
             'revenue_total' : revenue_total,
-            'd_month' :delivered_orders_this_month,
-            'd_month_len' : month_len,
-            'revenue_this_month' : revenue_this_month,
-             
+            # 'd_month' :delivered_orders_this_month,
+            'd_month_len' : len(monthly_payments),
+            'revenue_this_month' : monthly_revenue,
+            'all_orders': all_orders,  # Pass filtered orders to the template
+
         }
         file_name, success = self.save_pdf(params)
         

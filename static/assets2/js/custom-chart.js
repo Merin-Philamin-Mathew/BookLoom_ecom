@@ -33,7 +33,7 @@
                         fill: true,
                         backgroundColor: 'rgba(380, 200, 230, 0.2)',
                         borderColor: 'rgb(380, 200, 230)',
-                        data: [30, 10, 27, 19, 33, 15, 19, 20, 24, 15, 37, 6]
+                        data: [ 15, 19, 20,]
                     }
 
                 ]

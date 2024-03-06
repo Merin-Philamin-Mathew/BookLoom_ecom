@@ -4388,13 +4388,13 @@ body.dark .dropdown-menu .dropdown-item.text-danger {
 
 .logom {
     /* Add any styles you want for the logo image */
-    width: 90px;  /* Adjust the width as needed */
+    width: 110px;  /* Adjust the width as needed */
     height: auto; /* Maintain aspect ratio */
     margin-right: 10px;  /* Add some spacing between the logo and text */
 }
 
 .logom-title {
-    font-size: 24px;  /* Adjust the font size as needed */
+    font-size: 22px;  /* Adjust the font size as needed */
     font-weight: bold;  /* Make it bold if desired */
-    color: #dad4d4;  /* Set the color */
+    color: #ebe3e3;  /* Set the color */
 }

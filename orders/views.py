@@ -2,6 +2,7 @@ from django.shortcuts import render
 from cart.models import CartItem, Cart
 from .models import Order, OrderProduct, Payment,Shipping_Addresses
 from adminapp.models import Coupon, Verify_coupon
+from wallet.models import Wallet,Transaction
 from adminapp.models import Addresses
 from django.shortcuts import render, get_object_or_404, redirect
 from userapp.forms import AddressForm
@@ -22,6 +23,7 @@ from django.views.decorators.csrf import csrf_exempt, csrf_protect
 @transaction.atomic
 def order_success(request, total=0, quantity=0):
     print('order/order_success')
+    
     current_user = request.user
     cart_items = CartItem.objects.filter(user=current_user)
 
@@ -32,17 +34,35 @@ def order_success(request, total=0, quantity=0):
     order.order_total=round(order.order_total,2)
     if order.payment != None:
         payment = order.payment
+    elif order.order_total == 0:
+        payment = Payment.objects.create(
+            payment_id=f'WAL-{current_user.pk:05d}-{custom_datetime.strftime("%Y%m%d%H%M%S")}',
+            payment_method='Wallet',
+            amount_paid=request.session['wallet_discount'],
+            payment_status='SUCCESS',
+        )
+        order.payment = payment
     else:
-        print("else part")
+        if order.order_total >= 1000:
+            print("haii,,order.order_total >= 1000")
+            messages.warning(request, "Can't proceed with cash on delivery for order above Rs 1000")
+            return redirect('order_app:place_order' ,order.address.id)      
+        print("helloooooooooooo")
         payment = Payment.objects.create(
             payment_id=f'COD-{current_user.pk:05d}-{custom_datetime.strftime("%Y%m%d%H%M%S")}',
             payment_method='Cash on Delivery',
             amount_paid=order.order_total,
             payment_status='PENDING',
         )
+        print("amount_paid w/o wallet_discount", payment.amount_paid)
+        if 'wallet_discount' in request.session:
+            print("amount_paid with wallet_discount", payment.amount_paid)
+            payment.amount_paid = order.order_total + request.session['wallet_discount']
         order.payment = payment
+   
     print("amount_paid",order.payment.amount_paid)
     print("order_total",order.order_total)
+    order.order_total = order.payment.amount_paid
     order.save()
 
 
@@ -108,6 +128,8 @@ def order_success(request, total=0, quantity=0):
         del request.session['coupon_total']
     if 'grand_total' in request.session:
         del request.session['grand_total']
+    if 'wallet_discount' in request.session:
+        del request.session['wallet_discount']
     
     return render(request, 'user_template/cart-order-payment/order-success.html', context)
  
@@ -125,6 +147,7 @@ def place_order(request, address_id, total=0, quantity=0):
     tax = 0
     grand_total = 0
     discount = 0
+    wallet = None
 
     for cart_item in cart_items:
         total += (cart_item.product.sale_price * cart_item.quantity)
@@ -139,7 +162,10 @@ def place_order(request, address_id, total=0, quantity=0):
     # Common code for creating an order
     data = Order()
     data.user = current_user
-    data.order_total = grand_total
+    if "wallet_discount" in request.session:
+        data.order_total = grand_total-request.session["wallet_discount"]
+        grand_total = data.order_total
+        request.session['grand_total']=data.order_total
     if 'coupon_dis_price' in request.session:
         data.additional_discount = request.session['coupon_dis_price']
         data.order_total = grand_total - float(data.additional_discount)
@@ -150,6 +176,10 @@ def place_order(request, address_id, total=0, quantity=0):
         except Exception as e:
             print(e)
         data.coupon_code = coupon
+    wallets = Wallet.objects.filter(user=current_user, balance__gt=0)
+
+    if wallets.exists():
+        wallet = wallets.first()    
     data.tax = tax
     data.ip = request.META.get('REMOTE_ADDR')
 
@@ -194,7 +224,8 @@ def place_order(request, address_id, total=0, quantity=0):
                 'tax': tax,
                 'grand_total': grand_total,
                 'payment':payment,
-                'discount':discount
+                'discount':discount,
+                'wallet':wallet
             }
             return render(request, 'user_template/cart-order-payment/payment.html', context)
 
@@ -224,14 +255,37 @@ def place_order(request, address_id, total=0, quantity=0):
             'tax': tax,
             'grand_total': grand_total,
             'payment': payment,
-            'discount':discount
+            'discount':discount,
+            'wallet':wallet
+
         }
         return render(request, 'user_template/cart-order-payment/payment.html', context)
 
     else:
         return redirect('cart_app:delivery_address')
-    
 
+def apply_wallet(request,order_id):
+    wallet = Wallet.objects.get(user=request.user)
+    order = Order.objects.filter(order_number = order_id).first()
+    if wallet.balance > order.order_total:
+        request.session['wallet_discount'] = order.order_total 
+        print("order_app/apply_wallet/wallet.balance > order.order_total",order.order_total)
+        print("wallet balance before",wallet.balance)
+        wallet.balance -= order.order_total
+        Transaction.objects.create(wallet=wallet, amount=order.order_total, transaction_type='DEBIT')
+        wallet.save()
+        print("walat_balance after",wallet.balance)
+        messages.success(request, f"Order has been placed with your wallet balance successfully")
+       
+        return redirect('order_app:order_success')
+    else:
+        request.session['wallet_discount'] = wallet.balance
+        print("request.session['wallet_discount']",request.session['wallet_discount'])
+        Transaction.objects.create(wallet=wallet, amount=wallet.balance, transaction_type='DEBIT')
+        wallet.balance = 0
+        wallet.save()
+        messages.success(request, f"Successfully used {request.session['wallet_discount']} from wallet balance")
+        return redirect('order_app:place_order',order.address.id)
     
 def apply_coupon(request):
     print("order_app/apply_coupon")
@@ -348,6 +402,8 @@ def paymenthandler(request):
                     amount_paid=amount,
                     payment_status='SUCCESS',
                 )
+                if 'wallet_discount' in request.session:
+                    payment.amount_paid += request.session['wallet_discount']
                 # payment = Payment.objects.get(payment_order_id=razorpay_order_id)
                 # payment.status = 'SUCCESS'
                 # payment.payment_id = payment_id
@@ -368,7 +424,7 @@ def paymenthandler(request):
             return HttpResponseBadRequest()
     else:
         # Redirect to login page if request method is not POST
-        return redirect('order_app:place_order')    
+        return redirect('order_app:place_order',order.address.id)    
     
 
 
