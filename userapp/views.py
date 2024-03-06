@@ -39,6 +39,8 @@ NewUser = settings.AUTH_USER_MODEL """
 @never_cache
 def home(request):
     print(request.user)
+    if 'referral_code' in request.session:
+        del request.session['referral_code']
     products = ProductVariant.objects.all().filter(is_active = True)
     newproducts = ProductVariant.objects.all().filter(is_active= True).order_by("-id")
     authors = Author.objects.all().filter(is_active=True)
@@ -115,7 +117,17 @@ def user_signup(request):
             check_user = NewUser.objects.filter(email=email).first()
             if check_user:
                 messages.warning(request, "Email already exists")
-                return redirect('user_app:user_sign')
+                return redirect('user_app:signup')
+            referral_code = request.POST.get('referral_code')
+            print("bloom",referral_code)
+            if referral_code:
+                check_referal = NewUser.objects.filter(refferal_code=referral_code).first()
+                if not check_referal:
+                    messages.warning(request, "There is no such referral code!")
+                    return redirect('user_app:signup')
+                request.session['referral_code']=referral_code
+                print(request.session['referral_code'],referral_code)
+
             request.session['registration_form_data']=form.cleaned_data
             otp = random.randint(100000,999999) 
             request.session['otp']=str(otp)
@@ -144,6 +156,7 @@ def verify_otp(request):
         print("otp...............", request.session.get('otp'))
         if request.method == 'POST':
             otp = request.POST.get('otp')
+            
             otp_expiry_time_str = request.session.get('otp_expiry_time')
             otp_expiry_time = datetime.fromisoformat(otp_expiry_time_str)
 
@@ -159,6 +172,15 @@ def verify_otp(request):
                     user = NewUser(username=username, email=email, phone_number=phone_number, password=password)
                     print(form_data, 'user created')
                     user.save()
+                    if 'referral_code' in request.session:
+                        print(request.session['referral_code'])
+                        referral_user = NewUser.objects.filter(refferal_code=request.session['referral_code']).first()
+                        wallet = Wallet.objects.get(user = referral_user)
+                        print(wallet.balance,"before")
+                        wallet.balance += 100
+                        print(wallet.balance,"after")
+                        wallet.save()
+                        Transaction.objects.create(wallet=wallet, amount=100, transaction_type='REFERRAL')
 
                     # Authenticate and log in the user
                     authenticated_user = authenticate(request, username=email, password=raw_password)
@@ -166,7 +188,7 @@ def verify_otp(request):
                     if authenticated_user:
                         login(request, authenticated_user)
                         print(f'Request user: {request.user}')
-
+                        # providing referal_offer
                         messages.success(request, f'Hey {username}, your account has been created successfully. Welcome to BookLoom!')
                         return redirect('user_app:home')
                     else:

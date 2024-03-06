@@ -13,6 +13,7 @@ class Transaction(models.Model):
     TRANSACTION_CHOICES =(
         ("CREDIT", "Credit"),
         ("DEBIT", "Debit"),
+        ("REFERRAL", "Referral"),
         )
     wallet           = models.ForeignKey(Wallet, on_delete=models.CASCADE, related_name='transactions')
     amount           = models.IntegerField(default=0)

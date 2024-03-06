@@ -51,6 +51,16 @@ Username's profile
                             <div class="card-header">
                                 <h5>My Wallet</h5>
                             </div>
+                            <div class="card-header">
+                                <!--referal code-->
+                                <div class="referral-code-message">
+                                    <p>This is your unique referral code:<strong class="referral-code">{{ user.refferal_code }}</strong></p>
+
+                                    <p>Share this code with your friends and earn ₹100 reward in your wallet for each successful referral!</p>
+                                    <!-- Add sharing options or copy-to-clipboard functionality here -->
+                                </div>
+                                <!--referal code-->
+                            </div>
                             {% include "includes/alerts.html" %}
                             <div class="card-body d-flex align-items-center">
                                 <div class="col-md-8 d-flex justify-content-center ">
@@ -62,9 +72,12 @@ Username's profile
                                 <div class="col-md-4 d-flex justify-content-center ">
                                     <button id="addMoneyBtn" class="btn btn-block btn-golden " style="width: 250px;">Add Money to
                                         Wallet</button>
+                                        
                                 </div>
+                                
                             </div>
                             <div class="row">
+                                
                                 <div class="table-responsive">
                                     <table>
                                         <thead>
@@ -81,6 +94,9 @@ Username's profile
                                                     {% if transaction.transaction_type == 'CREDIT' %}
                                                     <span style="color: green;">{{ transaction.amount }}</span> 
                                                     <span style="color: green;">Deposited</span>
+                                                    {% elif transaction.transaction_type == 'REFERRAL' %}
+                                                    <span style="color: green;">{{ transaction.amount }}</span> 
+                                                    <span style="color: green;">Refferal Offer</span>
                                                     {% else %}
                                                     <span style="color: red;">{{ transaction.amount }}</span> 
                                                     <span style="color: red;">Withdrawal</span>

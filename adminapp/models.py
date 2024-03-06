@@ -15,6 +15,11 @@ import uuid
 
 #overriding the abstractuser
 #imported in adminapp.admin homeapp.views
+def generate_referral_code(username):
+    prefix = username[:3].upper()
+    random_part = ''.join(random.choices(string.ascii_letters + string.digits, k=7))
+    referral_code = f"{prefix}{random_part}"
+    return referral_code
 
 class NewUser(AbstractUser):
     STATUS_CHOICES = [
@@ -25,6 +30,7 @@ class NewUser(AbstractUser):
     user_id = models.BigAutoField(primary_key=True, unique=True,)
     email = models.EmailField(_("Email Address"), unique = True,)
     username = models.CharField(max_length = 100)
+    refferal_code = models.CharField(max_length=50, unique=True, null=True, blank=True)
     status = models.CharField(
         max_length=10,
         choices=STATUS_CHOICES,
@@ -36,8 +42,12 @@ class NewUser(AbstractUser):
     USERNAME_FIELD = "email"
     REQUIRED_FIELDS = ['username','phone_number']
 
-    # def verify_otp(self, otp):
-    #     return self.verify_otp_value(otp)
+    def save(self, *args, **kwargs):
+        # Generate referral code if not provided
+        if not self.refferal_code:
+            self.refferal_code = generate_referral_code(self.username)
+
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return self.email

@@ -21,6 +21,8 @@ class UserRegisterForm(UserCreationForm):
         model = NewUser
         fields = ['username','email','phone_number',]
 
+    
+
 class ProfileForm(forms.ModelForm):
     
     def __init__(self, *args, **kwargs):

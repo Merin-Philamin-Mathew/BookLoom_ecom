@@ -44,6 +44,7 @@ signup
                                  <label style="color: red">{{ message }}</label>
                              {% endfor %}
                              {% endif %}
+                             {% include "includes/alerts.html" %}
                                         
                                         <form method="post"> {% csrf_token %}
                                             <div class='form-group flex-container'> 

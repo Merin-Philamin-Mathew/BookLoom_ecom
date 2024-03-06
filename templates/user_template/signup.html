@@ -54,8 +54,7 @@ signup
                                         <div class="heading_s1">
                                             <h3 class="mb-30">Create an Account</h3>
                                         </div>
-                             
-                                        
+                        
                                         <form method="post"> {% csrf_token %}
                                             
                                             <div class="form-group">
@@ -90,10 +89,33 @@ signup
                                                 <label class="text-danger">{{form.errors.password2}}</label>
                                                 {% endif %}
                                             </div>
+                                            <!--referral_code-->
+                                            <div class="toggle_info mb-3">
+                                                <span><i class="fi-rs-label mr-10"></i><span class="text-muted">Have a referral code?</span>
+                                                <a href="#referral" data-bs-toggle="collapse" class="collapsed" aria-expanded="false">
+                                                    Click here to enter your code
+                                                </a></span>
+                                            </div>
+                                            
+                                            {% include "includes/alerts.html" %}                                             
+                                            <div class="panel-collapse collapse coupon_form" id="referral">
+                                                <div class="row">
+                                                    <div class="col-md-5">
+                                                        <div class="form-group">
+                                                            <label for="referral_code">Referral Code:</label>
+                                                            <input type="text" id="referral_code" name="referral_code" placeholder="Enter Referral Code...">
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <!--referral_code-->
                                             <div class="form-group">
                                                 <button type="submit" class="btn btn-fill-out btn-block hover-up" name="login">Submit &amp; Register</button>
                                             </div>
                                         </form>
+
+                                        
+
                                         <div class="divider-text-center mt-15 mb-15">
                                         {% comment %}
                                             <span> or</span>

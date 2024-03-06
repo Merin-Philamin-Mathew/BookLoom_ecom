@@ -291,11 +291,12 @@ def apply_wallet(request,order_id):
 
         return redirect('order_app:order_success')
     else:
-        order.wallet_discount = wallet.balance
-        Transaction.objects.create(wallet=wallet, amount=wallet.balance, transaction_type='DEBIT')
-        wallet.balance = 0
-        wallet.save()
-        messages.success(request, f"Successfully used {request.session['wallet_discount']} from wallet balance")
+        # order.wallet_discount = wallet.balance
+        # Transaction.objects.create(wallet=wallet, amount=wallet.balance, transaction_type='DEBIT')
+        # wallet.balance = 0
+        # wallet.save()
+        # messages.success(request, f"Successfully used {request.session['wallet_discount']} from wallet balance")
+        messages.warning(request, "Order amount is greater than your wallet balance")
         return redirect('order_app:place_order',order.address.id)
 
 

@@ -1,5 +1,6 @@
 from django.shortcuts import render, get_object_or_404, redirect
 
+from django.contrib import messages
 from store.models import Product, ProductVariant
 from . models import Cart, CartItem
 from django.urls import reverse
@@ -67,6 +68,9 @@ def add_cart(request, product_id):
             print("cart/add_cart,authenticated,cartitem increasing quantity")
             cart_item = CartItem.objects.get(product = product, user = current_user)
             cart_item.quantity += 1 #cart_item.quantity = cart_item.quantity+1
+            if cart_item.product.stock < cart_item.quantity:
+                messages.warning(request, "Sorry, product stock limit exceeded.")
+                return redirect('cart_app:cart')
             cart_item.save()
         except CartItem.DoesNotExist:
             print("cart/add_cart,authenticated,cartitem adding for first time")
@@ -93,6 +97,9 @@ def add_cart(request, product_id):
         try:
             print("cart/add_cart,not authenticated,cartitem adding for first time")
             cart_item = CartItem.objects.get(product = product, cart = cart)
+            if cart_item.product.stock == 0:
+                messages.warning(request, "Sorry, the product is out of stock.")
+                return redirect('cart_app:cart')
             cart_item.quantity += 1 #cart_item.quantity = cart_item.quantity+1
             cart_item.save()
         except CartItem.DoesNotExist:
@@ -105,6 +112,7 @@ def add_cart(request, product_id):
             )
             cart_item.save()
     return redirect('cart_app:cart')
+
 
 def remove_cart(request, product_id):
     product = get_object_or_404(ProductVariant,id=product_id)
