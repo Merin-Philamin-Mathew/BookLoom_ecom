@@ -94,6 +94,7 @@ class Order(models.Model):
     ip = models.CharField(max_length=50,blank=True)
     coupon_code = models.ForeignKey(Coupon,on_delete=models.SET_NULL,null=True,blank=True)
     additional_discount = models.DecimalField(max_digits=50, decimal_places=2, default=0,null=True)
+    wallet_discount = models.DecimalField(max_digits=50, decimal_places=2, default=0,null=True)
     is_ordered = models.BooleanField(default= False)
     razor_pay_order_id = models.CharField(max_length= 100, null=True, blank=True)
     razor_pay_payment_id = models.CharField(max_length= 100, null=True, blank=True)

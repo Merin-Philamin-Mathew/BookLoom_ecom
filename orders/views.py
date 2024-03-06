@@ -17,6 +17,9 @@ from django.http import JsonResponse,HttpResponseBadRequest
 from django.conf import settings
 from django.views.decorators.csrf import csrf_exempt, csrf_protect
 
+
+from django.forms.models import model_to_dict
+
 # By using the transaction.atomic decorator, you ensure that all database operations within the view are performed within a single transaction. 
 # This helps maintain data consistency and prevents partial updates. 
 # The cart items are deleted after rendering the order success page, allowing you to retrieve data from cart items before deletion
@@ -32,13 +35,19 @@ def order_success(request, total=0, quantity=0):
     
     order = Order.objects.filter(user=current_user).last()
     order.order_total=round(order.order_total,2)
+    print("order_total in order_success before anychangings",order.order_total)
+    print('wallet discount in order_success', order.wallet_discount, order.order_number)
     if order.payment != None:
         payment = order.payment
-    elif order.order_total == 0:
+    #for wallet payment 
+    elif order.wallet_discount and int(order.order_total) == int(order.wallet_discount):
+
+        if 'coupon_dis_price' in request.session:
+            order.order_total -= request.session['coupon_dis_price']
         payment = Payment.objects.create(
             payment_id=f'WAL-{current_user.pk:05d}-{custom_datetime.strftime("%Y%m%d%H%M%S")}',
             payment_method='Wallet',
-            amount_paid=request.session['wallet_discount'],
+            amount_paid=order.order_total,
             payment_status='SUCCESS',
         )
         order.payment = payment
@@ -54,16 +63,16 @@ def order_success(request, total=0, quantity=0):
             amount_paid=order.order_total,
             payment_status='PENDING',
         )
-        print("amount_paid w/o wallet_discount", payment.amount_paid)
-        if 'wallet_discount' in request.session:
-            print("amount_paid with wallet_discount", payment.amount_paid)
-            payment.amount_paid = order.order_total + request.session['wallet_discount']
-        order.payment = payment
+        # print("amount_paid w/o wallet_discount", payment.amount_paid)
+        # if 'wallet_discount' in request.session:
+        #     print("amount_paid with wallet_discount", payment.amount_paid)
+        #     payment.amount_paid = order.order_total + request.session['wallet_discount']
+        # order.payment = payment
    
-    print("amount_paid",order.payment.amount_paid)
-    print("order_total",order.order_total)
-    order.order_total = order.payment.amount_paid
-    order.save()
+    # print("amount_paid",order.payment.amount_paid)
+    # print("order_total",order.order_total)
+    # order.order_total = order.payment.amount_paid
+    # order.save()
 
 
     # Save ordered products
@@ -110,6 +119,9 @@ def order_success(request, total=0, quantity=0):
 )
     order.shipping_address = shipping_address
     order.save()
+    print("printing the final order and payment after the order_success")
+    print(model_to_dict(order))
+    print(model_to_dict(payment))
     context = {
         'order': order,
         'total': subtotal,
@@ -162,7 +174,9 @@ def place_order(request, address_id, total=0, quantity=0):
     # Common code for creating an order
     data = Order()
     data.user = current_user
+    data.order_total = grand_total
     if "wallet_discount" in request.session:
+        print("wallet_discount", request.session["wallet_discount"])
         data.order_total = grand_total-request.session["wallet_discount"]
         grand_total = data.order_total
         request.session['grand_total']=data.order_total
@@ -242,7 +256,6 @@ def place_order(request, address_id, total=0, quantity=0):
         current_date = d.strftime("%Y%m%d")
         order_number = current_date + str(data.id)
         data.order_number = order_number
-        
         data.save()
 
         order = Order.objects.get(user=current_user, is_ordered=False, order_number=order_number)
@@ -268,25 +281,24 @@ def apply_wallet(request,order_id):
     wallet = Wallet.objects.get(user=request.user)
     order = Order.objects.filter(order_number = order_id).first()
     if wallet.balance > order.order_total:
-        request.session['wallet_discount'] = order.order_total 
-        print("order_app/apply_wallet/wallet.balance > order.order_total",order.order_total)
-        print("wallet balance before",wallet.balance)
+        order.wallet_discount = order.order_total 
+        print("order.wallet_discount in apply wallet wallet payment",order.wallet_discount , order.order_number)
         wallet.balance -= order.order_total
         Transaction.objects.create(wallet=wallet, amount=order.order_total, transaction_type='DEBIT')
         wallet.save()
-        print("walat_balance after",wallet.balance)
+        order.save()
         messages.success(request, f"Order has been placed with your wallet balance successfully")
-       
+
         return redirect('order_app:order_success')
     else:
-        request.session['wallet_discount'] = wallet.balance
-        print("request.session['wallet_discount']",request.session['wallet_discount'])
+        order.wallet_discount = wallet.balance
         Transaction.objects.create(wallet=wallet, amount=wallet.balance, transaction_type='DEBIT')
         wallet.balance = 0
         wallet.save()
         messages.success(request, f"Successfully used {request.session['wallet_discount']} from wallet balance")
         return redirect('order_app:place_order',order.address.id)
-    
+
+
 def apply_coupon(request):
     print("order_app/apply_coupon")
     data = json.load(request)
@@ -361,7 +373,6 @@ def clear_coupon(request):
         'order_total': grand_total
     })
     
-
 
 @csrf_exempt
 def paymenthandler(request):
