@@ -3,7 +3,7 @@ from adminapp.models import NewUser
 # Create your models here.
 class Wallet(models.Model):
     user    = models.ForeignKey(NewUser, on_delete=models.CASCADE, related_name='wallet' )
-    balance = models.IntegerField(default=0)
+    balance = models.DecimalField(default=0, max_digits=10, decimal_places=2)
     is_active = models.BooleanField(default=True)
 
     def __str__(self):
@@ -16,7 +16,7 @@ class Transaction(models.Model):
         ("REFERRAL", "Referral"),
         )
     wallet           = models.ForeignKey(Wallet, on_delete=models.CASCADE, related_name='transactions')
-    amount           = models.IntegerField(default=0)
+    amount = models.DecimalField(default=0, max_digits=10, decimal_places=2)
     transaction_type = models.CharField(choices=TRANSACTION_CHOICES,max_length=10)
     created_at       = models.DateTimeField(auto_now_add=True)
 

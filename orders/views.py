@@ -17,7 +17,7 @@ from django.http import JsonResponse,HttpResponseBadRequest
 from django.conf import settings
 from django.views.decorators.csrf import csrf_exempt, csrf_protect
 
-
+from decimal import Decimal
 from django.forms.models import model_to_dict
 
 # By using the transaction.atomic decorator, you ensure that all database operations within the view are performed within a single transaction. 
@@ -183,6 +183,8 @@ def place_order(request, address_id, total=0, quantity=0):
     if 'coupon_dis_price' in request.session:
         data.additional_discount = request.session['coupon_dis_price']
         data.order_total = grand_total - float(data.additional_discount)
+        grand_total = data.order_total
+        request.session['grand_total']=data.order_total
     if 'coupon' in request.session:
         coupon_id = request.session['coupon']
         try:
@@ -283,7 +285,7 @@ def apply_wallet(request,order_id):
     if wallet.balance > order.order_total:
         order.wallet_discount = order.order_total 
         print("order.wallet_discount in apply wallet wallet payment",order.wallet_discount , order.order_number)
-        wallet.balance -= order.order_total
+        wallet.balance -= Decimal(str(order.order_total))
         Transaction.objects.create(wallet=wallet, amount=order.order_total, transaction_type='DEBIT')
         wallet.save()
         order.save()
@@ -383,10 +385,11 @@ def paymenthandler(request):
     if request.method == "POST":
         try:
             # Extract payment details from the POST request
+            order_id = request.GET.get('order_id', '')
             payment_id        = request.POST.get('razorpay_payment_id', '')
+            amount         = request.GET.get('amount', '')
             razorpay_order_id = request.POST.get('razorpay_order_id', '')
             signature         = request.POST.get('razorpay_signature', '')
-            amount         = request.GET.get('amount', '')
             
             print(f'1:{payment_id},2:{razorpay_order_id},3:{signature}')
             # Create a dictionary of payment parameters
@@ -433,11 +436,16 @@ def paymenthandler(request):
         except Exception as e:
             # Exception occurred during payment handling
             print('Exception:', str(e))
-            return HttpResponseBadRequest()
+            orde = Order.objects.get(id=order_id)
+            print("jkkkkkkkkkkkkkkk",orde,order_id)
+            return redirect('order_app:payment_failed',order_id) 
     else:
         # Redirect to login page if request method is not POST
         return redirect('order_app:place_order',order.address.id)    
     
+def payment_failed(request,order_id):
+    order = Order.objects.get(id=order_id)
+    return render(request, 'user_template/cart-order-payment/paymentfail.html',{'order':order})
 
 
 
@@ -499,130 +507,5 @@ def download_invoice(request,order_id):
     else:
         # Handle error case here, like displaying an error message to the user.
         return HttpResponse("Failed to generate the invoice.", status=500)
-
-
-
-
-
-# def place_order(request, total=0, quantity=0):
-#     print("order/place_order/")
-#     current_user = request.user
-#     cart_items = CartItem.objects.filter(user=current_user)
-#     cart_count = cart_items.count()
-#     if cart_count <= 0:
-#         return redirect('store_app:view_store')
-#     tax=0
-#     grand_total = 0
-#     for cart_item in cart_items:
-#             total += (cart_item.product.sale_price * cart_item.quantity)
-#             quantity += cart_item.quantity
-#     tax = (2*total)/1001
-#     grand_total = total+tax
-
-#     if request.method == 'POST':
-#         form = AddressForm(request.user, request.POST)
-#         if form.is_valid():
-#             data = Order()
-#             data.user = current_user
-#             address = form.save(commit=False)
-#             address.is_default = True
-#             address.user = request.user  # Set the user before saving
-#             address.save()
-#             data.address = address
-#             #data.payment = request.POST['payment_method']
-#             data.order_note = request.POST['order_note']
-#             data.order_total = grand_total
-#             data.tax = tax
-#             data.ip = request.META.get('REMOTE_ADDR')
-#             data.save()
-#             #genarate order number
-#             yr = int(datetime.date.today().strftime('%Y'))
-#             dt = int(datetime.date.today().strftime('%d'))
-#             mt = int(datetime.date.today().strftime('%m'))
-#             d = datetime.date(yr,mt,dt)
-#             current_date = d.strftime("%Y%m%d")
-#             order_number = current_date + str(data.id)
-#             data.order_number = order_number
-#             data.save()
-            
-#             order = Order.objects.get(user=current_user, is_ordered=False, order_number=order_number)
-#             context= {
-#                  'order':order,
-#                  'cart_items':cart_items,
-#                  'total':total,
-#                  'tax':tax,
-#                  'grand_total':grand_total,
-#                  'payment_method':'Cash on delivery'
-#             }
-#             return render(request, 'user_template/cart-order-payment/payment.html', context)
-#     else:
-#         return redirect('cart_app:checkout')
-       
-
-# def payment(request, total=0, quantity=0):
-#     current_user = request.user
-#     cart_items = CartItem.objects.filter(user=current_user)
-#     tax = 0
-#     grand_total = 0
-    
-#     for cart_item in cart_items:
-#         total += (cart_item.product.sale_price * cart_item.quantity)
-#         quantity += cart_item.quantity
-
-#     tax = (2 * total) / 100
-#     grand_total = total + tax
-
-#     # Set your payment ID here
-#     payment = Payment()
-#     payment.user=current_user,
-#     payment.payment_id=f'COD-{current_user.id:05d}-{datetime.now().strftime("%Y%m%d%H%M%S")}',  # Example: COD-00001-20220101120000
-#     payment.payment_method='Cash on Delivery',
-#     payment.amount_paid=grand_total,
-#     payment.status='Processed',  # Payment status will be updated upon delivery
-    
-#     payment.save()
-
-#     # Get the existing order (you may need to adjust this query)
-#     order = Order.objects.get(user=current_user, is_ordered=False)
-
-#     # Associate the payment with the existing order
-#     order.payment = payment
-#     order.save()
-
-#     # Save ordered products
-#     for cart_item in cart_items:
-#         order_product = OrderProduct(
-#             order=order,
-#             payment=payment,
-#             user=current_user,
-#             product=cart_item.product,
-#             quantity=cart_item.quantity,
-#             product_price=cart_item.product.sale_price,
-#             ordered=True
-#         )
-#         order_product.save()
-#         # Mark the order as ordered
-#         order.is_ordered = True
-#         order.save()
-#         context= {
-#                  'order':order,
-#                  'cart_items':cart_items,
-#                  'total':total,
-#                  'tax':tax,
-#                  'grand_total':grand_total,
-#             }
-
-#         # Update product stock or other relevant data as needed
-#         # cart_item.product.stock -= cart_item.quantity
-#         # cart_item.product.save()
-
-#     # Clear the user's cart after placing the order
-#     cart_items.delete()
-
-#     return render(request, 'user_template/cart-order-payment/review.html',context)
-    
-
-
-
 
 

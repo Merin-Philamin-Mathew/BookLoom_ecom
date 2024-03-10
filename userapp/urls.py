@@ -4,6 +4,7 @@ from django.conf import settings
 from django.conf.urls.static import static
 from wallet.views import wallet as WalletView
 from wallet.views import paymenthandler2 as paymenthandlerView
+from wallet.views import payment_failed as paymentfailedView
 
 app_name = 'user_app'
 
@@ -32,6 +33,7 @@ urlpatterns = [
     
     path('wallet/',WalletView, name='wallet'),
     path('paymenthandler2/',paymenthandlerView,name='paymenthandler2'),
+    path('payment-failed/',paymentfailedView,name='payment_failed'),
     path('myorders', views.myorders, name='my_orders'),
     path('cancelorder', views.cancel_order, name='cancel_order'),
 

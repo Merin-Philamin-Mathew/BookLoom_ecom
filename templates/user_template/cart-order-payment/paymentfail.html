@@ -70,29 +70,6 @@ Username's profile
 </div>
 <!-- ...:::: End Breadcrumb Section:::... -->
 
-<!-- <div class="container">
-    <div class="ui middle aligned center aligned grid">
-      <div class="ui eight wide column">
-     
-        <form class="ui large form">
-                  
-            <div class="ui icon negative message">
-              <i class="warning icon"></i>
-              <div class="content">
-                <div class="header">
-                  Oops! Something went wrong.
-                </div>
-                <p>While trying to reserve money from your account</p>
-              </div>
-              
-           </div>
-        
-            <span class="ui large teal submit fluid button">Try again</span>
-        
-        </form>
-      </div>
-    </div>
-  </div> -->
 
 <div class="container">
    
@@ -102,9 +79,9 @@ Username's profile
         <div class="col-md-5">
             <div class="message-box _success _failed" style="border:1px solid #b19361;">
                 <i class="fa fa-times-circle" aria-hidden="true"></i>
-                <h2> {{user}}'s payment failed </h2>
+                <h2> Your payment failed </h2>
 
-                <a href="{% url 'user_app:wallet' %}" class="btn btn-block btn-golden" >Try Again</a>
+                <a href="{% url 'order_app:place_order' order.address.id%}" class="btn btn-block btn-golden" >Try Again</a>
 
             </div>
         </div>

@@ -373,6 +373,7 @@ function getCookie(name) {
 <!--========== payment ========-->
 <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 <script>
+    const url = window.location.origin
     var options = {
         "key": "rzp_test_fGwLaAdAhjOjbm",
         "amount": "{{payment.amount}}",
@@ -381,7 +382,7 @@ function getCookie(name) {
         "description": "Test Transaction",
         "image": "{% static '/assets/imgs/theme/logom.png' %}",
         "order_id": "{{payment.id}}",
-        "callback_url": "http://127.0.0.1:8000/order/payment-handler/?amount={{payment.amount}}",
+        "callback_url": `${url}/order/payment-handler/?amount={{payment.amount}}&order_id={{order.id}}`,
         "prefill": {
             "name": "{{order.address.name}}",
             //"email": "{{email}}",

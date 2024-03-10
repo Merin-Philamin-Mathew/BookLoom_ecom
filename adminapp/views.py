@@ -927,7 +927,7 @@ def change_order_status(request, id):
     return redirect('admin_app:list_order')
 
 
-#________________________language_management_______________________________________
+#________________________Coupon_management_______________________________________
 #_____________________________________________________________________________________
 
 @login_required(login_url='admin_app:admin_login')

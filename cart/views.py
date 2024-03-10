@@ -69,6 +69,7 @@ def add_cart(request, product_id):
             cart_item = CartItem.objects.get(product = product, user = current_user)
             cart_item.quantity += 1 #cart_item.quantity = cart_item.quantity+1
             if cart_item.product.stock < cart_item.quantity:
+                cart_item.quantity -= 1
                 messages.warning(request, "Sorry, product stock limit exceeded.")
                 return redirect('cart_app:cart')
             cart_item.save()

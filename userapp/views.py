@@ -523,7 +523,7 @@ def update_address(request):
 @login_required(login_url='userapp_app:login')
 def myorders(request):
     current_user = request.user
-    all_orders = Order.objects.filter(user=current_user, is_ordered=True)
+    all_orders = Order.objects.filter(user=current_user, is_ordered=True).order_by('-id')
     all_products = OrderProduct.objects.filter(user=current_user, ordered=True)
     
     context = {
@@ -616,10 +616,6 @@ def cancel_order(request):
 #     if order.created_at
 
 
-
-  
-
-
 def update_password(request):  
     print("userapp/update_password")
     if request.method == 'POST':
@@ -646,7 +642,6 @@ def update_password(request):
             return HttpResponseBadRequest('Invalid credentials')
     context = {}
     return render(request , 'profile/changepass.html',context)
-
 
 
 """ def user_signup(request):

@@ -235,6 +235,7 @@ Username's profile
                 "name": "Book Loom",
                 "description": "Test Transaction",
                 "order_id": paymentOrderId,
+                
                 "callback_url": `http://127.0.0.1:8000/paymenthandler2/?amount=${paymentAmount}&user_id=${userId}`,
                 "prefill": {
                     "name": "{{ request.user.username }}",
@@ -249,6 +250,7 @@ Username's profile
             var rzp1 = new Razorpay(options);
             rzp1.on('payment.failed', function (response) {
                 alert(response.error.code);
+
                 // alert(response.error.description);
                 // alert(response.error.source);
                 // alert(response.error.step);
