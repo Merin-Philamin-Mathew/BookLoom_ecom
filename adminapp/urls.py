@@ -56,7 +56,8 @@ urlpatterns = [
 
     #coupon management____________________________________________________________
     path('coupons', views.coupons, name='coupons'),
-    path('add_coupons', views.add_coupons, name='add_coupons'),
+    # path('add_coupons', views.add_coupons, name='add_coupons'),
+    path('edit_coupons', views.edit_coupons, name='edit_coupons'),
     path('activate_coupon/<int:id>/', views.activate_coupon, name='activate_coupon'),
     path('disable_coupon/<int:id>/', views.disable_coupon, name='disable_coupon'),
     

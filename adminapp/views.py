@@ -1,4 +1,4 @@
-from django.shortcuts import render,redirect
+from django.shortcuts import render,redirect,get_object_or_404
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.cache import never_cache
@@ -930,20 +930,20 @@ def change_order_status(request, id):
 #________________________Coupon_management_______________________________________
 #_____________________________________________________________________________________
 
-@login_required(login_url='admin_app:admin_login')
-def coupons(request):
-    print("admin_app/coupon")
-    if not is_superuser(request):
-        return redirect('user_app:home')
-    coupon = Coupon.objects.all().order_by('-created_at')
-    context = {
-        'coupon': coupon,
-    }
+# @login_required(login_url='admin_app:admin_login')
+# def coupons(request):
+#     print("admin_app/coupon")
+#     if not is_superuser(request):
+#         return redirect('user_app:home')
+#     coupons = Coupon.objects.all().order_by('-created_at')
+#     context = {
+#         'coupons': coupons,
+#     }
     
-    return render(request, 'admin_template/coupon_management/coupon.html',context)
+#     return render(request, 'admin_template/coupon_management/coupon.html',context)
 
 @login_required(login_url='admin_app:admin_login')
-def add_coupons(request):
+def coupons(request):
     if not is_superuser(request):
         return redirect('user_app:home')
     if request.method == "POST":
@@ -956,10 +956,38 @@ def add_coupons(request):
             messages.error(request, 'Error: Invalid data. Please check the form.')
     else:
         form = CouponForm()
-    coupon = Coupon.objects.all().order_by('-created_at')
+        print(form)
+    print(form)
+    print(form)
+    coupons = Coupon.objects.all().order_by('-created_at')
     context = {
         "form": form,
-        'coupon': coupon,
+        'coupons': coupons,
+    }
+    return render(request, 'admin_template/coupon_management/coupon.html', context)
+
+@login_required(login_url='admin_app:admin_login')
+def edit_coupons(request):
+    if not is_superuser(request):
+        return redirect('user_app:home')
+
+    coupon_id = request.GET.get('id', None)
+    coupon = get_object_or_404(Coupon, id=coupon_id)
+
+    if request.method == "POST":
+        form = CouponForm(request.POST, instance=coupon)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Coupon updated successfully.')
+            return redirect('admin_app:coupons')
+        else:
+            messages.error(request, 'Error: Invalid data. Please check the form.')
+    else:
+        form = CouponForm(instance=coupon)
+    coupons = Coupon.objects.all().order_by('-created_at')
+    context = {
+        "form": form,
+        'coupons': coupons,
     }
     return render(request, 'admin_template/coupon_management/coupon.html', context)
 

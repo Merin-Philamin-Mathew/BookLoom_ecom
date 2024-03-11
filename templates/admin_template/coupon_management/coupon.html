@@ -32,21 +32,21 @@ Coupon
                 <div class="card-body">
                     <div class="row">
                         <div class="col-md-4">
-                            <form action="{% url 'admin_app:add_coupons' %}" method="post" enctype="multipart/form-data">
-                                {% csrf_token %}
+                            <form action="" method="post" enctype="multipart/form-data">
+                               {% csrf_token %}
                                 <div class="mb-4">
                                     <label for="code" class="form-label">Code</label>
-                                    <input type="text" placeholder="Enter the coupon code" class="form-control" id="code" name="code" />
+                                    {{form.code}}
                                 </div>
                                 <div class="mb-4">
                                     <div class="row">
                                         <div class="col-md-6">
                                             <label for="discount" class="form-label">Discount </label>
-                                            <input type="number" placeholder="Discount in %" class="form-control" id="id_min_amount" name="discount" />
+                                            {{form.discount}}
                                         </div>
                                         <div class="col-md-6">
                                             <label for="max_discount" class="form-label">Maximum Discount</label>
-                                            <input type="number" placeholder="Maximum discount amount in Rs." class="form-control" id="max_discount" name="max_discount" />
+                                            {{form.max_discount}}
                                         </div>
                                     </div>
                                 </div>
@@ -54,22 +54,31 @@ Coupon
                                     <div class="row">
                                         <div class="col-md-6">
                                             <label for="id_min_amount" class="form-label">Minimum Amount </label>
-                                            <input type="number" placeholder="Minm" class="form-control" id="id_min_amount" name="min_amount" />
+                                            {{form.min_amount}}
+                                            {% comment %} <input type="number" placeholder="Minm" class="form-control" id="id_min_amount" name="min_amount" /> {% endcomment %}
                                         </div>
                                         <div class="col-md-6">
                                             <label for="uses" class="form-label">Uses Per User</label>
-                                            <input type="number" placeholder="Type here" class="form-control" id="uses" name="uses" />
+                                            {{form.uses}}
+                                            {% comment %} <input type="number" placeholder="Type here" class="form-control" id="uses" name="uses" /> {% endcomment %}
                                         </div>
                                     </div>
                                 </div>
                                 
                                 <div class="mb-4">
                                     <label for="id_active_date" class="form-label">Active Date</label>
-                                    <input type="date" class="form-control" id="id_active_date" name="active_date" />
+                                    {{form.active_date}}
+                                    {% comment %} <input type="date" class="form-control" id="id_active_date" name="active_date" /> {% endcomment %}
                                 </div>
                                 <div class="mb-4">
                                     <label for="id_expiry_date" class="form-label">Expiry Date</label>
-                                    <input type="date" class="form-control" id="id_expiry_date" name="expiry_date" />
+                                    {{form.expiry_date}}
+                                </div>
+                                <div class="mb-4">
+                                    <label class="form-check my-2 px-4">
+                                        {{form.active}}
+                                        <span class="form-check-label"> Is Active </span>
+                                    </label>
                                 </div>
                                 <div class="d-grid">
                                     <button class="btn btn-primary" type="submit">Create coupon</button>
@@ -90,11 +99,11 @@ Coupon
                                             <th>Discount</th>
                                             <th>Active Date</th>
                                             <th>Expiry Date</th>
-                                            <th class="text-end">Action</th>
+                                            <th>Action</th>
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        {% for coupon in coupon %}
+                                        {% for coupon in coupons %}
                                         <tr>
                                             <td>{{ coupon.id }}</td>
                                             <td>{{ coupon.code }}</td>
@@ -102,7 +111,8 @@ Coupon
                                             <td>{{ coupon.active_date }}</td>
                                             <td>{{ coupon.expiry_date }}</td>
                                             <td>
-                                                {% if coupon.active %}
+                                                <button class="btn " onclick="editCoupon('{{ coupon.id }}')">Edit</button>
+                                                {% if coupon.active == True %}
                                                 <form action="{% url 'admin_app:disable_coupon' coupon.id %}" method="post" class="d-inline">
                                                     {% csrf_token %}
                                                     <button class="btn btn-primary block-user" data-user-id="">Active</button>
@@ -132,6 +142,13 @@ Coupon
                                     });
                                 });
                             });
+                        </script>
+
+
+                        <script>
+                            function editCoupon(couponId) {
+                                window.location.href = "{% url 'admin_app:edit_coupons' %}" + `?id=${couponId}`;
+                            }
                         </script>
                         
                     </div> <!-- .row // -->
