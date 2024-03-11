@@ -569,14 +569,11 @@ Homeettwe
                         </div>
                     </div>
                 </div>
-                
-                    
-                </div>
             </header>
             <div class="card-body">
-                <div class="table-responsive">
-                    <table class="table table-bordered table-hover">
-                        <thead>
+                <div class="table-responsive" >
+                    <table class="table table-bordered table-hover" id="myTable">
+                        <thead >
                             <tr>
                                 <th>#ID</th>
                                 <th scope="col">Name</th>
@@ -607,12 +604,16 @@ Homeettwe
                             </script>
                             {% endfor %}
                         </tbody>
-                                </tr>
                                 <!--single row with translated books finish-->  
                     </table>
                 </div> <!-- table-responsive end// -->
             </div>
         </div>
+        {% comment %} <script>
+            $(document).ready( function() {
+                $('#myTable').DataTable();
+            });
+        </script> {% endcomment %}
         {% comment %}
         <div class="pagination-area mt-30 mb-50">
             <nav aria-label="Page navigation example">
@@ -626,14 +627,12 @@ Homeettwe
                 </ul>
             </nav>
         </div> {% endcomment %}
-    <!--orders and pagination ends-->
+    
+    
+        <!--orders and pagination ends-->
 </section> <!-- content-main end// -->
-    {% include "includes/admin_footer.html" %}
+   
 </main>
-</body>
 
-
-<!-- Mirrored from wp.alithemes.com/html/evara/evara-backend/index.html by HTTrack Website Copier/3.x [XR&CO'2014], Sun, 01 Aug 2021 15:32:57 GMT -->
-</html>
-
+{% include "includes/admin_footer.html" %}
 {% endblock content %}
