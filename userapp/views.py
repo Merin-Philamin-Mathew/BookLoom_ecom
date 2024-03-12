@@ -49,7 +49,7 @@ def home(request):
         'newproducts':newproducts, 
         'authors':authors,
     }
-    return render(request, 'user_template\home.html', context)
+    return render(request, 'user_template/home.html', context)
 
 #--------------user profile------------------
 @never_cache
@@ -366,8 +366,8 @@ def editprofile(request):
         else:
             error = form.errors
             context = {'form':form, 'error':error}
-            return render(request, 'profile\edit-profile.html',context)
-    return render(request, 'profile\edit-profile.html',{'form':form})
+            return render(request, 'profile/edit-profile.html',context)
+    return render(request, 'profile/edit-profile.html',{'form':form})
    
 @login_required(login_url='userapp_app:login')
 def addressbook(request):
@@ -672,7 +672,7 @@ def update_password(request):
             print("password not matching")
             messages.add_message(request,messages.WARNING,"!!! Password not matching !!!") 
                 
-    return render(request, 'user_template\signup.html') """
+    return render(request, 'user_template/signup.html') """
 
 
 
