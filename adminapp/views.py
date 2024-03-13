@@ -126,7 +126,7 @@ def admin_dashboard(request):
         'data': data,
 
     }
-    return render(request, 'admin_template\index.html', context)
+    return render(request, 'admin_template/index.html', context)
 
 
 class SalesReportPDFView(View):
