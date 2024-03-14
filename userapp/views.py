@@ -25,6 +25,8 @@ from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.utils.encoding import force_bytes
 from django.contrib.auth.tokens import default_token_generator
 from django.core.mail import EmailMessage
+from decimal import Decimal
+
 
 from cart.models import Cart, CartItem
 from cart.views import _cart_id
@@ -38,7 +40,6 @@ NewUser = settings.AUTH_USER_MODEL """
 
 @never_cache
 def home(request):
-    print(request.user)
     if 'referral_code' in request.session:
         del request.session['referral_code']
     products = ProductVariant.objects.all().filter(is_active = True)
@@ -68,7 +69,6 @@ def user_login(request):
                 is_cart_item_exists = CartItem.objects.filter(cart = cart). exists()
                 if is_cart_item_exists:
                     cart_item = CartItem.objects.filter(cart=cart)
-                    print(cart_item)
                     for item in cart_item:
                         item.user = user
                         item.save()
@@ -119,14 +119,12 @@ def user_signup(request):
                 messages.warning(request, "Email already exists")
                 return redirect('user_app:signup')
             referral_code = request.POST.get('referral_code')
-            print("bloom",referral_code)
             if referral_code:
                 check_referal = NewUser.objects.filter(refferal_code=referral_code).first()
                 if not check_referal:
                     messages.warning(request, "There is no such referral code!")
                     return redirect('user_app:signup')
                 request.session['referral_code']=referral_code
-                print(request.session['referral_code'],referral_code)
 
             request.session['registration_form_data']=form.cleaned_data
             otp = random.randint(100000,999999) 
@@ -153,7 +151,6 @@ from django.db import transaction
 @transaction.atomic
 def verify_otp(request):
     if 'otp' in request.session: 
-        print("otp...............", request.session.get('otp'))
         if request.method == 'POST':
             otp = request.POST.get('otp')
             
@@ -170,24 +167,18 @@ def verify_otp(request):
                     raw_password = form_data['password1']  # Get the raw password
                     password = make_password(raw_password, salt=None, hasher="pbkdf2_sha256")
                     user = NewUser(username=username, email=email, phone_number=phone_number, password=password)
-                    print(form_data, 'user created')
                     user.save()
                     if 'referral_code' in request.session:
-                        print(request.session['referral_code'])
                         referral_user = NewUser.objects.filter(refferal_code=request.session['referral_code']).first()
                         wallet = Wallet.objects.get(user = referral_user)
-                        print(wallet.balance,"before")
                         wallet.balance += 100
-                        print(wallet.balance,"after")
                         wallet.save()
                         Transaction.objects.create(wallet=wallet, amount=100, transaction_type='REFERRAL')
 
                     # Authenticate and log in the user
                     authenticated_user = authenticate(request, username=email, password=raw_password)
-                    print(f'Authenticated user: {authenticated_user}')
                     if authenticated_user:
                         login(request, authenticated_user)
-                        print(f'Request user: {request.user}')
                         # providing referal_offer
                         messages.success(request, f'Hey {username}, your account has been created successfully. Welcome to BookLoom!')
                         return redirect('user_app:home')
@@ -289,41 +280,16 @@ def myaccountmanager(request):
     current_user = request.user
     if current_user.is_authenticated:
         user = NewUser.objects.get(username = current_user.username)
-        # country = Country.objects.all()
-        # states = State.objects.all()
-        # addressform = AddressBookForm()
-        # orders = Order.objects.filter(user = request.user).exclude(status="New").order_by('-created_at')
-        
+       
         context = {
-            'user' : user, 
-            # 'states' : states,
-            # 'country' : country,
-            # 'addressform' : addressform, 
-            # 'orders' : orders,   
+            'user' : user,    
         }
-            
-        #context.update(catcom(request))
         try:              #comparing two objects here not fields
             if Profile.objects.filter(user = user).exists:
                 profile = Profile.objects.get(user = user)
                 context['profile'] = profile
         except:
             pass
-        
-        # try:
-        #     if AddressBook.objects.filter(user = user).exists:
-        #         address = AddressBook.objects.filter(user = user)
-        #         context['address'] = address
-        # except:
-        #     pass
-        # try:
-        #     if AddressBook.objects.filter(user = user , default = True).exists:
-        #         d_address = AddressBook.objects.get(user = user ,default = True)
-        #         context['d_address'] = d_address
-        # except:
-        #     pass
-        
-      
         return render(request, 'profile/dashboard.html')
     
     return redirect('user_app:login')
@@ -335,7 +301,6 @@ def accountdetails(request):
     context = {
         'user':user
         }
-    #context.update(catcom(request))
     try:
         if Profile.objects.filter(user = user).exists:
             profile = Profile.objects.get(user = user)
@@ -368,7 +333,9 @@ def editprofile(request):
             context = {'form':form, 'error':error}
             return render(request, 'profile/edit-profile.html',context)
     return render(request, 'profile/edit-profile.html',{'form':form})
-   
+
+###################### ADDRESS MANAGEMENT #######################
+
 @login_required(login_url='userapp_app:login')
 def addressbook(request):
     current_user = request.user
@@ -393,7 +360,6 @@ def addaddress(request):
             return redirect('user_app:address_book')
         else:
             error = form.errors
-            print(error)
             context = {'form': form, 'error': error}
             return render(request, 'profile/add-address.html', context)
     
@@ -406,7 +372,6 @@ def editaddress(request,pk):
     try:
         address=Addresses.objects.get(id = pk)
     except Addresses.DoesNotExist as e :
-        #address = Addresses(user = user)
         pass
 
     if request.method == 'POST':
@@ -419,7 +384,6 @@ def editaddress(request,pk):
             return redirect('user_app:address_book')
         else:
             error = form.errors
-            print(error)
             context = {'form': form, 'error': error}
             return render(request, 'profile/edit-address.html', context)
     else:
@@ -451,74 +415,7 @@ def defaultaddress(request, pk):
         return redirect('user_app:address_book')   
     except Addresses.DoesNotExist:
         return redirect('user_app:address_book')   
-         
-""" 
-def update_address(request):
-
-    if request.method == 'GET':
-        id = request.GET.get('id')
-        try:
-            address = Addresses.objects.get(id = int(id))
-        except Exception as e:
-            print(e)
-            return JsonResponse({
-                'status': 'error',
-                'message': 'Address not found'
-            })
-        
-        address_form = AddressForm(request.POST, instance = address)
-        form_data = model_to_dict(address_form.instance)
-        form_data.pop('country')
-        form_data['country'] = address.country.name
-        print(form_data)
-
-        country_choices = get_country_choices()
-        countries = json.dumps(country_choices)
-        
-        return JsonResponse({
-            'formData': form_data,
-            'countries': countries
-        })
-    
-        # return JsonResponse({
-        #     'id': address.id,
-        #     'name': address.name,
-        #     'phone_number':address.phone_number,
-        #     'addrl1': address.address_line_1,
-        #     'addrl2': address.address_line_2,
-        #     'city': address.city,
-        #     'state': address.state,
-        #     'country': address.get_country_display(),
-        #     'pincode': address.pincode,
-        # })
-    elif request.method =='POST':
-        
-        address_id = request.POST.get('id')
-        try:
-            address = Addresses.objects.get(id = address_id)
-            print(address)
-        except Exception as e:
-            print(e)
-
-        address_form = AddressForm(request.POST,instance = address)
-        if address_form.is_valid():
-            new_address = address_form.save()
-
-            return JsonResponse({
-                "status" : 'Success',
-                'message': 'Address updated successfully'
-            })
-        else:
-            return JsonResponse({
-                "name_error": address_form.errors
-                })    
-
-   
-            
-              
-  """   
-
-
+ 
 ###################### ORDER MANAGEMENT #######################
 @login_required(login_url='userapp_app:login')
 def myorders(request):
@@ -532,30 +429,30 @@ def myorders(request):
     }
     return render(request, 'profile/my-orders.html',context)
 
-""" def order_details(request, order_id):
+def order_detail(request, order_id):
     order = Order.objects.get(id=order_id)
-    order_products = OrderProduct.objects.filter(order=order)
-    payment = Payment.objects.all()
-    for i in payment:
-        print(i.payment_order_id)
-        print(i.payment_id,i.payment_method)
-   
-    status = Order.ORDER_STATUS_CHOICES
-
-
+    ordered_products = OrderProduct.objects.filter(order=order)
+    subtotal =0
+    discount =0
+    for item in ordered_products:
+        subtotal += item.product_price*item.quantity
+        discount += item.product.discount()*item.quantity
+    discount += order.additional_discount
 
     context = {
         'order': order,
-        'order_products': order_products,
-        'status': status,
+        'ordered_products': ordered_products,
+        'subtotal':subtotal,
+        'discount':discount
+        # 'status': status,
     }
-    return render(request, 'admin_templates/order_details.html', context)
+    return render(request, 'profile/order-detail.html', context)
     
- """
+
 
 #################### CANCEL ORDER ########################
+
 def cancel_order(request):
-    print("user_app/cancel_order")
     order_id = request.GET.get('order_id')
     order = Order.objects.get(id=order_id,user=request.user)
     orderproducts = OrderProduct.objects.filter(order=order,user=request.user)
@@ -568,14 +465,13 @@ def cancel_order(request):
                 product.product.save()
 
                 # Set the quantity of the canceled product to 0
-                product.quantity = 0
                 product.save() 
         order.order_status = 'Cancelled'
         order.save()
-        if order.payment.payment_method == 'Razor-pay':
+        if order.payment.payment_method == 'Razor-pay' or order.payment.payment_method == 'Wallet' :
             amount = order.order_total
             wallet=Wallet.objects.get(user=request.user)
-            wallet.balance+=amount
+            wallet.balance+=Decimal(amount)
             Transaction.objects.create(wallet=wallet, amount=amount, transaction_type='CREDIT')
             wallet.save()
             messages.success(request, f"your cancelled products amount, ₹{amount} has been credited to the wallet!")
@@ -590,7 +486,6 @@ def cancel_order(request):
                     product.product.save()
 
                     # Set the quantity of the canceled product to 0
-                    product.quantity = 0
                     product.save()
             messages.success(request, f"Order return initiated successfully , Our pickup team will be at the deliverd address shortly")
             order.order_status = 'Returned'
@@ -606,7 +501,6 @@ def cancel_order(request):
     order.save()       
     
     # if order.created_at < datetime.datetime.now() - datetime.timedelta(days=7):
-    print(order.order_status)
     return redirect('user_app:my_orders')    
 
 ################### RETURN ORDER #################
@@ -617,62 +511,22 @@ def cancel_order(request):
 
 
 def update_password(request):  
-    print("userapp/update_password")
     if request.method == 'POST':
-        print("userapp/update_password/post")
         try:
-            print("userapp/update_password/post/try")
             user = request.user
             user = NewUser.objects.get(id = user.id)
         except:
-            print("userapp/update_password/post/except")
             pass
         old_password = request.POST.get('oldPassword')
         new_password = request.POST.get('newPassword')
-        print(new_password)
         if user and check_password(old_password, user.password):
-            print("userapp/update_password/post/user and check_password(old_password, user.password)")
             user.password = make_password(new_password)
             user.save()
-            print(user.password)
             return JsonResponse({'message': 'Password update successful'})
         else:
-            print("userapp/update_password/post/not equal")
-            print(user.password)
             return HttpResponseBadRequest('Invalid credentials')
     context = {}
     return render(request , 'profile/changepass.html',context)
-
-
-""" def user_signup(request):
-    # if request.user.is_authenticated:    
-    #     return redirect(home)
-    if request.method == 'POST':
-        username = request.POST['username']
-        email = request.POST['email']
-        password = request.POST['password']
-        password2 = request.POST['password2']
-        
-        if password == password2:
-            if NewUser.objects.filter(username=username):
-                messages.add_message(request,messages.WARNING, "!!! Username Already Exist !!!")
-                print("!!! Username Already Exist !!!")
-            elif NewUser.objects.filter(email=email):
-                messages.add_message(request,messages.WARNING, "!!! Email Already exist !!!")
-                print("!!! Email Already exist !!!")
-            else:
-                password = make_password(password, salt=None, hasher="pbkdf2_sha256")
-                user = NewUser(username=username, email=email, password=password)
-                user.save()
-                user = authenticate(request ,username=email, password=password2)
-                login(request, user)
-                messages.success(request, f'hey {username}, your account has created succesfully')
-                return redirect('user_app:home')          
-        else:
-            print("password not matching")
-            messages.add_message(request,messages.WARNING,"!!! Password not matching !!!") 
-                
-    return render(request, 'user_template/signup.html') """
 
 
 

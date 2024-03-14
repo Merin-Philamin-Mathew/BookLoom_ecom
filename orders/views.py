@@ -25,7 +25,6 @@ from django.forms.models import model_to_dict
 # The cart items are deleted after rendering the order success page, allowing you to retrieve data from cart items before deletion
 @transaction.atomic
 def order_success(request, total=0, quantity=0):
-    print('order/order_success')
     
     current_user = request.user
     cart_items = CartItem.objects.filter(user=current_user)
@@ -35,8 +34,6 @@ def order_success(request, total=0, quantity=0):
     
     order = Order.objects.filter(user=current_user).last()
     order.order_total=round(order.order_total,2)
-    print("order_total in order_success before anychangings",order.order_total)
-    print('wallet discount in order_success', order.wallet_discount, order.order_number)
     if order.payment != None:
         payment = order.payment
     #for wallet payment 
@@ -53,30 +50,25 @@ def order_success(request, total=0, quantity=0):
         order.payment = payment
     else:
         if order.order_total >= 1000:
-            print("haii,,order.order_total >= 1000")
             messages.warning(request, "Can't proceed with cash on delivery for order above Rs 1000")
             return redirect('order_app:place_order' ,order.address.id)      
-        print("helloooooooooooo")
         payment = Payment.objects.create(
             payment_id=f'COD-{current_user.pk:05d}-{custom_datetime.strftime("%Y%m%d%H%M%S")}',
             payment_method='Cash on Delivery',
             amount_paid=order.order_total,
             payment_status='PENDING',
         )
+        order.payment = payment
         # print("amount_paid w/o wallet_discount", payment.amount_paid)
         # if 'wallet_discount' in request.session:
         #     print("amount_paid with wallet_discount", payment.amount_paid)
         #     payment.amount_paid = order.order_total + request.session['wallet_discount']
         # order.payment = payment
    
-    # print("amount_paid",order.payment.amount_paid)
-    # print("order_total",order.order_total)
-    # order.order_total = order.payment.amount_paid
-    # order.save()
-
 
     # Save ordered products
     for cart_item in cart_items:
+
         order_product = OrderProduct(
             order=order,
             payment=payment,
@@ -93,6 +85,7 @@ def order_success(request, total=0, quantity=0):
     # Mark the order as ordered
 
     order.is_ordered = True
+    order.order_status = 'Confirmed'
     order.save()
     dummy_orders = Order.objects.filter(is_ordered = False)
     dummy_orders.delete()
@@ -119,9 +112,6 @@ def order_success(request, total=0, quantity=0):
 )
     order.shipping_address = shipping_address
     order.save()
-    print("printing the final order and payment after the order_success")
-    print(model_to_dict(order))
-    print(model_to_dict(payment))
     context = {
         'order': order,
         'total': subtotal,
@@ -169,14 +159,12 @@ def place_order(request, address_id, total=0, quantity=0):
 
     tax = (2 * total) / 100
     grand_total = round(float(total + tax),2)
-    print("grand_total",grand_total)
     request.session['grand_total']=grand_total
     # Common code for creating an order
     data = Order()
     data.user = current_user
     data.order_total = grand_total
     if "wallet_discount" in request.session:
-        print("wallet_discount", request.session["wallet_discount"])
         data.order_total = grand_total-request.session["wallet_discount"]
         grand_total = data.order_total
         request.session['grand_total']=data.order_total
@@ -208,9 +196,6 @@ def place_order(request, address_id, total=0, quantity=0):
     payment = client.order.create({'amount': amount, 'currency':'INR','payment_capture':1})
     data.razor_pay_order_id = payment['id']
 
-    print('*********')
-    print(payment)
-    print('*********')
     if request.method == 'POST':
         form = AddressForm(request.user, request.POST)
         if form.is_valid():
@@ -243,6 +228,7 @@ def place_order(request, address_id, total=0, quantity=0):
                 'discount':discount,
                 'wallet':wallet
             }
+
             return render(request, 'user_template/cart-order-payment/payment.html', context)
 
     elif address_id:
@@ -274,6 +260,7 @@ def place_order(request, address_id, total=0, quantity=0):
             'wallet':wallet
 
         }
+
         return render(request, 'user_template/cart-order-payment/payment.html', context)
 
     else:
@@ -284,7 +271,6 @@ def apply_wallet(request,order_id):
     order = Order.objects.filter(order_number = order_id).first()
     if wallet.balance > order.order_total:
         order.wallet_discount = order.order_total 
-        print("order.wallet_discount in apply wallet wallet payment",order.wallet_discount , order.order_number)
         wallet.balance -= Decimal(str(order.order_total))
         Transaction.objects.create(wallet=wallet, amount=order.order_total, transaction_type='DEBIT')
         wallet.save()
@@ -303,14 +289,12 @@ def apply_wallet(request,order_id):
 
 
 def apply_coupon(request):
-    print("order_app/apply_coupon")
     data = json.load(request)
     try:
         order = Order.objects.filter(order_number = data['order_id']).first()
         coupon = Coupon.objects.get(code__iexact= data['coupon'], is_expired=False)
         order_total = order.order_total
     except Exception as e:
-        print("noooo")
         
         return JsonResponse({
             "coupon_message":"This coupon doesn't exist!"
@@ -328,29 +312,23 @@ def apply_coupon(request):
         except Exception as e:
             print(e)
             
-        print("check_coupon",check_coupon.user,check_coupon.uses)
         if check_coupon.uses >= coupon.uses:
-            print("kore aayi coupon use cheyyane")
             return JsonResponse({
             "coupon_message":f'You already used this coupon {coupon.uses} !'
 
             })
         
-        print("fdkjls",order_total)
         if order_total >= min_amount:
-            print("order_total >= min_amount")
             if coupon_dis_price <= coupon.max_discount:
                 order_total -= coupon_dis_price
             else:
                 order_total -= coupon.max_discount
             order_total =round(order_total,2)
             # check_coupon.uses += 1
-            print("check_coupon",check_coupon.user,check_coupon.uses)
             check_coupon.save()
             request.session['coupon_dis_price']=coupon_dis_price
             request.session['coupon']=coupon.pk
         else:
-            print(f"Coupon applied only for order above Rs.{min_amount} ")
             return JsonResponse({
                 'coupon_message':f"Coupon applied only for order above Rs.{min_amount}"
             })
@@ -362,8 +340,6 @@ def apply_coupon(request):
 
 
 def clear_coupon(request):
-    print("order_app/clear_coupon")
-    print(request.session.values())
     data = json.load(request)
     if 'coupon_dis_price' in request.session:
         del request.session['coupon_dis_price']
@@ -379,7 +355,6 @@ def clear_coupon(request):
 
 @csrf_exempt
 def paymenthandler(request):
-    print("Payment Handler endpoint reached")
  
     # only accept POST request.
     if request.method == "POST":
@@ -391,7 +366,6 @@ def paymenthandler(request):
             razorpay_order_id = request.POST.get('razorpay_order_id', '')
             signature         = request.POST.get('razorpay_signature', '')
             
-            print(f'1:{payment_id},2:{razorpay_order_id},3:{signature}')
             # Create a dictionary of payment parameters
             params_dict = {
                 'razorpay_order_id': razorpay_order_id,
@@ -424,12 +398,11 @@ def paymenthandler(request):
                 # payment.payment_id = payment_id
                 # payment.payment_signature = signature
                 payment.save()
-                print("payment",payment)
+             
                 order = Order.objects.filter(razor_pay_order_id=razorpay_order_id).last()
                 order.payment = payment
                 order.save()
-                print("order",order,"order.payment",order.payment)
-                
+               
                 # Here you can add your logic to handle the payment and update your database accordingly
                 
                 return redirect('order_app:order_success')  # Redirect to success page
@@ -437,7 +410,7 @@ def paymenthandler(request):
             # Exception occurred during payment handling
             print('Exception:', str(e))
             orde = Order.objects.get(id=order_id)
-            print("jkkkkkkkkkkkkkkk",orde,order_id)
+           
             return redirect('order_app:payment_failed',order_id) 
     else:
         # Redirect to login page if request method is not POST
@@ -471,7 +444,7 @@ def save_pdf(params:dict):
     
 
 def download_invoice(request,order_id):
-    print('payment download_invoice')
+    
     try:
         order = Order.objects.get(order_number=order_id, is_ordered= True)
         order.status = 'Confirmed'

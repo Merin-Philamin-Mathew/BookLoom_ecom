@@ -151,7 +151,20 @@ signup
                                         {% endif %}
                                         
                                         <div class="product-action-1 show">
+                                            {% if product.stock <= 0 %}
+                                            <a>
+                                                <button aria-label="Add To Cart" class="btn btn-danger px-2 rounded-circle d-flex align-items-center justify-content-center" style="background-color: #fda9a9; border-color: #fff4f4; width: 40px;" data-toggle="tooltip" data-placement="top" title="Out of stock">
+                                                    <i class="fi-rs-cross"></i>
+                                                </button>
+                                            </a>    
+                                            <script>
+                                                $(function () {
+                                                    $('[data-toggle="tooltip"]').tooltip();
+                                                });
+                                            </script>                                        
+                                            {% else %}
                                             <a href="{% url 'cart_app:add_cart' product.id %}"><button aria-label="Add To Cart" class="action-btn hover-up add-to-cart-btn" id="add-to-cart-btn" data-index="{{ product.id }}"><i class="fi-rs-shopping-bag-add"></i></button></a>
+                                            {% endif %}
                                         </div>
                                 </div>
                             </div>

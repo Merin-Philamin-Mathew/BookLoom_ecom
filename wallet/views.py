@@ -81,7 +81,6 @@ def paymenthandler2(request):
                 return render(request, 'profile/paymentfail.html')
                 # return JsonResponse({'message': 'Payment signature verification failed'})
             else:
-                print(request.user)
                 amount = int(request.GET.get('amount'))
                 user_id = request.GET.get('user_id')
                 if amount:

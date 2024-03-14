@@ -116,18 +116,6 @@ class Order(models.Model):
         return False
     
 class OrderProduct(models.Model):
-    # STATUS = (
-    #     ('Nefw','Nefw'),
-    #     ('Accepted','Accepted'),
-    #     ('Completed','Completed'),
-    #     ('Cancelled','Cancelled'),
-    #     ('Confirmed','Confirmed'),
-    #     ('shipping','shipping'),
-    #     ('Delivered','Delivered'),
-    #     ('Cancelled','Cancelled'),
-    #     ('Return initiated','Return initiated'),
-    #     ('Returned','Returned'),
-    # )
     order = models.ForeignKey(Order, on_delete=models.CASCADE,related_name= 'ordered_products')
     payment = models.ForeignKey(Payment, on_delete=models.SET_NULL,blank=True, null=True)
     user = models.ForeignKey(NewUser, on_delete=models.CASCADE)

@@ -68,6 +68,8 @@ def get_month_name(month):
         12: 'December'
     }
     return months_in_english[month]
+from django.core.paginator import Paginator
+
 @never_cache
 @login_required(login_url='admin_app:admin_login')
 def admin_dashboard(request):
@@ -101,9 +103,8 @@ def admin_dashboard(request):
     start_date = request.GET.get('start_date')
     end_date = request.GET.get('end_date')
     status = request.GET.get('status')
-    print("dfds",start_date,end_date,)
     # Filter orders based on date range and status
-    all_orders = Order.objects.all().order_by('-id')
+    all_orders = Order.objects.all().order_by('-id').exclude(order_status = 'New')
     if start_date and end_date:
         all_orders = all_orders.filter(created_at__gte=start_date, created_at__lt=end_date)
     elif start_date:
@@ -111,10 +112,18 @@ def admin_dashboard(request):
     elif end_date:
         all_orders = all_orders.filter(created_at__lt=end_date)
     if status and status != 'Status':
-        print("0000000000000000000000000000",status)
         all_orders = all_orders.filter(order_status=status)
+    top_selling_products = OrderProduct.objects.filter(
+    product__product__more_details__translator=None
+    ).values(
+        'product__product__product_name', 
+        'product__product__more_details__thumbnail_image',
+        'product__product__category__category_name', 
+        'product__product__author__author_name', 
+    ).annotate(
+        product_selling_total=Sum('quantity')
+    ).order_by('-product_selling_total')[:10]
 
-    
     context = {
         "revenue":revenue,
         "monthly_revenue":monthly_revenue,
@@ -124,8 +133,10 @@ def admin_dashboard(request):
         "product_count":products.count(),
         "category_count":categories.count(),
         'data': data,
+        'top_selling_products':top_selling_products
 
     }
+    
     return render(request, 'admin_template/index.html', context)
 
 
@@ -162,7 +173,6 @@ class SalesReportPDFView(View):
         start_date = request.GET.get('start_date')
         end_date = request.GET.get('end_date')
         status = request.GET.get('status')
-        print("dfds",start_date,end_date,)
         # Convert start_date and end_date to timezone-aware datetime objects
         start_date = timezone.make_aware(datetime.strptime(start_date, '%Y-%m-%d')) if start_date else None
         end_date = timezone.make_aware(datetime.strptime(end_date, '%Y-%m-%d')) if end_date else None
@@ -178,18 +188,6 @@ class SalesReportPDFView(View):
         if status and status != 'Status':
             all_orders = all_orders.filter(order_status=status)
       
-        # delivered_orders_this_month = Order.objects.filter(
-        #     payment=payments,
-        #     deliverd_at__year=current_date.year,
-        #     deliverd_at__month=current_date.month
-        # )
-        # month_len = len(delivered_orders_this_month)
-        # revenue_this_month = delivered_orders_this_month.aggregate(Sum('order_total'))['order_total__sum']
-        # # response = HttpResponse(content_type='application/pdf')
-        # response['Content-Disposition'] = 'attachment; filename="sales_report.pdf"'
-
-        # return response
-        print("dfsddfsfsdsdfsdf",all_orders)
         params = {
             'total_users' :total_users,
             'new_orders' : new_orders,
@@ -220,7 +218,6 @@ def userinfo(request):
         return redirect('user_app:home')
     users = NewUser.objects.filter(is_superuser = False)
     return render(request, 'admin_template/user_management/all_user.html', {'users':users})
-
 
 @login_required(login_url='admin_app:admin_login')
 def adduser(request):
@@ -268,10 +265,6 @@ def edituser(request,pk):
             password = request.POST['password']
             password = make_password(password, salt=None, hasher="pbkdf2_sha256")
             if NewUser.objects.filter(user_id=pk):
-                #checking the userdata before and after editing are not the same
-                #befor saving the post form 
-                #if any data of anyfield is same==changes are not done.
-                #no need to go to that field again
                 user = NewUser.objects.get(user_id=pk)
                 if email and user.email != email:
                     if NewUser.objects.filter(email=email):
@@ -352,17 +345,9 @@ def addproducts(request):
         thumbnail_image = request.FILES.get('thumbnail_image')  
         
         if request.method == 'POST':
-            # author_form = AuthorForm(request.POST, request.FILES)
             proform = ProductForm(request.POST)
             images = request.FILES.getlist('image')
             form = ProductVariantForm(request.POST, request.FILES)
-            # add_img_form = AdditionalProductImages(request.POST, request.FILES)
-            print("proform.errors",proform.errors)
-            print("form.errors",form.errors)   
-            # print("author",author_form.errors)   
-            # if author_form.is_valid():
-            #     author = author_form.save()
-            
             
             if all([form.is_valid(), proform.is_valid()]):
                 
@@ -371,12 +356,6 @@ def addproducts(request):
                 product_variant = form.save(commit=False)
                 product_variant.product = product
                 product_variant.save()
-                # addimg = add_img_form.save = ()
-                # adobj = AdditionalProductImages.objects.all()
-                # adobj.product_variant = provar
-                # adobj.image = addimg
-                # adobj.is_active = True
-                # adobj.save()
                 for image in images:
                     AdditionalProductImages.objects.create(product_variant=product_variant, image=image)
                 product_variant.save()
@@ -387,8 +366,6 @@ def addproducts(request):
                 error = form.errors
                 proerror = proform.errors
                 context = {'form':form, 'error':error, 'proform':proform,'proerror':proerror}
-                print("error",error)
-                print("proerror",proerror)
                 return render(request, 'admin_template/product-category/add-products.html',context)
         else:
             # authorform = AuthorForm()
@@ -482,8 +459,6 @@ def addproductvariant(request,slug):
             else:
                 error = form.errors
                 proerror = proform.errors
-                print("var",error)
-                print("pro",proerror)
                 context = {'form':form,'proform':proform, 'error':error, 'proerror':proerror}
                 return render(request, 'admin_template/product-category/add-pro-variant.html',context)
    
@@ -500,22 +475,7 @@ def addproductvariant(request,slug):
 
 #________________________Category_management___________________________________________
 #_____________________________________________________________________________________
-""" def listcategory(request):
-    if request.user.is_superuser:
-        if request.method == 'POST':
-            #save new categories if method='POST'
-            cat_name = request.POST['category_name']
-            slug = request.POST['slug']
-            description = request.POST['description']
-            parent = request.POST['parent']
-            catinfo = Category(category_name=cat_name, slug=slug, description=description,parent=parent)
-            catinfo.save()
-        #listing the category objects
-        cat_data = Category.objects.all()
-        context = {'cat_data':cat_data}
-        return render(request, 'admin_template/product-category/category-list.html', context)
-    return render(request, 'admin_template/product-category/category-list.html')
- """
+
 @login_required(login_url='admin_app:admin_login')
 def listcategory(request):
     if not request.user.is_superuser:
@@ -822,75 +782,13 @@ def addlanguage(request):
 
 
 
-# def editproducts(request,slug):
-#     if request.user.is_superuser:
-#         productvar = ProductVariant.objects.get(product_variant_slug=slug)   
-#         pro = productvar.product.all()
-#         print(pro,'pro')
-#         #if varients take that also
-#         #product_variants = ProductVariant.objects.filter(product = product)
-#         form = ProductVariantForm(instance = productvar)
-#         proform = ProductForm(instance = product)
-#         # if request.method == 'GET':
-#         #     proinfo = Product.objects.get(slug=slug)
-#         #     context = {
-#         #         'pro_data':proinfo
-#         #     }
-#         #     return render(request, 'admin_template/product-category/edit-products.html',context)
-    
-#     #after submit button
-#         if request.method == 'POST':
-#             form = ProductVariantForm(request.POST, request.FILES, instance=productvar)  
-#             proform = ProductForm(request.POST,instance=product)
-#             # product_name = request.POST['product_name']
-#             # description = request.POST['description']
-#             # slug = request.POST['slug'] 
-#             if all([form.is_valid(), proform.is_valid()]):
-#            # proinfo = Product.objects.get(slug=slug)
-#             # if product_name and proinfo.product_name != product_name:
-#             #     if Product.objects.filter(product_name=product_name):
-#             #         messages.add_message(request, messages.WARNING, 'product exists' )
-#             #         return render(request,'admin_template/product-category/edit-products.html')
-#             #     else:
-#             #         proinfo.product_name = product_name
-
-#             # if proinfo.description != description:
-#             #     proinfo.description = description
-                
-#             # if proinfo.slug != slug:
-#             #     if Product.objects.filter(slug=slug):
-#             #         messages.add_message(request, messages.WARNING, 'slug exists' )
-#             #         return render(request,'admin_template/product-category/edit-products.html')
-#             #     else:
-#             #         proinfo.slug = slug
-#                 product = proform.save(commit=False)
-#                 product.save()
-#                 product_variant = form.save(commit=False)
-#                 product_variant.product = product
-#                 product_variant.save()
-#                 messages.success(request,"Product updated")
-#                 return redirect('admin_app:list_products')
-#             else:
-#                 error = form.errors
-#                 context = {'form':form, 'error':error}
-#                 return render(request, 'admin_template/product-category/edit-products.html',context)
-   
-#         context = {
-#             'form': form,
-#             #'product_variants':product_variants, 
-#             'slug': slug,
-#         }
-#         return render(request,'admin_template/product-category/edit-products.html',context)   
-#     else:
-#         return redirect('user_app:home') 
-
 #________________________order_management_______________________________________
 #_____________________________________________________________________________________
 @login_required(login_url='admin_app:admin_login')
 def listorder(request):
     if not request.user.is_superuser:
         return redirect('user_app:home')
-    orders = Order.objects.all().order_by('-id')
+    orders = Order.objects.all().order_by('-id').exclude(order_status = 'New')
 
     context = {
         'all_orders':orders
@@ -930,18 +828,6 @@ def change_order_status(request, id):
 #________________________Coupon_management_______________________________________
 #_____________________________________________________________________________________
 
-# @login_required(login_url='admin_app:admin_login')
-# def coupons(request):
-#     print("admin_app/coupon")
-#     if not is_superuser(request):
-#         return redirect('user_app:home')
-#     coupons = Coupon.objects.all().order_by('-created_at')
-#     context = {
-#         'coupons': coupons,
-#     }
-    
-#     return render(request, 'admin_template/coupon_management/coupon.html',context)
-
 @login_required(login_url='admin_app:admin_login')
 def coupons(request):
     if not is_superuser(request):
@@ -956,9 +842,6 @@ def coupons(request):
             messages.error(request, 'Error: Invalid data. Please check the form.')
     else:
         form = CouponForm()
-        print(form)
-    print(form)
-    print(form)
     coupons = Coupon.objects.all().order_by('-created_at')
     context = {
         "form": form,

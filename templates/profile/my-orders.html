@@ -3,19 +3,10 @@
 {% load static %}
 
 {% block title %}
-Username's profile
+{{user.username|title}}'s Orders
 {% endblock %}
 
 {% block content %}
-<style>
-    .modal-custom{
-        position: fixed;
-        top: 120px;
-        right: 0;
-        bottom: 0;
-        left: 0;
-    }
-   </style>
    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>
 
 <body>
@@ -30,9 +21,9 @@ Username's profile
     <div class="page-header breadcrumb-wrap">
         <div class="container">
             <div class="breadcrumb">
-                <a href="index.html" rel="nofollow">Home</a>
+                <a href={% url "user_app:home" %} rel="nofollow">Home</a>
                 <span></span> Pages
-                <span></span> Account
+                <span></span><a href={% url "user_app:account_details" %} rel="nofollow">Account</a>
                 <span></span> My Orders
             </div>
         </div>
@@ -73,7 +64,7 @@ Username's profile
                                             {% for order in all_orders %}
                                             <tr>
                                                 <td  rowspan="{{ order.ordered_products.count }}"> <!-- Set rowspan to the number of products in the order -->
-                                                    <a href="cart.html" class="view ">{{ order.order_number }}</a>
+                                                    <a href="{% url 'user_app:order_detail' order.id %}" class="view ">{{ order.order_number }}</a>
                                                     <br>
                                                     {% if order.order_status == 'Delivered' %}
                                                         <a href="#" class="return-order " data-order-id="{{ order.id }}" data-order-created-at='{{ order.created_at|date:"Y-m-d\TH:i:s" }}'>Return</a>

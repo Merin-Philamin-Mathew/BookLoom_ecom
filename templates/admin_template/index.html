@@ -19,9 +19,6 @@ Homeettwe
                 <h2 class="content-title card-title">Dashboard </h2>
                 {% comment %} <p>Whole data about your business here</p> {% endcomment %}
             </div>
-            <div>
-                <a href="{% url 'admin_app:sales_report_pdf' %}" class="btn btn-primary"><i class="text-muted material-icons md-post_add"></i>Download report</a>
-            </div>
         </div>
         <div class="row">
             <div class="col-lg-3">
@@ -82,7 +79,7 @@ Homeettwe
         <script type="text/javascript" src="https://www.google.com/jsapi"></script>
         <div class="row">
             <div class="col-xl-8 col-lg-12">
-                <div class="card mb-4">
+                <div class="card mb-4 ">
                     <article class="card-body">
                         <h5 class="card-title">Sale statistics</h5>
                         <div id="bar-chart"></div>
@@ -90,7 +87,54 @@ Homeettwe
                     </article>
                 </div>
             </div>
-    
+            <div class="col-xl-4 col-lg-12">  
+                <div class="card p-4">
+                    <h5 class="card-title">Best Selling Products</h5>
+                    <div class="row">
+                        <div class="row mb-4">
+                            {% for product_info in top_selling_products %}
+                                {% if product_info.product__product__more_details__translator == None and product_info.product__product__more_details__thumbnail_image %}
+                                    <div class="col">
+                                        <div class="dropdown nav-item">
+                                            <span class="dropdown-toggle" data-bs-toggle="dropdown" href="#" id="dropdownAccount" aria-expanded="false">
+                                                <img class="img-xs rounded-circle" src="/media/{{ product_info.product__product__more_details__thumbnail_image }}" alt="{{ product_info.product__product__product_name }}">
+                                            </span>
+                                            <div class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdownAccount">
+                                                <span class="dropdown-item text-danger"><i class="material-icons md-exit_to_app"></i>{% if product_info.product__product__product_name %}
+                                                    {{ product_info.product__product__product_name }}
+                                                {% endif %}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                {% endif %}
+                            {% endfor %}
+                        </div>
+                    </div>
+                    <div class="row mt-4">
+                        <div class="col-5">
+                            <h5 class="mb-1">Popular Authors</h5>
+                            <ul>
+                                {% for product_info in top_selling_products %}
+                                    {% if product_info.product__product__more_details__translator == None %}
+                                        <li>{% if product_info.product__product__author__author_name %}{{ product_info.product__product__author__author_name }}{% endif %}</li>
+                                    {% endif %}
+                                {% endfor %}
+                            </ul>
+                        </div>
+                        <div class="col-7">
+                            <h5 class="mb-1">Best Selling Categories</h5>
+                            <ul>
+                                {% for product_info in top_selling_products %}
+                                    {% if product_info.product__product__more_details__translator == None %}
+                                        <li>{% if product_info.product__product__category__category_name %}{{ product_info.product__product__category__category_name }}{% endif %}</li>
+                                    {% endif %}
+                                {% endfor %}
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                
+            </div>
             <style>
                         
             #charted {
@@ -352,178 +396,10 @@ Homeettwe
         <!--salegraph newuser....evara-->
          <div class="row">
             <div class="col-xl-8 col-lg-12">
-                {% comment %} <div class="card mb-4">
-                    <article class="card-body">
-                        <h5 class="card-title">Sale statistics</h5>
-                        <canvas id="myChart" height="120px"></canvas>
-                    </article>
-                </div> {% endcomment %}
-            {% comment %}
-                <div class="row">
-                    <div class="col-lg-5">
-                        <div class="card mb-4">
-                            <article class="card-body">
-                                <h5 class="card-title">New Members</h5>
-                                <div class="new-member-list">
-                                    <div class="d-flex align-items-center justify-content-between mb-4">
-                                        <div class="d-flex align-items-center">
-                                            <img src="{% static 'assets2/imgs/people/avatar4.jpg' %}" alt="" class="avatar">
-                                            <div>
-                                                <h6>Patric Adams</h6>
-                                                <p class="text-muted font-xs">
-                                                    Sanfrancisco
-                                                </p>
-                                            </div>
-                                        </div>
-                                        <a href="#" class="btn btn-xs"><i class="material-icons md-add"></i> Add</a>
-                                    </div>
-                                    <div class="d-flex align-items-center justify-content-between mb-4">
-                                        <div class="d-flex align-items-center">
-                                            <img src="{% static 'assets2/imgs/people/avatar2.jpg' %}" alt="" class="avatar">
-                                            <div>
-                                                <h6>Dilan Specter</h6>
-                                                <p class="text-muted font-xs">
-                                                    Sanfrancisco
-                                                </p>
-                                            </div>
-                                        </div>
-                                        <a href="#" class="btn btn-xs"><i class="material-icons md-add"></i> Add</a>
-                                    </div>
-                                    <div class="d-flex align-items-center justify-content-between mb-4">
-                                        <div class="d-flex align-items-center">
-                                            <img src="{% static 'assets2/imgs/people/avatar3.jpg' %}" alt="" class="avatar">
-                                            <div>
-                                                <h6>Tomas Baker</h6>
-                                                <p class="text-muted font-xs">
-                                                    Sanfrancisco
-                                                </p>
-                                            </div>
-                                        </div>
-                                        <a href="#" class="btn btn-xs"><i class="material-icons md-add"></i> Add</a>
-                                    </div>
-                                </div>
-                            </article>
-                        </div>
-                    </div>
-                    <div class="col-lg-7">
-                        <div class="card mb-4">
-                            <article class="card-body">
-                                <h5 class="card-title">Recent activities</h5>
-                                <ul class="verti-timeline list-unstyled font-sm">
-                                    <li class="event-list">
-                                        <div class="event-timeline-dot">
-                                            <i class="material-icons md-play_circle_outline font-xxl"></i>
-                                        </div>
-                                        <div class="media">
-                                            <div class="me-3">
-                                                <h6><span>Today</span> <i class="material-icons md-trending_flat text-brand ml-15 d-inline-block"></i></h6>
-                                            </div>
-                                            <div class="media-body">
-                                                <div>
-                                                    Lorem ipsum dolor sit amet consectetur
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </li>
-                                    <li class="event-list active">
-                                        <div class="event-timeline-dot">
-                                            <i class="material-icons md-play_circle_outline font-xxl animation-fade-right"></i>
-                                        </div>
-                                        <div class="media">
-                                            <div class="me-3">
-                                                <h6><span>17 May</span> <i class="material-icons md-trending_flat text-brand ml-15 d-inline-block"></i></h6>
-                                            </div>
-                                            <div class="media-body">
-                                                <div>
-                                                    Debitis nesciunt voluptatum dicta reprehenderit
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </li>
-                                    <li class="event-list">
-                                        <div class="event-timeline-dot">
-                                            <i class="material-icons md-play_circle_outline font-xxl"></i>
-                                        </div>
-                                        <div class="media">
-                                            <div class="me-3">
-                                                <h6><span>13 May</span> <i class="material-icons md-trending_flat text-brand ml-15 d-inline-block"></i></h6>
-                                            </div>
-                                            <div class="media-body">
-                                                <div>
-                                                    Accusamus voluptatibus voluptas.
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </li>
-                                    <li class="event-list">
-                                        <div class="event-timeline-dot">
-                                            <i class="material-icons md-play_circle_outline font-xxl"></i>
-                                        </div>
-                                        <div class="media">
-                                            <div class="me-3">
-                                                <h6><span>05 April</span> <i class="material-icons md-trending_flat text-brand ml-15 d-inline-block"></i></h6>
-                                            </div>
-                                            <div class="media-body">
-                                                <div>
-                                                    At vero eos et accusamus et iusto odio dignissi
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </li>
-                                    <li class="event-list">
-                                        <div class="event-timeline-dot">
-                                            <i class="material-icons md-play_circle_outline font-xxl"></i>
-                                        </div>
-                                        <div class="media">
-                                            <div class="me-3">
-                                                <h6><span>26 Mar</span> <i class="material-icons md-trending_flat text-brand ml-15 d-inline-block"></i></h6>
-                                            </div>
-                                            <div class="media-body">
-                                                <div>
-                                                    Responded to need “Volunteer Activities
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </li>
-                                </ul>
-                            </article>
-                        </div>
-                    </div>
-                </div>
-            {% endcomment %}
+             
             </div>
             <div class="col-xl-4 col-lg-12">
-                {% comment %} <div class="card mb-4">
-                    <article class="card-body">
-                        <h5 class="card-title">Revenue Base on Area</h5>
-                        <canvas id="myChart2" height="217"></canvas>
-                    </article>
-                </div> {% endcomment %}
-                {% comment %} <div class="card mb-4">
-                    <article class="card-body">
-                        <h5 class="card-title">Marketing Chanel</h5>
-                        <span class="text-muted font-xs">Facebook</span>
-                        <div class="progress mb-3">
-                            <div class="progress-bar" role="progressbar" style="width: 15%">15%</div>
-                        </div>
-                        <span class="text-muted font-xs">Instagram</span>
-                        <div class="progress mb-3">
-                            <div class="progress-bar" role="progressbar" style="width: 65%">65% </div>
-                        </div>
-                        <span class="text-muted font-xs">Google</span>
-                        <div class="progress mb-3">
-                            <div class="progress-bar" role="progressbar" style="width: 51%"> 51% </div>
-                        </div>
-                        <span class="text-muted font-xs">Twitter</span>
-                        <div class="progress mb-3">
-                            <div class="progress-bar" role="progressbar" style="width: 80%"> 80%</div>
-                        </div>
-                        <span class="text-muted font-xs">Other</span>
-                        <div class="progress mb-3">
-                            <div class="progress-bar" role="progressbar" style="width: 80%"> 80%</div>
-                        </div>
-                    </article>
-                </div> {% endcomment %}
+                
             </div>
         </div> 
     <!--orders and pagination starts-->
@@ -609,25 +485,15 @@ Homeettwe
                 </div> <!-- table-responsive end// -->
             </div>
         </div>
+        <!-- Display paginated orders -->
+       
+
         {% comment %} <script>
             $(document).ready( function() {
                 $('#myTable').DataTable();
             });
         </script> {% endcomment %}
-        {% comment %}
-        <div class="pagination-area mt-30 mb-50">
-            <nav aria-label="Page navigation example">
-                <ul class="pagination justify-content-start">
-                    <li class="page-item active"><a class="page-link" href="#">01</a></li>
-                    <li class="page-item"><a class="page-link" href="#">02</a></li>
-                    <li class="page-item"><a class="page-link" href="#">03</a></li>
-                    <li class="page-item"><a class="page-link dot" href="#">...</a></li>
-                    <li class="page-item"><a class="page-link" href="#">16</a></li>
-                    <li class="page-item"><a class="page-link" href="#"><i class="material-icons md-chevron_right"></i></a></li>
-                </ul>
-            </nav>
-        </div> {% endcomment %}
-    
+   
     
         <!--orders and pagination ends-->
 </section> <!-- content-main end// -->

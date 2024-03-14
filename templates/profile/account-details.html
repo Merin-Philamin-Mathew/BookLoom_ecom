@@ -3,7 +3,7 @@
 {% load static %}
 
 {% block title %}
-Username's profile
+{{user.username|title}}'s profile
 {% endblock %}
 
 {% block content %}
@@ -12,7 +12,6 @@ Username's profile
 </style>
 <body>
     
-{% include "includes/alerts.html" %}
  
 {% include "includes/user_navbar.html" %}
 
@@ -41,7 +40,7 @@ Username's profile
                         {% if profile.first_name %}
                         <div class="dash__pad-2 ">
                             <h1 class="dash__h1 u-s-m-b-14 ">My Profile</h1>
-
+                            {% include "includes/alerts.html" %}
                             <span class="dash__text u-s-m-b-30 my-3">Look all your info, you could customize your profile.</span>
                             <div class="row my-4 mb-3 d-flex justify-content-center align-items-center">
                                 {% comment %} <div class="col-lg-4 u-s-m-b-30 text-center">

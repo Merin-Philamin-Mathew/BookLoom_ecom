@@ -9930,3 +9930,13 @@ button.custom-accordion-button::after {
   display: none;
 }
 
+.custom-btn {
+  background-color: red; /* or any other color you want */
+  color: white;
+  padding: 0.5rem 1rem; /* Adjust padding as needed */
+  border: none; /* Remove any default border */
+  text-decoration: none; /* Remove underline */
+  display: inline-block; /* Ensure it behaves like a block element */
+  cursor: pointer; /* Show pointer cursor on hover */
+  border-radius: 5px; /* Add border radius for rounded corners */
+}

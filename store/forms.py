@@ -50,23 +50,6 @@ class ProductVariantForm(forms.ModelForm):
         fields = '__all__'
         exclude = ['product_variant_slug','product']
 
-# class AddProImgForm(forms.ModelForm):
-    
-#     def __init__(self, *args, **kwargs):
-#         super().__init__(*args, **kwargs)
-   
-#         for field_name, field in self.fields.items():
-#             field.widget.attrs['class'] = 'form-check'
-            
-#         #self.fields['is_active'].widget.attrs['class'] = ''
-#     class Meta:
-#         model = AdditionalProductImages
-#         fields = ('image',)
-
-# class CombinedForm(forms.Form):
-#     product_form = ProductForm()
-#     product_variant_form = ProductVariantForm()
-
 class AuthorForm(forms.ModelForm):
     class Meta:
         model = Author
@@ -90,7 +73,7 @@ class PublicationForm(forms.ModelForm):
            
     class Meta:
         model = Publication
-        fields = ['name',]   
+        fields = ['name','is_active',]   
 
 class LanguageForm(forms.ModelForm):
 
@@ -98,5 +81,5 @@ class LanguageForm(forms.ModelForm):
     
     class Meta:
         model = Language
-        fields = ['name',]   
+        fields = ['name','is_active',]   
  

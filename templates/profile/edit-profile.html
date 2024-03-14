@@ -3,29 +3,14 @@
 {% load static %}
 
 {% block title %}
-Username's profile
+Edit Profile
 {% endblock %}
 
 {% block content %}
-<style>
-    
-    .sidebar .footer {
-        background: GREEN;
-        color: #fff;
-        position:fixed;
-        width:100%;
-        top:200px;
-        left:0;
-        padding top:20px;
-        padding left:20px;
-        height:60px;
-        z-index:100;
-    }
-</style>
 
 <body>
     
-{% include "includes/alerts.html" %}
+
  
 {% include "includes/user_navbar.html" %}
 
@@ -35,9 +20,10 @@ Username's profile
     <div class="page-header breadcrumb-wrap">
         <div class="container">
             <div class="breadcrumb">
-                <a href="index.html" rel="nofollow">Home</a>
+                <a href={% url "user_app:home" %} rel="nofollow">Home</a>
                 <span></span> Pages
-                <span></span> Account
+                <span></span><a href={% url "user_app:account_details" %} rel="nofollow">Account</a>
+                <span></span> Edit Profile
             </div>
         </div>
     </div>
@@ -56,6 +42,7 @@ Username's profile
                             <div class="card-header">
                                 <h5>Account Details</h5>
                             </div>
+                            {% include "includes/alerts.html" %}
                             <div class="card-body">
                                
                                 <form method="post" name="enq">

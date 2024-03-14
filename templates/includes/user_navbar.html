@@ -6,8 +6,7 @@
                 <div class="col-xl-3 col-lg-4">
                     <div class="header-info">
                         <ul>
-                            <li><i class="fi-rs-smartphone"></i> <a href="#">(+01) - 2345 - 6789</a></li>
-                            <li><i class="fi-rs-marker"></i><a  href="page-contact.html">Our location</a></li>
+                            <li><i class="fi-rs-smartphone"></i> <a href="#">(+91) 8281809930</a></li>
                         </ul>
                     </div>
                 </div>
@@ -25,14 +24,6 @@
                 <div class="col-xl-3 col-lg-4">
                     <div class="header-info header-info-right">
                         <ul>
-                            <li>
-                                <a class="language-dropdown-active" href="#"> <i class="fi-rs-world"></i> English <i class="fi-rs-angle-small-down"></i></a>
-                                <ul class="language-dropdown">
-                                    <li><a href="#"><img src="{% static 'assets/imgs/theme/flag-fr.png' %}" alt="">Français</a></li>
-                                    <li><a href="#"><img src="{% static 'assets/imgs/theme/flag-dt.png' %}" alt="">Deutsch</a></li>
-                                    <li><a href="#"><img src="{% static 'assets/imgs/theme/flag-ru.png' %}" alt="">Pусский</a></li>
-                                </ul>
-                            </li>
                             <!--this-->
                             {% if request.user.is_authenticated %}
                             <li><i class="fi-rs-user"></i><a href="{% url 'user_app:login' %}">Hi {{user.username}}</a></li>
@@ -167,7 +158,7 @@
                         <div class="header-action-2">
                             
                             <div class="header-action-icon-2 ">
-                                <a  href="{% url "user_app:my_account_manager" %}">
+                                <a  href="{% url "user_app:account_details" %}">
                                     <img alt="Evara" src="{% static 'assets/imgs/theme/icons/user2.png' %}">
                                 </a>
                                 <div class="cart-dropdown-wrap cart-dropdown-hm2">

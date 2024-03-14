@@ -9,30 +9,30 @@ signup
 {% block content %}
 <style>
     /* Override inherited styles for btn-outline-dark */
-.btn.btn-outline-dark {
-    /* Your custom styles here */
-    background-color: transparent;
-    color: #343a40; /* Your desired text color */
-    border-color: #343a40; /* Your desired border color */
-}
+    .btn.btn-outline-dark {
+        /* Your custom styles here */
+        background-color: transparent;
+        color: #343a40; /* Your desired text color */
+        border-color: #343a40; /* Your desired border color */
+    }
 
-/* Override eye icon style */
-.bi.bi-eye {
-    /* Your custom styles here */
-    font-size: 1rem; /* Adjust the size as needed */
-    vertical-align: middle; /* Align vertically with text */
-}
-/* Override styles on hover for btn-outline-dark */
-.btn.btn-outline-dark:hover {
-    background-color: black; /* Your desired background color on hover */
-    color: white; /* Your desired text color on hover */
-}
+    /* Override eye icon style */
+    .bi.bi-eye {
+        /* Your custom styles here */
+        font-size: 1rem; /* Adjust the size as needed */
+        vertical-align: middle; /* Align vertically with text */
+    }
+    /* Override styles on hover for btn-outline-dark */
+    .btn.btn-outline-dark:hover {
+        background-color: black; /* Your desired background color on hover */
+        color: white; /* Your desired text color on hover */
+    }
 
-/* Override styles on hover for eye icon */
-.bi.bi-eye:hover {
-    /* Your custom styles here for the eye icon on hover */
-    color: white; /* Your desired text color on hover */
-}
+    /* Override styles on hover for eye icon */
+    .bi.bi-eye:hover {
+        /* Your custom styles here for the eye icon on hover */
+        color: white; /* Your desired text color on hover */
+    }
 </style>
 
 {% include "includes/user_navbar.html" %}
@@ -50,47 +50,17 @@ signup
                                 <span class="zoom-icon"><i class="fi-rs-search"></i></span>
                                 <!-- MAIN SLIDES -->
                                 <div class="product-image-slider">
-                                    <figure class="border-radius-10">
-                                        <img src="{% static 'assets/imgs/shop/product-16-2.jpg' %}" alt="product image">
-                                    </figure>
-                                    <figure class="border-radius-10">
-                                        <img src="{% static 'assets/imgs/shop/product-16-1.jpg' %}" alt="product image">
-                                    </figure>
-                                    <figure class="border-radius-10">
-                                        <img src="{% static 'assets/imgs/shop/product-16-3.jpg' %}" alt="product image">
-                                    </figure>
-                                    <figure class="border-radius-10">
-                                        <img src="{% static 'assets/imgs/shop/product-16-4.jpg' %}" alt="product image">
-                                    </figure>
-                                    <figure class="border-radius-10">
-                                        <img src="{% static 'assets/imgs/shop/product-16-5.jpg' %}" alt="product image">
-                                    </figure>
-                                    <figure class="border-radius-10">
-                                        <img src="{% static 'assets/imgs/shop/product-16-6.jpg' %}" alt="product image">
-                                    </figure>
-                                    <figure class="border-radius-10">
-                                        <img src="{% static 'assets/imgs/shop/product-16-7.jpg' %}" alt="product image">
-                                    </figure>
+                                   
                                 </div>
                                 <!-- THUMBNAILS -->
                                 <div class="slider-nav-thumbnails pl-15 pr-15">
-                                    <div><img src="{% static 'assets/imgs/shop/thumbnail-3.jpg' %}" alt="product image"></div>
-                                    <div><img src="{% static 'assets/imgs/shop/thumbnail-4.jpg' %}" alt="product image"></div>
-                                    <div><img src="{% static 'assets/imgs/shop/thumbnail-5.jpg' %}" alt="product image"></div>
-                                    <div><img src="{% static 'assets/imgs/shop/thumbnail-6.jpg' %}" alt="product image"></div>
-                                    <div><img src="{% static 'assets/imgs/shop/thumbnail-7.jpg' %}" alt="product image"></div>
-                                    <div><img src="{% static 'assets/imgs/shop/thumbnail-8.jpg' %}" alt="product image"></div>
-                                    <div><img src="{% static 'assets/imgs/shop/thumbnail-9.jpg' %}" alt="product image"></div>
+                                   <div><img src="{% static 'assets/imgs/shop/thumbnail-9.jpg' %}" alt="product image"></div>
                                 </div>
                             </div>
                             <!-- End Gallery -->
                             <div class="social-icons single-share">
                                 <ul class="text-grey-5 d-inline-block">
-                                    <li><strong class="mr-10">Share this:</strong></li>
-                                    <li class="social-facebook"><a href="#"><img src="{% static 'assets/imgs/theme/icons/icon-facebook.svg' %}" alt=""></a></li>
-                                    <li class="social-twitter"> <a href="#"><img src="{% static 'assets/imgs/theme/icons/icon-twitter.svg' %}" alt=""></a></li>
-                                    <li class="social-instagram"><a href="#"><img src="{% static 'assets/imgs/theme/icons/icon-instagram.svg' %}" alt=""></a></li>
-                                    <li class="social-linkedin"><a href="#"><img src="{% static 'assets/imgs/theme/icons/icon-pinterest.svg' %}" alt=""></a></li>
+                                   <li class="social-linkedin"><a href="#"><img src="{% static 'assets/imgs/theme/icons/icon-pinterest.svg' %}" alt=""></a></li>
                                 </ul>
                             </div>
                         </div>
@@ -352,7 +322,7 @@ signup
                 <div class="breadcrumb">
                     <a href="index.html" rel="nofollow">Home</a>
                     <span></span> Fashion
-                    <span class="cart-items-count"></span> {{ request.session.cart_data_obj|length}}
+                    <span class="cart-items-count"></span>
                 </div>
             </div>
         </div>
@@ -518,8 +488,9 @@ signup
                                                 
                                                     
                                                     {% else %}
-                                                    <p id="add-to-cart-btn" class="button button-add-to-cart" >Add to cart</p>
-                                                    <a aria-label="Add To Wishlist" class="action-btn hover-up" href="shop-wishlist.html"><i class="fi-rs-heart"></i></a>
+                                                    <a href="{% url 'cart_app:add_cart' single_product.id %}" class="button button-add-to-cart" style="position: relative; display: inline-block; background-color: #088178; color: white; padding: 0.5rem 1rem; border: none; text-decoration: none; border-radius: 5px;">
+                                                        <strong style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);">Add</strong>
+                                                    </a>                                                    
                                                     <a aria-label="Compare" class="action-btn hover-up" href="shop-compare.html"><i class="fi-rs-shuffle"></i></a>
                                                     {% endif %}
                                                 {% endif %}
@@ -544,12 +515,12 @@ signup
                                     <li class="nav-item">
                                         <a class="nav-link active" id="Description-tab" data-bs-toggle="tab" href="#Description">Description</a>
                                     </li>
-                                    <li class="nav-item">
+                                    {% comment %} <li class="nav-item">
                                         <a class="nav-link" id="Additional-info-tab" data-bs-toggle="tab" href="#Additional-info">Additional info</a>
                                     </li>
                                     <li class="nav-item">
                                         <a class="nav-link" id="Reviews-tab" data-bs-toggle="tab" href="#Reviews">Reviews (3)</a>
-                                    </li>
+                                    </li> {% endcomment %}
                                 </ul>
                                 <div class="tab-content shop_info_tab entry-main-content">
                                     <div class="tab-pane fade show active" id="Description">

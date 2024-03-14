@@ -3,23 +3,13 @@
 {% load static %}
 
 {% block title %}
-Username's profile
+{{user.username|title}}'s Wallet
 {% endblock %}
 
 {% block content %}
-<style>
-    .modal-custom{
-        position: fixed;
-        top: 120px;
-        right: 0;
-        bottom: 0;
-        left: 0;
-    }
-   </style>
 
 <body>
-    
-{% include "includes/alerts.html" %}
+   
  
 {% include "includes/user_navbar.html" %}
 
@@ -29,9 +19,9 @@ Username's profile
     <div class="page-header breadcrumb-wrap">
         <div class="container">
             <div class="breadcrumb">
-                <a href="index.html" rel="nofollow">Home</a>
+                <a href={% url "user_app:home" %} rel="nofollow">Home</a>
                 <span></span> Pages
-                <span></span> Account
+                <span></span><a href={% url "user_app:account_details" %} rel="nofollow">Account</a>
                 <span></span> My Wallet
             </div>
         </div>
@@ -226,6 +216,7 @@ Username's profile
             const paymentAmount = result.value.amount;
             const razorpayKeyId = result.value.RAZOR_PAY_KEY_ID;
             const userId = '{{user.user_id}}'
+            const url = window.location.origin
             console.log(userId);
             console.log(paymentOrderId, paymentAmount, razorpayKeyId, 'got it');
             var options = {
@@ -235,8 +226,7 @@ Username's profile
                 "name": "Book Loom",
                 "description": "Test Transaction",
                 "order_id": paymentOrderId,
-                
-                "callback_url": `http://127.0.0.1:8000/paymenthandler2/?amount=${paymentAmount}&user_id=${userId}`,
+                "callback_url": `${url}/paymenthandler2/?amount=${paymentAmount}&user_id=${userId}`,
                 "prefill": {
                     "name": "{{ request.user.username }}",
                     "email": "{{ request.user.email }}",

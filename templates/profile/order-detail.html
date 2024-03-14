@@ -1,42 +1,53 @@
 
-
-
 {% extends "user_base.html" %}
 {% load static %}
 
 {% block title %}
-{{user}}'s cart
+Order Detail
 {% endblock %}
 
 {% block content %}
+   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>
+
 <body>
     
+{% include "includes/alerts.html" %}
  
 {% include "includes/user_navbar.html" %}
 
-    <!--=========Main start==========-->
-    <main class="main">  
-    <!--===================--> 
-
-        <!--================== checkout =====================-->
-        
-            <div class="page-header breadcrumb-wrap">
-                <div class="container">
-                    <div class="breadcrumb">
-                        <a href="index.html" rel="nofollow">Home</a>
-                        <span></span> Shop
-                        <span></span> Shipping Address
-                        <span></span> Payment                        
-                        <span></span> Order Success
-                    </div>
-                </div>
+<!--=========Main start==========-->
+<main class="main">  
+<!--===================--> 
+    <div class="page-header breadcrumb-wrap">
+        <div class="container">
+            <div class="breadcrumb">
+                <a href={% url "user_app:home" %} rel="nofollow">Home</a>
+                <span></span> Pages
+                <span></span><a href={% url "user_app:account_details" %} rel="nofollow">Account</a>
+                <span></span> My Orders
             </div>
-            <section class="mt-50 mb-50 ">
-                <div class="container">
+        </div>
+    </div>
+    <section class="pt-70 pb-100">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-12 m-auto">
                     <div class="row">
-                        <h3 class="text-center mb-50 "  style="color: #088178;">Order placed, thank you!</h3>
-                        {% include "includes/alerts.html" %}
-                        <div class="row  d-flex justify-content-between">
+                        <div class="col-md-2">
+                            {% include "profile/profile-menu.html" %}
+                        </div>
+                        <div class="col-md-10">
+                    <!--============= Order ============-->
+                   
+                        <div class="card">
+                            <div class="card-header">
+                                <h5>Order Detail</h5>
+                            </div>
+                            <div class="card-body">
+                            <!--============= Listing Orders ============-->
+                            
+                            <div class="row">
+                                <div class="row  d-flex justify-content-between">
                                     <a class="text-center" href="{% url 'order_app:download_invoice' order.order_number %}">
                                         <span class="me-2">Download Invoice</span>
                                         <i class="fi-rs-download "></i>
@@ -157,19 +168,18 @@
                                                         {% endfor %}
                                                         <!--Cart-Subtotal, Tax, Total-->
                                                         <tr>
-                                                            <td class="cart_total_label">Subtotal</td>
-                                                            <td colspan="3" class="cart_total_amount"><span class="font-lg fw-900 text-brand">Rs.{{total}}</span></td>
-                                                        </tr>
-                                                        <tr>
-                                                            <td class="cart_total_label">Tax</td>
-                                                            <td colspan="3" class="cart_total_amount"> <i class="ti-gift mr-5"></i>{{tax}}</td>
+                                                            <td colspan="">Net Amount inc product discount: RS.</td>
+                                                            <td>:</td>
+                                                            <td colspan="3" class="cart_total_amount">RS.{{subtotal}}</td>
                                                         </tr>
                                                         <tr>
                                                             <td class="cart_total_label">Discount</td>
+                                                            <td>:</td>
                                                             <td colspan="3" class="cart_total_amount text-danger" > <i class="ti-gift mr-5"></i><strong>₹{{discount}}</strong></td>
                                                         </tr>
                                                         <tr>
                                                             <td class="cart_total_label">Total Including tax</td>
+                                                            <td>:</td>
                                                             <td colspan="3" class="cart_total_amount"><strong><span class="font-xl fw-900 text-brand">Rs.{{order.order_total}}</span></strong></td>
                                                         </tr>
                                                         <!--Cart-Subtotal, Tax, Total-->
@@ -181,49 +191,35 @@
                                         <!-- Review Orders -->
                                     </div>
                                     
-                        <!--cart total-->
-                        <div class="d-flex justify-content-center align-items-center mt-4">
-                            <a class="btn btn-primary mx-2 d-flex align-items-center" href="{% url 'store_app:view_store' %}">
-                                <span class="me-2">Continue Shopping</span>
-                                <i class="fi-rs-shopping-bag "></i>
-                                
-                            </a>
-                            <a class="btn btn-primary mx-2 d-flex align-items-center px-5" href="{% url 'user_app:my_orders' %}">
-                                <span class="me-2">View Orders</span>
-                                <i class="fi-rs-eye mt-1"></i>
-                            </a>
-                        </div>
+                            <!--cart total-->
+                                <div class="d-flex justify-content-center align-items-center mt-4">
+                                    <a class="btn btn-primary mx-2 d-flex align-items-center" href="{% url 'user_app:my_orders' %}">
+                                        <span class="me-2">Go back</span>
+                                        <i class="fi-rs-shopping-bag "></i>
+                                        
+                                    </a>
+                                </div>
                         
-                        </div> 
+                                </div> 
+                            </div>   
+                            <!--============= Listing Orders ============-->
+                          
+                            </div>
+                        </div>
+                 
+                    <!--============= Order ============-->
+                        </div>
                     </div>
                 </div>
-            </section>
-            
-        <!--================== checkout =====================-->
-                    
+        </div>
+    </section>
 
-    <!--========= Main end ==========-->
-    </main>
-    <!--===================--> 
+
+<!--=========Main end==========-->
+</main>
+<!--===================--> 
 
 {% include "includes/user_footer.html" %}
-<!--========= Preloader Start ==========-->
-{% comment %}     <div id="preloader-active">
-        <div class="preloader d-flex align-items-center justify-content-center">
-            <div class="preloader-inner position-relative">
-                <div class="text-center">
-                    <h5 class="mb-10">Now Loading</h5>
-                    <div class="loader">
-                        <div class="bar bar1"></div>
-                        <div class="bar bar2"></div>
-                        <div class="bar bar3"></div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div> {% endcomment %}
-<!--========= Preloader end ==========-->
-
 <!--========= Vendor JS==========-->
 <script src="{% static 'assets/js/vendor/modernizr-3.6.0.min.js' %}"></script>
 <script src="{% static 'assets/js/vendor/jquery-3.6.0.min.js' %}"></script>
@@ -251,7 +247,11 @@
     <script src="{% static 'assets/js/main.js' %}"></script>
     <script src="{% static 'assets/js/shop.js' %}"></script>
 <!--===================-->
+
+
+
    
 </body>
 
+            </div>
 {% endblock content %}

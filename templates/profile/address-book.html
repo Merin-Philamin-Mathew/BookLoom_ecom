@@ -3,23 +3,13 @@
 {% load static %}
 
 {% block title %}
-Username's profile
+{{user.username|title}}'s AddressBook
 {% endblock %}
 
 {% block content %}
-<style>
-    .modal-custom{
-        position: fixed;
-        top: 120px;
-        right: 0;
-        bottom: 0;
-        left: 0;
-    }
-   </style>
 
 <body>
     
-{% include "includes/alerts.html" %}
  
 {% include "includes/user_navbar.html" %}
 
@@ -29,9 +19,10 @@ Username's profile
     <div class="page-header breadcrumb-wrap">
         <div class="container">
             <div class="breadcrumb">
-                <a href="index.html" rel="nofollow">Home</a>
+                <a href={% url "user_app:home" %} rel="nofollow">Home</a>
                 <span></span> Pages
-                <span></span> Account
+                <span></span><a href={% url "user_app:account_details" %} rel="nofollow">Account</a>
+                <span></span> AddressBook
             </div>
         </div>
     </div>
@@ -50,11 +41,13 @@ Username's profile
                             <div class="card-header">
                                 <h5>AddressBook</h5>
                             </div>
+                            {% include "includes/alerts.html" %}
+
                             <div class="card-body">
                             {% if addresses %}
                             <!--============= Listing Address ============-->
                             <div class="card-header d-flex justify-content-between align-items-center">
-                                <h6 class="mb-0 ml-4">Addresses</h6>
+                                <h6 class="mb-0 ">Addresses</h6>
                                 <a class="dash__custom-link btn" href="{% url 'user_app:add_address' %}">Add Address</a>
                             </div>
                             
