@@ -187,8 +187,8 @@ def place_order(request, address_id, total=0, quantity=0):
     data.tax = tax
     data.ip = request.META.get('REMOTE_ADDR')
 
-    razor_pay_key_id = 'rzp_test_fGwLaAdAhjOjbm'  # Use your Razorpay test key
-    key_secret = '7qO0FhI7y3SZGPpikcUEvVf1'  # Use your Razorpay test secret key
+    razor_pay_key_id = 'rzp_test_fGwLaAdAhjOjbm'  
+    key_secret = '7qO0FhI7y3SZGPpikcUEvVf1'  
 
 
     client = razorpay.Client(auth=(razor_pay_key_id, key_secret))
@@ -244,8 +244,8 @@ def place_order(request, address_id, total=0, quantity=0):
         current_date = d.strftime("%Y%m%d")
         order_number = current_date + str(data.id)
         data.order_number = order_number
+        print('==================================')
         data.save()
-
         order = Order.objects.get(user=current_user, is_ordered=False, order_number=order_number)
         order.order_total = round(order.order_total,2)
 
@@ -258,11 +258,8 @@ def place_order(request, address_id, total=0, quantity=0):
             'payment': payment,
             'discount':discount,
             'wallet':wallet
-
         }
-
         return render(request, 'user_template/cart-order-payment/payment.html', context)
-
     else:
         return redirect('cart_app:delivery_address')
 

@@ -131,10 +131,11 @@ def user_signup(request):
             request.session['otp']=str(otp)
             expiration_time = timezone.now() + timedelta(minutes=1)
             request.session['otp_expiry_time'] = expiration_time.isoformat()  # Expires after 1 minute
+            print('email going to sent')
             send_mail(
                 'BookLoom OTP Verification',
                 'Your OTP is '+str(otp),
-                'merinphilaminmathew19@gmail.com',
+                'hosthunt000@gmail.com',
                 [email],
                 fail_silently=False,
             )

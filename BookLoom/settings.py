@@ -42,7 +42,6 @@ INSTALLED_APPS = [
 
     'phonenumber_field',
     'babel',
-    'django_countries',
     #'django_countries', #uncomment if error
 
     #custom apps
@@ -95,23 +94,16 @@ WSGI_APPLICATION = 'BookLoom.wsgi.application'
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
 
 #this is an adapter which translates the orm query to connected_database(psql, dbsqlite, mongodb...) 
-""" DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
-    }
 
-
-} """
 
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': config('NAME'),
-        'USER': config('USER'),
-        'PASSWORD': config('PASSWORD'),
-        'HOST': 'localhost',
-        'PORT': '',
+        'NAME': config('DB_NAME'),
+        'USER': config('DB_USER'),
+        'PASSWORD': config('DB_PASSWORD'),
+        'HOST': config('DB_HOST'),
+        'PORT': config('DB_PORT'),
     }
 }
 
@@ -180,13 +172,14 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 #mer configuring the new usermodel
 AUTH_USER_MODEL = 'adminapp.NewUser'
 
-RAZOR_PAY_KEY_ID = config('RAZOR_PAY_KEY_ID')
+RAZOR_PAY_KEY_ID = config('RAZORPAY_KEY_ID')
+KEY_SECRET =  config('RAZORPAY_KEY_SECRET') 
 
-KEY_SECRET =  config('KEY_SECRET') 
 EMAIL_BACKEND =  config('EMAIL_BACKEND') 
 EMAIL_HOST =  config('EMAIL_HOST') 
 EMAIL_USE_TLS =  config('EMAIL_USE_TLS') 
 EMAIL_PORT =  config('EMAIL_PORT') 
 EMAIL_HOST_USER =  config('EMAIL_HOST_USER') 
-
 EMAIL_HOST_PASSWORD =  config('EMAIL_HOST_PASSWORD') 
+
+
